@@ -30,7 +30,7 @@ See the whole product run live on the board emulator (synthetic EMG; a plumbing 
 With the real board, drop `--fake` (`utter scope` is also the live view for electrode checks).
 
 
-## Silent typing with Claude Code
+## Utter with Claude Code
 Two hooks connect Claude Code to the Utter app. They are already on in this repo (`.claude/settings.json`).
 - When the agent finishes, the earbud reads the first sentence of its reply plus the top suggestion, and predictions use the reply as context. In the benchmark this cuts gestures per word by 39%.
 - When the agent asks permission, say **ya** to allow (Return) or **sha** to deny (Escape). The menu bar shows `allow? ya / sha`.

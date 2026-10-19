@@ -5,7 +5,7 @@ Stop          sends the agent's last reply: the earbud reads its first sentence,
               language model predicts your answer from it.
 Notification  sends permission prompts: say "ya" to allow (Return) or "sha" to deny (Escape).
 
-Install: see docs/USAGE.md ("Silent typing with Claude Code")."""
+Install: see docs/USAGE.md ("Utter with Claude Code")."""
 import json
 import socket
 import sys

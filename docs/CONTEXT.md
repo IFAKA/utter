@@ -1,5 +1,5 @@
 # Handoff for a new chat
-Goal: covert "silent typing" input method (no keyboard, no voice). Lips closed, internal articulation; sEMG on chin/throat/behind ear.
+Goal: Utter, a covert silent-speech input method (no keyboard, no voice). Lips closed, internal articulation; sEMG on chin/throat/behind ear.
 Software: ~8 silent tokens + local LLM next-word suggestions + earbud voice; Mac app first.
 User priority: prove it works before optimizing; speed is secondary. Follow gates in PLAN.md.
 

@@ -10,7 +10,7 @@ Key facts (sources in docs/SOURCES.md):
 0.5. Signal check before buying the board (research pass 2026-10-19, see below). Gate: user decides between (a) order Utter, (b) EUR ~130 Cyton clone pilot first, using the lips-closed vs mouthed comparison.
 1. Hardware (~EUR 225-255): own Utter board, 2x ADS1298 = 16 ch + ESP32-S3, battery only, JLC-assembled (docs/HARDWARE.md, order card docs/ORDER.md). Gate: shorted-input noise ~<1 uV; clear jaw-clench signal.
 2. Record ~16 candidate tokens + rest class, ~100 reps each; keep 8 least confusable. Gate: >80% with lips closed. Fail -> more articulation, then wristband fallback (Meta, Nature 2025).
-3. Connect neckband to app: real silent typing in any app.
+3. Connect neckband to app: type in any app by mouthing words.
 4. Hide: move electrodes toward ear, 3-minute calibration. Gate: still >80%.
 5. Improve: more tokens, speed, Android.
 
