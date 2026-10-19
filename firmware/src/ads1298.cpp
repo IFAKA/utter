@@ -1,5 +1,6 @@
 #include "ads1298.h"
 #include "pins.h"
+#include <driver/gpio.h>
 
 namespace ads {
 static SPIClass spi(FSPI);
@@ -62,12 +63,15 @@ void begin() {
   pinMode(PIN_DRDY1, INPUT_PULLUP);
   pinMode(PIN_DRDY2, INPUT_PULLUP);
   spi.begin(PIN_SCLK, PIN_MISO, PIN_MOSI, -1);
+  // weakest drive = slowest edges: SPI/control lines partly run on B.Cu over the analog half
+  for (int p : {PIN_SCLK, PIN_MOSI, PIN_CS1, PIN_CS2, PIN_START, PIN_RESET, PIN_PWDN})
+    gpio_set_drive_capability((gpio_num_t)p, GPIO_DRIVE_CAP_0);
   delay(200);                                   // power-on reset: 2^18 tCLK = 128 ms
   digitalWrite(PIN_RESET, LOW); delayMicroseconds(10); digitalWrite(PIN_RESET, HIGH);
   delayMicroseconds(20);                        // 18 tCLK
   op(0, SDATAC);
   writeReg(0, CONFIG1, 0xE4);                   // master: CLK_EN so the slave gets a clock
-  delay(2);
+  delay(150);                                   // slave tPOR (128 ms) starts only once CLK is valid
   op(1, RESET);                                 // the slave now has a clock: reset it properly
   delayMicroseconds(20);
   op(1, SDATAC);

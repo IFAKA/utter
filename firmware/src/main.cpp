@@ -32,6 +32,7 @@ static uint8_t imuAddr = 0;
 static uint32_t lostLocal = 0;
 
 static bool vbus() { return digitalRead(PIN_VBUS) == HIGH; }
+static constexpr float VBAT_MIN = 3.55f;
 static float vbat() { return analogReadMilliVolts(PIN_VBAT) * 2 / 1000.0f; }
 
 static void IRAM_ATTR onDrdy() {
@@ -148,6 +149,7 @@ static String handle(const String& line, bool fromSerial, IPAddress from) {
       bool lo = in["leadoff"] | true;
       ads::Mode mode = m == "test" ? ads::TEST : m == "shorted" ? ads::SHORTED : ads::NORMAL;
       if (vbus()) { out["ok"] = false; out["err"] = "vbus"; }
+      else if (vbat() < VBAT_MIN) { out["ok"] = false; out["err"] = "low battery"; }
       else {
         stopAcq();
         if (!ads::configure(fs, gain, mode, lo)) { out["ok"] = false; out["err"] = "bad fs/gain"; }
@@ -208,6 +210,8 @@ void loop() {
   static uint32_t lastBlink = 0;
 
   if (streaming && vbus()) stopAcq();  // safety: never record while tethered to a mains device
+  static uint32_t lastVbat = 0;  // AP2112 dropout: below ~3.55 V Wi-Fi bursts brown out the ESP32
+  if (streaming && millis() - lastVbat > 1000) { lastVbat = millis(); if (vbat() < VBAT_MIN - 0.05f) stopAcq(); }
 
   while (Serial.available()) {
     char ch = Serial.read();

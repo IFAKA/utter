@@ -9,7 +9,7 @@ User priority: prove it works before optimizing; speed is secondary. Follow gate
 - User wants: DIY, in Spain, cheapest that keeps/improves quality, design from requirements, user's manual part <=6 steps with a guided UI.
 
 ## Next step
-1. Fable reviews the schematic and PCB using the checklist in docs/ORDER.md. Fix findings, then rerun build.sh.
+1. Done 2026-10-19: Fable review, no blockers, fixes applied (ORDER.md "Fable review").
 2. User approves and places the order (ORDER.md) and buys the Amazon.es items.
 3. After delivery: USAGE.md steps 2-6, then the Stage 1 gate.
 

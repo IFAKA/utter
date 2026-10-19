@@ -8,6 +8,7 @@ from __future__ import annotations
 import json
 import math
 import os
+import re
 import subprocess
 import sys
 
@@ -175,6 +176,23 @@ AVDD_POLY = [(0.3, 0.3), (NX - G, 0.3), (NX - G, NOTCH[0][2] + G), (SPLIT - G, N
 V33_POLY = [(NX + G, 0.3), (W - 0.3, 0.3), (W - 0.3, H - 0.3), (SPLIT + G, H - 0.3), (SPLIT + G, NOTCH[1][2] - G),
             (NX + G, NOTCH[1][2] - G), (NX + G, NOTCH[1][1] + G), (SPLIT + G, NOTCH[1][1] + G),
             (SPLIT + G, NOTCH[0][2] - G), (NX + G, NOTCH[0][2] - G)]
+
+
+# Fast clock edges stay on F.Cu over the solid In1 GND plane: B.Cu references the split In2
+# (AVDD/+3V3), so a clock there loses its return path at the split and runs under REF.
+CLOCKS = ("CLK_M", "CLK_S", "SCLK")
+
+
+def f_cu_only(dsn, nets):
+    s = open(dsn).read()
+    m = re.search(r"\(class kicad_default (.*?)\(circuit", s, re.S)
+    assert m and all(n in m.group(1).split() for n in nets), "clock nets not in kicad_default"
+    rest = " ".join(n for n in m.group(1).split() if n not in nets)
+    s = s[:m.start(1)] + rest + "\n      " + s[m.end(1):]
+    cls = (f"    (class clocks {' '.join(nets)}\n      (circuit\n        (use_layer F.Cu)\n      )\n"
+           "      (rule\n        (width 150)\n        (clearance 130)\n      )\n    )\n")
+    i = s.index("    (class kicad_default")
+    open(dsn, "w").write(s[:i] + cls + s[i:])
 
 
 def in_poly(x, y, poly):
@@ -501,6 +519,7 @@ def build(route=True):
     if route:
         dsn, ses = PCB.replace(".kicad_pcb", ".dsn"), PCB.replace(".kicad_pcb", ".ses")
         pcbnew.ExportSpecctraDSN(b, dsn)
+        f_cu_only(dsn, CLOCKS)
         subprocess.run(["java", "-jar", FREEROUTING, "-de", dsn, "-do", ses, "-mp", "100", "-host", "KiCad"],
                        check=True, stdout=subprocess.DEVNULL if "-q" in sys.argv else None)
         pcbnew.ImportSpecctraSES(b, ses)

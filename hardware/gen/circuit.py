@@ -50,7 +50,7 @@ C0603 = "Capacitor_SMD:C_0603_1608Metric"
 LCSC_R = {"10k": "C25744", "100k": "C25741", "1M": "C26083", "4.7k": "C25900", "5.1k": "C25905",
           "1k": "C11702", "33": "C25105"}
 LCSC_C = {"100n": ("C1525", C0402), "470p C0G": ("C75274", C0402), "2.2n": ("C1604", C0603),
-          "1u": ("C15849", C0603), "10u": ("C19702", C0603), "22u": ("C59461", C0603)}
+          "1u": ("C15849", C0603), "10u": ("C19702", C0603)}
 
 parts: list[Part] = []
 _n: dict[str, int] = {}
@@ -118,7 +118,9 @@ def build() -> list[Part]:
         add("U", "Analog_ADC:ADS1298xPAG", "Package_QFP:TQFP-64_10x10mm_P0.5mm", "ADS1298IPAGR", "C527440", pads, g)
         C("10u", f"VREFP{chip}", "GND", g)
         C("100n", f"VREFP{chip}", "GND", g)
-        C("22u", f"VCAP1_{chip}", "GND", g)
+        # VCAP1: tantalum, not X5R: the board is worn on the jaw and class-2 ceramics are microphonic (datasheet 11)
+        add("C", "Device:C_Polarized_Small", "Capacitor_Tantalum_SMD:CP_EIA-3216-18_Kemet-A", "22u", "C7183",
+            {1: f"VCAP1_{chip}", 2: "GND"}, g)
         for v in ("VCAP2", "VCAP3", "VCAP4"):
             C("1u", f"{v}_{chip}", "GND", g)
         C("1u", "AVDD", "GND", g)

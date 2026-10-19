@@ -1,7 +1,7 @@
 {
     "$schema": "https://schemas.kicad.org/erc.v1.json",
     "coordinate_units": "mm",
-    "date": "2026-10-19T18:05:42",
+    "date": "2026-10-19T18:49:48",
     "ignored_checks": [
         {
             "description": "Global label only appears once in the schematic",
@@ -44,7 +44,7 @@
                         {
                             "description": "Symbol U2 Pin 43 [DOUT, Output, Line]",
                             "pos": {
-                                "x": 335.28,
+                                "x": 340.36,
                                 "y": 142.24
                             },
                             "uuid": "0b4d183d-6d37-51be-ab6d-66a2588526ad"
@@ -672,10 +672,10 @@
                     "type": "lib_symbol_issues"
                 },
                 {
-                    "description": "The current configuration does not include the footprint library 'Capacitor_SMD'",
+                    "description": "The current configuration does not include the footprint library 'Capacitor_Tantalum_SMD'",
                     "items": [
                         {
-                            "description": "Symbol C20 [C_Small]",
+                            "description": "Symbol C20 [C_Polarized_Small]",
                             "pos": {
                                 "x": 116.84,
                                 "y": 93.98
@@ -690,7 +690,7 @@
                     "description": "The current configuration does not include the symbol library 'Device'",
                     "items": [
                         {
-                            "description": "Symbol C20 [C_Small]",
+                            "description": "Symbol C20 [C_Polarized_Small]",
                             "pos": {
                                 "x": 116.84,
                                 "y": 93.98
@@ -777,36 +777,6 @@
                     "type": "lib_symbol_issues"
                 },
                 {
-                    "description": "The current configuration does not include the footprint library 'Capacitor_SMD'",
-                    "items": [
-                        {
-                            "description": "Symbol C21 [C_Small]",
-                            "pos": {
-                                "x": 137.16,
-                                "y": 93.98
-                            },
-                            "uuid": "581f9373-15d1-5946-89c8-14556b365812"
-                        }
-                    ],
-                    "severity": "warning",
-                    "type": "footprint_link_issues"
-                },
-                {
-                    "description": "The current configuration does not include the symbol library 'Device'",
-                    "items": [
-                        {
-                            "description": "Symbol C21 [C_Small]",
-                            "pos": {
-                                "x": 137.16,
-                                "y": 93.98
-                            },
-                            "uuid": "581f9373-15d1-5946-89c8-14556b365812"
-                        }
-                    ],
-                    "severity": "warning",
-                    "type": "lib_symbol_issues"
-                },
-                {
                     "description": "The current configuration does not include the footprint library 'Resistor_SMD'",
                     "items": [
                         {
@@ -831,6 +801,36 @@
                                 "y": 226.06
                             },
                             "uuid": "870c211b-546b-5ea4-be53-c0f5524164f1"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "lib_symbol_issues"
+                },
+                {
+                    "description": "The current configuration does not include the footprint library 'Capacitor_SMD'",
+                    "items": [
+                        {
+                            "description": "Symbol C21 [C_Small]",
+                            "pos": {
+                                "x": 139.7,
+                                "y": 93.98
+                            },
+                            "uuid": "581f9373-15d1-5946-89c8-14556b365812"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "footprint_link_issues"
+                },
+                {
+                    "description": "The current configuration does not include the symbol library 'Device'",
+                    "items": [
+                        {
+                            "description": "Symbol C21 [C_Small]",
+                            "pos": {
+                                "x": 139.7,
+                                "y": 93.98
+                            },
+                            "uuid": "581f9373-15d1-5946-89c8-14556b365812"
                         }
                     ],
                     "severity": "warning",
@@ -900,12 +900,12 @@
                     "description": "The current configuration does not include the footprint library 'Capacitor_SMD'",
                     "items": [
                         {
-                            "description": "Symbol C22 [C_Small]",
+                            "description": "Symbol C4 [C_Small]",
                             "pos": {
-                                "x": 157.48,
-                                "y": 93.98
+                                "x": 160.02,
+                                "y": 35.56
                             },
-                            "uuid": "1a51b85a-084a-53df-9558-c081e95fc96a"
+                            "uuid": "b737a587-dd38-5bbb-b731-f13a5e9b1c62"
                         }
                     ],
                     "severity": "warning",
@@ -915,12 +915,12 @@
                     "description": "The current configuration does not include the symbol library 'Device'",
                     "items": [
                         {
-                            "description": "Symbol C22 [C_Small]",
+                            "description": "Symbol C4 [C_Small]",
                             "pos": {
-                                "x": 157.48,
-                                "y": 93.98
+                                "x": 160.02,
+                                "y": 35.56
                             },
-                            "uuid": "1a51b85a-084a-53df-9558-c081e95fc96a"
+                            "uuid": "b737a587-dd38-5bbb-b731-f13a5e9b1c62"
                         }
                     ],
                     "severity": "warning",
@@ -930,12 +930,12 @@
                     "description": "The current configuration does not include the footprint library 'Capacitor_SMD'",
                     "items": [
                         {
-                            "description": "Symbol C4 [C_Small]",
+                            "description": "Symbol C22 [C_Small]",
                             "pos": {
                                 "x": 160.02,
-                                "y": 35.56
+                                "y": 93.98
                             },
-                            "uuid": "b737a587-dd38-5bbb-b731-f13a5e9b1c62"
+                            "uuid": "1a51b85a-084a-53df-9558-c081e95fc96a"
                         }
                     ],
                     "severity": "warning",
@@ -945,12 +945,12 @@
                     "description": "The current configuration does not include the symbol library 'Device'",
                     "items": [
                         {
-                            "description": "Symbol C4 [C_Small]",
+                            "description": "Symbol C22 [C_Small]",
                             "pos": {
                                 "x": 160.02,
-                                "y": 35.56
+                                "y": 93.98
                             },
-                            "uuid": "b737a587-dd38-5bbb-b731-f13a5e9b1c62"
+                            "uuid": "1a51b85a-084a-53df-9558-c081e95fc96a"
                         }
                     ],
                     "severity": "warning",
@@ -1022,7 +1022,7 @@
                         {
                             "description": "Symbol C23 [C_Small]",
                             "pos": {
-                                "x": 177.8,
+                                "x": 180.34,
                                 "y": 93.98
                             },
                             "uuid": "1d60eb19-ddea-5ae9-baf3-18f73f41f19f"
@@ -1037,7 +1037,7 @@
                         {
                             "description": "Symbol C23 [C_Small]",
                             "pos": {
-                                "x": 177.8,
+                                "x": 180.34,
                                 "y": 93.98
                             },
                             "uuid": "1d60eb19-ddea-5ae9-baf3-18f73f41f19f"
@@ -1082,7 +1082,7 @@
                         {
                             "description": "Symbol C24 [C_Small]",
                             "pos": {
-                                "x": 193.04,
+                                "x": 195.58,
                                 "y": 93.98
                             },
                             "uuid": "097b4da7-63d9-5495-b579-9477ca0389f3"
@@ -1097,7 +1097,7 @@
                         {
                             "description": "Symbol C24 [C_Small]",
                             "pos": {
-                                "x": 193.04,
+                                "x": 195.58,
                                 "y": 93.98
                             },
                             "uuid": "097b4da7-63d9-5495-b579-9477ca0389f3"
@@ -1170,36 +1170,6 @@
                     "description": "The current configuration does not include the footprint library 'Capacitor_SMD'",
                     "items": [
                         {
-                            "description": "Symbol C25 [C_Small]",
-                            "pos": {
-                                "x": 208.28,
-                                "y": 93.98
-                            },
-                            "uuid": "62cca7ea-039e-54d4-94a4-a9bc397975b9"
-                        }
-                    ],
-                    "severity": "warning",
-                    "type": "footprint_link_issues"
-                },
-                {
-                    "description": "The current configuration does not include the symbol library 'Device'",
-                    "items": [
-                        {
-                            "description": "Symbol C25 [C_Small]",
-                            "pos": {
-                                "x": 208.28,
-                                "y": 93.98
-                            },
-                            "uuid": "62cca7ea-039e-54d4-94a4-a9bc397975b9"
-                        }
-                    ],
-                    "severity": "warning",
-                    "type": "lib_symbol_issues"
-                },
-                {
-                    "description": "The current configuration does not include the footprint library 'Capacitor_SMD'",
-                    "items": [
-                        {
                             "description": "Symbol C6 [C_Small]",
                             "pos": {
                                 "x": 210.82,
@@ -1230,12 +1200,12 @@
                     "description": "The current configuration does not include the footprint library 'Capacitor_SMD'",
                     "items": [
                         {
-                            "description": "Symbol C26 [C_Small]",
+                            "description": "Symbol C25 [C_Small]",
                             "pos": {
-                                "x": 220.98,
+                                "x": 210.82,
                                 "y": 93.98
                             },
-                            "uuid": "244f08af-ef1c-5ae5-bb8e-03c88cfef7c3"
+                            "uuid": "62cca7ea-039e-54d4-94a4-a9bc397975b9"
                         }
                     ],
                     "severity": "warning",
@@ -1245,12 +1215,12 @@
                     "description": "The current configuration does not include the symbol library 'Device'",
                     "items": [
                         {
-                            "description": "Symbol C26 [C_Small]",
+                            "description": "Symbol C25 [C_Small]",
                             "pos": {
-                                "x": 220.98,
+                                "x": 210.82,
                                 "y": 93.98
                             },
-                            "uuid": "244f08af-ef1c-5ae5-bb8e-03c88cfef7c3"
+                            "uuid": "62cca7ea-039e-54d4-94a4-a9bc397975b9"
                         }
                     ],
                     "severity": "warning",
@@ -1281,6 +1251,36 @@
                                 "y": 35.56
                             },
                             "uuid": "4f5918a7-45c5-5067-b734-65cbe86388e3"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "lib_symbol_issues"
+                },
+                {
+                    "description": "The current configuration does not include the footprint library 'Capacitor_SMD'",
+                    "items": [
+                        {
+                            "description": "Symbol C26 [C_Small]",
+                            "pos": {
+                                "x": 223.52,
+                                "y": 93.98
+                            },
+                            "uuid": "244f08af-ef1c-5ae5-bb8e-03c88cfef7c3"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "footprint_link_issues"
+                },
+                {
+                    "description": "The current configuration does not include the symbol library 'Device'",
+                    "items": [
+                        {
+                            "description": "Symbol C26 [C_Small]",
+                            "pos": {
+                                "x": 223.52,
+                                "y": 93.98
+                            },
+                            "uuid": "244f08af-ef1c-5ae5-bb8e-03c88cfef7c3"
                         }
                     ],
                     "severity": "warning",
@@ -1352,7 +1352,7 @@
                         {
                             "description": "Symbol C27 [C_Small]",
                             "pos": {
-                                "x": 236.22,
+                                "x": 238.76,
                                 "y": 93.98
                             },
                             "uuid": "6a505e89-0fb2-5979-8aec-5532e5b7d187"
@@ -1367,7 +1367,7 @@
                         {
                             "description": "Symbol C27 [C_Small]",
                             "pos": {
-                                "x": 236.22,
+                                "x": 238.76,
                                 "y": 93.98
                             },
                             "uuid": "6a505e89-0fb2-5979-8aec-5532e5b7d187"
@@ -1412,7 +1412,7 @@
                         {
                             "description": "Symbol C28 [C_Small]",
                             "pos": {
-                                "x": 248.92,
+                                "x": 251.46,
                                 "y": 93.98
                             },
                             "uuid": "a8e62daf-8046-556a-b51c-2bd77eb1cab3"
@@ -1427,7 +1427,7 @@
                         {
                             "description": "Symbol C28 [C_Small]",
                             "pos": {
-                                "x": 248.92,
+                                "x": 251.46,
                                 "y": 93.98
                             },
                             "uuid": "a8e62daf-8046-556a-b51c-2bd77eb1cab3"
@@ -1472,7 +1472,7 @@
                         {
                             "description": "Symbol C29 [C_Small]",
                             "pos": {
-                                "x": 264.16,
+                                "x": 266.7,
                                 "y": 93.98
                             },
                             "uuid": "6b7c776b-7545-5b9a-a18f-23fe93e914d2"
@@ -1487,7 +1487,7 @@
                         {
                             "description": "Symbol C29 [C_Small]",
                             "pos": {
-                                "x": 264.16,
+                                "x": 266.7,
                                 "y": 93.98
                             },
                             "uuid": "6b7c776b-7545-5b9a-a18f-23fe93e914d2"
@@ -1647,36 +1647,6 @@
                     "type": "lib_symbol_issues"
                 },
                 {
-                    "description": "The current configuration does not include the footprint library 'Resistor_SMD'",
-                    "items": [
-                        {
-                            "description": "Symbol R18 [R_Small]",
-                            "pos": {
-                                "x": 299.72,
-                                "y": 187.96
-                            },
-                            "uuid": "1851868b-6723-5db8-8f9a-035792c0b0b4"
-                        }
-                    ],
-                    "severity": "warning",
-                    "type": "footprint_link_issues"
-                },
-                {
-                    "description": "The current configuration does not include the symbol library 'Device'",
-                    "items": [
-                        {
-                            "description": "Symbol R18 [R_Small]",
-                            "pos": {
-                                "x": 299.72,
-                                "y": 187.96
-                            },
-                            "uuid": "1851868b-6723-5db8-8f9a-035792c0b0b4"
-                        }
-                    ],
-                    "severity": "warning",
-                    "type": "lib_symbol_issues"
-                },
-                {
                     "description": "The current configuration does not include the footprint library 'Package_TO_SOT_SMD'",
                     "items": [
                         {
@@ -1701,6 +1671,36 @@
                                 "y": 228.6
                             },
                             "uuid": "c87bb014-7f08-55dd-8b77-737cfc01efc6"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "lib_symbol_issues"
+                },
+                {
+                    "description": "The current configuration does not include the footprint library 'Resistor_SMD'",
+                    "items": [
+                        {
+                            "description": "Symbol R18 [R_Small]",
+                            "pos": {
+                                "x": 302.26,
+                                "y": 187.96
+                            },
+                            "uuid": "1851868b-6723-5db8-8f9a-035792c0b0b4"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "footprint_link_issues"
+                },
+                {
+                    "description": "The current configuration does not include the symbol library 'Device'",
+                    "items": [
+                        {
+                            "description": "Symbol R18 [R_Small]",
+                            "pos": {
+                                "x": 302.26,
+                                "y": 187.96
+                            },
+                            "uuid": "1851868b-6723-5db8-8f9a-035792c0b0b4"
                         }
                     ],
                     "severity": "warning",
@@ -1772,7 +1772,7 @@
                         {
                             "description": "Symbol U2 [ADS1298xPAG]",
                             "pos": {
-                                "x": 317.5,
+                                "x": 322.58,
                                 "y": 134.62
                             },
                             "uuid": "8915b379-49c7-55e0-820f-fd29e91ec6cc"
@@ -1787,7 +1787,7 @@
                         {
                             "description": "Symbol U2 [ADS1298xPAG]",
                             "pos": {
-                                "x": 317.5,
+                                "x": 322.58,
                                 "y": 134.62
                             },
                             "uuid": "8915b379-49c7-55e0-820f-fd29e91ec6cc"
@@ -1827,12 +1827,42 @@
                     "type": "lib_symbol_issues"
                 },
                 {
+                    "description": "The current configuration does not include the footprint library 'Resistor_SMD'",
+                    "items": [
+                        {
+                            "description": "Symbol R34 [R_Small]",
+                            "pos": {
+                                "x": 335.28,
+                                "y": 248.92
+                            },
+                            "uuid": "6ce2b2a7-a7ee-5016-9a8c-f457f6749bd5"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "footprint_link_issues"
+                },
+                {
+                    "description": "The current configuration does not include the symbol library 'Device'",
+                    "items": [
+                        {
+                            "description": "Symbol R34 [R_Small]",
+                            "pos": {
+                                "x": 335.28,
+                                "y": 248.92
+                            },
+                            "uuid": "6ce2b2a7-a7ee-5016-9a8c-f457f6749bd5"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "lib_symbol_issues"
+                },
+                {
                     "description": "Pins of type Bidirectional and Power output are connected",
                     "items": [
                         {
                             "description": "Symbol U2 Pin 17 [TESTP_PACE_OUT1, Bidirectional, Line]",
                             "pos": {
-                                "x": 335.28,
+                                "x": 340.36,
                                 "y": 111.76
                             },
                             "uuid": "3acd1b85-dac3-58f6-9d9c-a11af05e3ffe"
@@ -1855,7 +1885,7 @@
                         {
                             "description": "Symbol U2 Pin 18 [TESTP_PACE_OUT2, Bidirectional, Line]",
                             "pos": {
-                                "x": 335.28,
+                                "x": 340.36,
                                 "y": 114.3
                             },
                             "uuid": "26101c70-f74a-59de-b985-cfd1769944b6"
@@ -1878,7 +1908,7 @@
                         {
                             "description": "Symbol U2 Pin 42 [GPIO1, Bidirectional, Line]",
                             "pos": {
-                                "x": 335.28,
+                                "x": 340.36,
                                 "y": 119.38
                             },
                             "uuid": "b0c05ebb-5a69-5cbd-bf30-fa3639c4dd82"
@@ -1901,7 +1931,7 @@
                         {
                             "description": "Symbol U2 Pin 44 [GPIO2, Bidirectional, Line]",
                             "pos": {
-                                "x": 335.28,
+                                "x": 340.36,
                                 "y": 121.92
                             },
                             "uuid": "768aeb99-5cb3-5389-950b-2b71a9ba7370"
@@ -1924,7 +1954,7 @@
                         {
                             "description": "Symbol U2 Pin 45 [GPIO3, Bidirectional, Line]",
                             "pos": {
-                                "x": 335.28,
+                                "x": 340.36,
                                 "y": 124.46
                             },
                             "uuid": "4b64f6dc-c960-5586-bb47-d916d04c7a3e"
@@ -1947,7 +1977,7 @@
                         {
                             "description": "Symbol U2 Pin 46 [GPIO4, Bidirectional, Line]",
                             "pos": {
-                                "x": 335.28,
+                                "x": 340.36,
                                 "y": 127.0
                             },
                             "uuid": "77b71893-130f-5cc4-9ddb-5be51172a1d9"
@@ -1968,36 +1998,6 @@
                     "description": "The current configuration does not include the footprint library 'Resistor_SMD'",
                     "items": [
                         {
-                            "description": "Symbol R34 [R_Small]",
-                            "pos": {
-                                "x": 335.28,
-                                "y": 248.92
-                            },
-                            "uuid": "6ce2b2a7-a7ee-5016-9a8c-f457f6749bd5"
-                        }
-                    ],
-                    "severity": "warning",
-                    "type": "footprint_link_issues"
-                },
-                {
-                    "description": "The current configuration does not include the symbol library 'Device'",
-                    "items": [
-                        {
-                            "description": "Symbol R34 [R_Small]",
-                            "pos": {
-                                "x": 335.28,
-                                "y": 248.92
-                            },
-                            "uuid": "6ce2b2a7-a7ee-5016-9a8c-f457f6749bd5"
-                        }
-                    ],
-                    "severity": "warning",
-                    "type": "lib_symbol_issues"
-                },
-                {
-                    "description": "The current configuration does not include the footprint library 'Resistor_SMD'",
-                    "items": [
-                        {
                             "description": "Symbol R9 [R_Small]",
                             "pos": {
                                 "x": 342.9,
@@ -2060,7 +2060,7 @@
                         {
                             "description": "Symbol C30 [C_Small]",
                             "pos": {
-                                "x": 355.6,
+                                "x": 358.14,
                                 "y": 93.98
                             },
                             "uuid": "3c503e05-e542-5f2f-855d-15b9274de7b9"
@@ -2075,7 +2075,7 @@
                         {
                             "description": "Symbol C30 [C_Small]",
                             "pos": {
-                                "x": 355.6,
+                                "x": 358.14,
                                 "y": 93.98
                             },
                             "uuid": "3c503e05-e542-5f2f-855d-15b9274de7b9"
@@ -2180,7 +2180,7 @@
                         {
                             "description": "Symbol C31 [C_Small]",
                             "pos": {
-                                "x": 373.38,
+                                "x": 375.92,
                                 "y": 93.98
                             },
                             "uuid": "5799f468-48de-50ae-9f3a-55161a10ce99"
@@ -2195,7 +2195,7 @@
                         {
                             "description": "Symbol C31 [C_Small]",
                             "pos": {
-                                "x": 373.38,
+                                "x": 375.92,
                                 "y": 93.98
                             },
                             "uuid": "5799f468-48de-50ae-9f3a-55161a10ce99"
@@ -2289,36 +2289,6 @@
                                 "y": 226.06
                             },
                             "uuid": "a0a9d6fa-d031-5427-8b84-332d18a4d6e7"
-                        }
-                    ],
-                    "severity": "warning",
-                    "type": "lib_symbol_issues"
-                },
-                {
-                    "description": "The current configuration does not include the footprint library 'Capacitor_SMD'",
-                    "items": [
-                        {
-                            "description": "Symbol C32 [C_Small]",
-                            "pos": {
-                                "x": 391.16,
-                                "y": 93.98
-                            },
-                            "uuid": "d24b80da-40a0-5a4f-872d-c10fd857bfe0"
-                        }
-                    ],
-                    "severity": "warning",
-                    "type": "footprint_link_issues"
-                },
-                {
-                    "description": "The current configuration does not include the symbol library 'Device'",
-                    "items": [
-                        {
-                            "description": "Symbol C32 [C_Small]",
-                            "pos": {
-                                "x": 391.16,
-                                "y": 93.98
-                            },
-                            "uuid": "d24b80da-40a0-5a4f-872d-c10fd857bfe0"
                         }
                     ],
                     "severity": "warning",
@@ -2355,6 +2325,36 @@
                     "type": "lib_symbol_issues"
                 },
                 {
+                    "description": "The current configuration does not include the footprint library 'Capacitor_Tantalum_SMD'",
+                    "items": [
+                        {
+                            "description": "Symbol C32 [C_Polarized_Small]",
+                            "pos": {
+                                "x": 396.24,
+                                "y": 93.98
+                            },
+                            "uuid": "d24b80da-40a0-5a4f-872d-c10fd857bfe0"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "footprint_link_issues"
+                },
+                {
+                    "description": "The current configuration does not include the symbol library 'Device'",
+                    "items": [
+                        {
+                            "description": "Symbol C32 [C_Polarized_Small]",
+                            "pos": {
+                                "x": 396.24,
+                                "y": 93.98
+                            },
+                            "uuid": "d24b80da-40a0-5a4f-872d-c10fd857bfe0"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "lib_symbol_issues"
+                },
+                {
                     "description": "The current configuration does not include the footprint library 'Resistor_SMD'",
                     "items": [
                         {
@@ -2418,36 +2418,6 @@
                     "description": "The current configuration does not include the footprint library 'Capacitor_SMD'",
                     "items": [
                         {
-                            "description": "Symbol C33 [C_Small]",
-                            "pos": {
-                                "x": 411.48,
-                                "y": 93.98
-                            },
-                            "uuid": "ded61c45-7868-5985-a1e6-a7f4f8fd52b5"
-                        }
-                    ],
-                    "severity": "warning",
-                    "type": "footprint_link_issues"
-                },
-                {
-                    "description": "The current configuration does not include the symbol library 'Device'",
-                    "items": [
-                        {
-                            "description": "Symbol C33 [C_Small]",
-                            "pos": {
-                                "x": 411.48,
-                                "y": 93.98
-                            },
-                            "uuid": "ded61c45-7868-5985-a1e6-a7f4f8fd52b5"
-                        }
-                    ],
-                    "severity": "warning",
-                    "type": "lib_symbol_issues"
-                },
-                {
-                    "description": "The current configuration does not include the footprint library 'Capacitor_SMD'",
-                    "items": [
-                        {
                             "description": "Symbol C11 [C_Small]",
                             "pos": {
                                 "x": 414.02,
@@ -2499,6 +2469,36 @@
                                 "y": 248.92
                             },
                             "uuid": "fcbaaf16-6c2a-52cf-8741-2f8b9678a09c"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "lib_symbol_issues"
+                },
+                {
+                    "description": "The current configuration does not include the footprint library 'Capacitor_SMD'",
+                    "items": [
+                        {
+                            "description": "Symbol C33 [C_Small]",
+                            "pos": {
+                                "x": 419.1,
+                                "y": 93.98
+                            },
+                            "uuid": "ded61c45-7868-5985-a1e6-a7f4f8fd52b5"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "footprint_link_issues"
+                },
+                {
+                    "description": "The current configuration does not include the symbol library 'Device'",
+                    "items": [
+                        {
+                            "description": "Symbol C33 [C_Small]",
+                            "pos": {
+                                "x": 419.1,
+                                "y": 93.98
+                            },
+                            "uuid": "ded61c45-7868-5985-a1e6-a7f4f8fd52b5"
                         }
                     ],
                     "severity": "warning",
@@ -2570,7 +2570,7 @@
                         {
                             "description": "Symbol C34 [C_Small]",
                             "pos": {
-                                "x": 431.8,
+                                "x": 439.42,
                                 "y": 93.98
                             },
                             "uuid": "e43d7070-3f89-57ed-b7ee-20319a47a6eb"
@@ -2585,7 +2585,7 @@
                         {
                             "description": "Symbol C34 [C_Small]",
                             "pos": {
-                                "x": 431.8,
+                                "x": 439.42,
                                 "y": 93.98
                             },
                             "uuid": "e43d7070-3f89-57ed-b7ee-20319a47a6eb"
@@ -2619,36 +2619,6 @@
                                 "y": 35.56
                             },
                             "uuid": "030ecdfb-218f-5093-9c1c-51f87678b21e"
-                        }
-                    ],
-                    "severity": "warning",
-                    "type": "lib_symbol_issues"
-                },
-                {
-                    "description": "The current configuration does not include the footprint library 'Capacitor_SMD'",
-                    "items": [
-                        {
-                            "description": "Symbol C35 [C_Small]",
-                            "pos": {
-                                "x": 452.12,
-                                "y": 93.98
-                            },
-                            "uuid": "7ba4ce53-983e-56c0-a639-e24c436db6d1"
-                        }
-                    ],
-                    "severity": "warning",
-                    "type": "footprint_link_issues"
-                },
-                {
-                    "description": "The current configuration does not include the symbol library 'Device'",
-                    "items": [
-                        {
-                            "description": "Symbol C35 [C_Small]",
-                            "pos": {
-                                "x": 452.12,
-                                "y": 93.98
-                            },
-                            "uuid": "7ba4ce53-983e-56c0-a639-e24c436db6d1"
                         }
                     ],
                     "severity": "warning",
@@ -2679,6 +2649,36 @@
                                 "y": 226.06
                             },
                             "uuid": "13f697f4-ae8b-5e2c-a6ff-692681f5ad6a"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "lib_symbol_issues"
+                },
+                {
+                    "description": "The current configuration does not include the footprint library 'Capacitor_SMD'",
+                    "items": [
+                        {
+                            "description": "Symbol C35 [C_Small]",
+                            "pos": {
+                                "x": 457.2,
+                                "y": 93.98
+                            },
+                            "uuid": "7ba4ce53-983e-56c0-a639-e24c436db6d1"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "footprint_link_issues"
+                },
+                {
+                    "description": "The current configuration does not include the symbol library 'Device'",
+                    "items": [
+                        {
+                            "description": "Symbol C35 [C_Small]",
+                            "pos": {
+                                "x": 457.2,
+                                "y": 93.98
+                            },
+                            "uuid": "7ba4ce53-983e-56c0-a639-e24c436db6d1"
                         }
                     ],
                     "severity": "warning",
@@ -2718,36 +2718,6 @@
                     "description": "The current configuration does not include the footprint library 'Capacitor_SMD'",
                     "items": [
                         {
-                            "description": "Symbol C36 [C_Small]",
-                            "pos": {
-                                "x": 469.9,
-                                "y": 93.98
-                            },
-                            "uuid": "e89ddb3a-5d42-53af-852a-343165fef4ac"
-                        }
-                    ],
-                    "severity": "warning",
-                    "type": "footprint_link_issues"
-                },
-                {
-                    "description": "The current configuration does not include the symbol library 'Device'",
-                    "items": [
-                        {
-                            "description": "Symbol C36 [C_Small]",
-                            "pos": {
-                                "x": 469.9,
-                                "y": 93.98
-                            },
-                            "uuid": "e89ddb3a-5d42-53af-852a-343165fef4ac"
-                        }
-                    ],
-                    "severity": "warning",
-                    "type": "lib_symbol_issues"
-                },
-                {
-                    "description": "The current configuration does not include the footprint library 'Capacitor_SMD'",
-                    "items": [
-                        {
                             "description": "Symbol C13 [C_Small]",
                             "pos": {
                                 "x": 472.44,
@@ -2778,12 +2748,12 @@
                     "description": "The current configuration does not include the footprint library 'Capacitor_SMD'",
                     "items": [
                         {
-                            "description": "Symbol C37 [C_Small]",
+                            "description": "Symbol C36 [C_Small]",
                             "pos": {
-                                "x": 482.6,
+                                "x": 474.98,
                                 "y": 93.98
                             },
-                            "uuid": "5ad20ca4-a349-564f-aa36-6d2cdeffc3e5"
+                            "uuid": "e89ddb3a-5d42-53af-852a-343165fef4ac"
                         }
                     ],
                     "severity": "warning",
@@ -2793,12 +2763,12 @@
                     "description": "The current configuration does not include the symbol library 'Device'",
                     "items": [
                         {
-                            "description": "Symbol C37 [C_Small]",
+                            "description": "Symbol C36 [C_Small]",
                             "pos": {
-                                "x": 482.6,
+                                "x": 474.98,
                                 "y": 93.98
                             },
-                            "uuid": "5ad20ca4-a349-564f-aa36-6d2cdeffc3e5"
+                            "uuid": "e89ddb3a-5d42-53af-852a-343165fef4ac"
                         }
                     ],
                     "severity": "warning",
@@ -2868,12 +2838,12 @@
                     "description": "The current configuration does not include the footprint library 'Capacitor_SMD'",
                     "items": [
                         {
-                            "description": "Symbol C38 [C_Small]",
+                            "description": "Symbol C37 [C_Small]",
                             "pos": {
-                                "x": 497.84,
+                                "x": 490.22,
                                 "y": 93.98
                             },
-                            "uuid": "808db49b-1b27-54aa-80b9-5397fc7b0266"
+                            "uuid": "5ad20ca4-a349-564f-aa36-6d2cdeffc3e5"
                         }
                     ],
                     "severity": "warning",
@@ -2883,12 +2853,12 @@
                     "description": "The current configuration does not include the symbol library 'Device'",
                     "items": [
                         {
-                            "description": "Symbol C38 [C_Small]",
+                            "description": "Symbol C37 [C_Small]",
                             "pos": {
-                                "x": 497.84,
+                                "x": 490.22,
                                 "y": 93.98
                             },
-                            "uuid": "808db49b-1b27-54aa-80b9-5397fc7b0266"
+                            "uuid": "5ad20ca4-a349-564f-aa36-6d2cdeffc3e5"
                         }
                     ],
                     "severity": "warning",
@@ -2919,6 +2889,36 @@
                                 "y": 35.56
                             },
                             "uuid": "0ac6bda1-2a7d-55c8-83a0-a27f6e69cad2"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "lib_symbol_issues"
+                },
+                {
+                    "description": "The current configuration does not include the footprint library 'Capacitor_SMD'",
+                    "items": [
+                        {
+                            "description": "Symbol C38 [C_Small]",
+                            "pos": {
+                                "x": 502.92,
+                                "y": 93.98
+                            },
+                            "uuid": "808db49b-1b27-54aa-80b9-5397fc7b0266"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "footprint_link_issues"
+                },
+                {
+                    "description": "The current configuration does not include the symbol library 'Device'",
+                    "items": [
+                        {
+                            "description": "Symbol C38 [C_Small]",
+                            "pos": {
+                                "x": 502.92,
+                                "y": 93.98
+                            },
+                            "uuid": "808db49b-1b27-54aa-80b9-5397fc7b0266"
                         }
                     ],
                     "severity": "warning",
@@ -2949,36 +2949,6 @@
                                 "y": 226.06
                             },
                             "uuid": "c75ceaa9-be73-5ea8-8c30-745dc192f0c4"
-                        }
-                    ],
-                    "severity": "warning",
-                    "type": "lib_symbol_issues"
-                },
-                {
-                    "description": "The current configuration does not include the footprint library 'Capacitor_SMD'",
-                    "items": [
-                        {
-                            "description": "Symbol C39 [C_Small]",
-                            "pos": {
-                                "x": 510.54,
-                                "y": 93.98
-                            },
-                            "uuid": "d392c637-b4ef-50b8-b2af-f42535360ead"
-                        }
-                    ],
-                    "severity": "warning",
-                    "type": "footprint_link_issues"
-                },
-                {
-                    "description": "The current configuration does not include the symbol library 'Device'",
-                    "items": [
-                        {
-                            "description": "Symbol C39 [C_Small]",
-                            "pos": {
-                                "x": 510.54,
-                                "y": 93.98
-                            },
-                            "uuid": "d392c637-b4ef-50b8-b2af-f42535360ead"
                         }
                     ],
                     "severity": "warning",
@@ -3018,9 +2988,39 @@
                     "description": "The current configuration does not include the footprint library 'Capacitor_SMD'",
                     "items": [
                         {
+                            "description": "Symbol C39 [C_Small]",
+                            "pos": {
+                                "x": 518.16,
+                                "y": 93.98
+                            },
+                            "uuid": "d392c637-b4ef-50b8-b2af-f42535360ead"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "footprint_link_issues"
+                },
+                {
+                    "description": "The current configuration does not include the symbol library 'Device'",
+                    "items": [
+                        {
+                            "description": "Symbol C39 [C_Small]",
+                            "pos": {
+                                "x": 518.16,
+                                "y": 93.98
+                            },
+                            "uuid": "d392c637-b4ef-50b8-b2af-f42535360ead"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "lib_symbol_issues"
+                },
+                {
+                    "description": "The current configuration does not include the footprint library 'Capacitor_SMD'",
+                    "items": [
+                        {
                             "description": "Symbol C40 [C_Small]",
                             "pos": {
-                                "x": 525.78,
+                                "x": 530.86,
                                 "y": 93.98
                             },
                             "uuid": "c4eed828-748b-5c8e-848c-a9340e3353f2"
@@ -3035,7 +3035,7 @@
                         {
                             "description": "Symbol C40 [C_Small]",
                             "pos": {
-                                "x": 525.78,
+                                "x": 530.86,
                                 "y": 93.98
                             },
                             "uuid": "c4eed828-748b-5c8e-848c-a9340e3353f2"
@@ -3069,36 +3069,6 @@
                                 "y": 35.56
                             },
                             "uuid": "0544aa0d-6734-5e1f-84f8-1b911f1f63f8"
-                        }
-                    ],
-                    "severity": "warning",
-                    "type": "lib_symbol_issues"
-                },
-                {
-                    "description": "The current configuration does not include the footprint library 'Capacitor_SMD'",
-                    "items": [
-                        {
-                            "description": "Symbol C41 [C_Small]",
-                            "pos": {
-                                "x": 538.48,
-                                "y": 93.98
-                            },
-                            "uuid": "d0d20119-a767-5745-b9cc-6c9574625938"
-                        }
-                    ],
-                    "severity": "warning",
-                    "type": "footprint_link_issues"
-                },
-                {
-                    "description": "The current configuration does not include the symbol library 'Device'",
-                    "items": [
-                        {
-                            "description": "Symbol C41 [C_Small]",
-                            "pos": {
-                                "x": 538.48,
-                                "y": 93.98
-                            },
-                            "uuid": "d0d20119-a767-5745-b9cc-6c9574625938"
                         }
                     ],
                     "severity": "warning",
@@ -3129,6 +3099,36 @@
                                 "y": 226.06
                             },
                             "uuid": "ef4b780b-c874-5d1a-a767-4b324be606f5"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "lib_symbol_issues"
+                },
+                {
+                    "description": "The current configuration does not include the footprint library 'Capacitor_SMD'",
+                    "items": [
+                        {
+                            "description": "Symbol C41 [C_Small]",
+                            "pos": {
+                                "x": 546.1,
+                                "y": 93.98
+                            },
+                            "uuid": "d0d20119-a767-5745-b9cc-6c9574625938"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "footprint_link_issues"
+                },
+                {
+                    "description": "The current configuration does not include the symbol library 'Device'",
+                    "items": [
+                        {
+                            "description": "Symbol C41 [C_Small]",
+                            "pos": {
+                                "x": 546.1,
+                                "y": 93.98
+                            },
+                            "uuid": "d0d20119-a767-5745-b9cc-6c9574625938"
                         }
                     ],
                     "severity": "warning",
@@ -3225,12 +3225,42 @@
                     "type": "lib_symbol_issues"
                 },
                 {
+                    "description": "The current configuration does not include the footprint library 'Capacitor_SMD'",
+                    "items": [
+                        {
+                            "description": "Symbol C51 [C_Small]",
+                            "pos": {
+                                "x": 596.9,
+                                "y": 226.06
+                            },
+                            "uuid": "23d537a3-c70e-5d75-a0c5-99dc82d1f3ba"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "footprint_link_issues"
+                },
+                {
+                    "description": "The current configuration does not include the symbol library 'Device'",
+                    "items": [
+                        {
+                            "description": "Symbol C51 [C_Small]",
+                            "pos": {
+                                "x": 596.9,
+                                "y": 226.06
+                            },
+                            "uuid": "23d537a3-c70e-5d75-a0c5-99dc82d1f3ba"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "lib_symbol_issues"
+                },
+                {
                     "description": "The current configuration does not include the footprint library 'RF_Module'",
                     "items": [
                         {
                             "description": "Symbol U3 [ESP32-S3-WROOM-1]",
                             "pos": {
-                                "x": 594.36,
+                                "x": 599.44,
                                 "y": 119.38
                             },
                             "uuid": "f0779639-7cbb-575f-b0b9-a44288d43dbe"
@@ -3245,40 +3275,10 @@
                         {
                             "description": "Symbol U3 [ESP32-S3-WROOM-1]",
                             "pos": {
-                                "x": 594.36,
+                                "x": 599.44,
                                 "y": 119.38
                             },
                             "uuid": "f0779639-7cbb-575f-b0b9-a44288d43dbe"
-                        }
-                    ],
-                    "severity": "warning",
-                    "type": "lib_symbol_issues"
-                },
-                {
-                    "description": "The current configuration does not include the footprint library 'Capacitor_SMD'",
-                    "items": [
-                        {
-                            "description": "Symbol C51 [C_Small]",
-                            "pos": {
-                                "x": 596.9,
-                                "y": 226.06
-                            },
-                            "uuid": "23d537a3-c70e-5d75-a0c5-99dc82d1f3ba"
-                        }
-                    ],
-                    "severity": "warning",
-                    "type": "footprint_link_issues"
-                },
-                {
-                    "description": "The current configuration does not include the symbol library 'Device'",
-                    "items": [
-                        {
-                            "description": "Symbol C51 [C_Small]",
-                            "pos": {
-                                "x": 596.9,
-                                "y": 226.06
-                            },
-                            "uuid": "23d537a3-c70e-5d75-a0c5-99dc82d1f3ba"
                         }
                     ],
                     "severity": "warning",
@@ -3350,7 +3350,7 @@
                         {
                             "description": "Symbol C43 [C_Small]",
                             "pos": {
-                                "x": 629.92,
+                                "x": 635.0,
                                 "y": 93.98
                             },
                             "uuid": "e74b52e1-b1c7-5a05-bfef-0e6a9ec78ffe"
@@ -3365,7 +3365,7 @@
                         {
                             "description": "Symbol C43 [C_Small]",
                             "pos": {
-                                "x": 629.92,
+                                "x": 635.0,
                                 "y": 93.98
                             },
                             "uuid": "e74b52e1-b1c7-5a05-bfef-0e6a9ec78ffe"
@@ -3380,7 +3380,7 @@
                         {
                             "description": "Symbol C44 [C_Small]",
                             "pos": {
-                                "x": 642.62,
+                                "x": 650.24,
                                 "y": 93.98
                             },
                             "uuid": "6e6621d7-0907-5645-961a-009c9095c4a2"
@@ -3395,7 +3395,7 @@
                         {
                             "description": "Symbol C44 [C_Small]",
                             "pos": {
-                                "x": 642.62,
+                                "x": 650.24,
                                 "y": 93.98
                             },
                             "uuid": "6e6621d7-0907-5645-961a-009c9095c4a2"
@@ -3410,7 +3410,7 @@
                         {
                             "description": "Symbol R21 [R_Small]",
                             "pos": {
-                                "x": 657.86,
+                                "x": 665.48,
                                 "y": 93.98
                             },
                             "uuid": "a92227b7-98c0-513c-97ec-2ef640f2c474"
@@ -3425,7 +3425,7 @@
                         {
                             "description": "Symbol R21 [R_Small]",
                             "pos": {
-                                "x": 657.86,
+                                "x": 665.48,
                                 "y": 93.98
                             },
                             "uuid": "a92227b7-98c0-513c-97ec-2ef640f2c474"
@@ -3440,7 +3440,7 @@
                         {
                             "description": "Symbol C45 [C_Small]",
                             "pos": {
-                                "x": 673.1,
+                                "x": 678.18,
                                 "y": 93.98
                             },
                             "uuid": "6f99347f-d242-5614-9f64-27e694cd1bde"
@@ -3455,7 +3455,7 @@
                         {
                             "description": "Symbol C45 [C_Small]",
                             "pos": {
-                                "x": 673.1,
+                                "x": 678.18,
                                 "y": 93.98
                             },
                             "uuid": "6f99347f-d242-5614-9f64-27e694cd1bde"
@@ -3470,7 +3470,7 @@
                         {
                             "description": "Symbol R22 [R_Small]",
                             "pos": {
-                                "x": 685.8,
+                                "x": 690.88,
                                 "y": 93.98
                             },
                             "uuid": "4575c162-6bad-53cc-9ee6-55b99698bac6"
@@ -3485,7 +3485,7 @@
                         {
                             "description": "Symbol R22 [R_Small]",
                             "pos": {
-                                "x": 685.8,
+                                "x": 690.88,
                                 "y": 93.98
                             },
                             "uuid": "4575c162-6bad-53cc-9ee6-55b99698bac6"
@@ -3500,7 +3500,7 @@
                         {
                             "description": "Symbol SW1 [SW_Push]",
                             "pos": {
-                                "x": 703.58,
+                                "x": 711.2,
                                 "y": 91.44
                             },
                             "uuid": "b231073d-60b4-58d6-aaf6-3bebde022245"
@@ -3515,7 +3515,7 @@
                         {
                             "description": "Symbol SW1 [SW_Push]",
                             "pos": {
-                                "x": 703.58,
+                                "x": 711.2,
                                 "y": 91.44
                             },
                             "uuid": "b231073d-60b4-58d6-aaf6-3bebde022245"
@@ -3530,7 +3530,7 @@
                         {
                             "description": "Symbol SW2 [SW_Push]",
                             "pos": {
-                                "x": 728.98,
+                                "x": 734.06,
                                 "y": 91.44
                             },
                             "uuid": "8712076c-57a3-5526-833a-95721747431a"
@@ -3545,7 +3545,7 @@
                         {
                             "description": "Symbol SW2 [SW_Push]",
                             "pos": {
-                                "x": 728.98,
+                                "x": 734.06,
                                 "y": 91.44
                             },
                             "uuid": "8712076c-57a3-5526-833a-95721747431a"
@@ -3560,7 +3560,7 @@
                         {
                             "description": "Symbol R23 [R_Small]",
                             "pos": {
-                                "x": 749.3,
+                                "x": 754.38,
                                 "y": 93.98
                             },
                             "uuid": "1399b978-e1a2-58b0-b9a2-1197eb27008f"
@@ -3575,7 +3575,7 @@
                         {
                             "description": "Symbol R23 [R_Small]",
                             "pos": {
-                                "x": 749.3,
+                                "x": 754.38,
                                 "y": 93.98
                             },
                             "uuid": "1399b978-e1a2-58b0-b9a2-1197eb27008f"
@@ -3590,7 +3590,7 @@
                         {
                             "description": "Symbol D1 [LED_Small]",
                             "pos": {
-                                "x": 767.08,
+                                "x": 774.7,
                                 "y": 91.44
                             },
                             "uuid": "9b834546-fdcc-58c5-a673-3b53a07031a6"
@@ -3605,7 +3605,7 @@
                         {
                             "description": "Symbol D1 [LED_Small]",
                             "pos": {
-                                "x": 767.08,
+                                "x": 774.7,
                                 "y": 91.44
                             },
                             "uuid": "9b834546-fdcc-58c5-a673-3b53a07031a6"
