@@ -2,242 +2,479 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<title>SilentBand: what using it looks like</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SilentBand: type without a sound</title>
 <style>
-  :root { --bg:#0f1115; --panel:#171a21; --line:#2a2f3a; --txt:#e6e8ee; --dim:#8b93a7; --acc:#4fd1c5; --hot:#ff7a59; }
-  * { box-sizing: border-box; }
-  body { margin:0; background:var(--bg); color:var(--txt); font:14px/1.4 -apple-system, system-ui, sans-serif; }
-  header { padding:14px 22px; display:flex; align-items:center; gap:16px; border-bottom:1px solid var(--line); }
-  header h1 { font-size:17px; margin:0; font-weight:600; }
-  header .note { color:var(--dim); font-size:12px; }
-  button { background:#232835; color:var(--txt); border:1px solid var(--line); border-radius:6px; padding:6px 12px; cursor:pointer; }
-  button:hover { border-color:var(--acc); }
-  main { display:grid; grid-template-columns: 1.05fr 1.2fr 0.95fr; gap:14px; padding:14px 22px; }
-  .panel { background:var(--panel); border:1px solid var(--line); border-radius:10px; padding:12px; position:relative; }
-  .panel h2 { margin:0 0 8px; font-size:12px; text-transform:uppercase; letter-spacing:.08em; color:var(--dim); font-weight:600; }
-  #thought { position:absolute; top:44px; right:14px; background:#222838; border:1px solid var(--line); border-radius:14px;
-             padding:6px 12px; font-size:15px; opacity:0; transition:opacity .25s; }
-  #thought small { display:block; color:var(--dim); font-size:11px; }
-  .elec { transition: fill .15s, r .15s; }
-  #scope { width:100%; height:300px; display:block; background:#11141a; border-radius:6px; }
-  #det { margin-top:10px; display:flex; gap:10px; align-items:center; min-height:46px; }
-  .chip { border:1px solid var(--line); border-radius:8px; padding:6px 10px; background:#11141a; }
-  .chip b { color:var(--acc); }
-  #conf { flex:1; height:8px; background:#11141a; border-radius:4px; overflow:hidden; }
-  #conf div { height:100%; width:0; background:var(--acc); transition:width .3s; }
-  .legend { margin-top:10px; display:grid; grid-template-columns:repeat(4, 1fr); gap:6px; font-size:11px; color:var(--dim); }
-  .legend span { border:1px solid var(--line); border-radius:6px; padding:4px 6px; }
-  .legend span.on { border-color:var(--acc); color:var(--txt); }
+  :root {
+    --bg:#07090d; --bg2:#0c1018; --card:rgba(255,255,255,.035); --stroke:rgba(255,255,255,.08);
+    --txt:#eef1f7; --dim:#8c95a8; --mute:#5b6477; --teal:#3ee6c8; --teal2:#22b8f0; --hot:#ff8a5b; --vio:#8b7bff;
+  }
+  * { box-sizing:border-box; margin:0; }
+  html { scroll-behavior:smooth; }
+  body { background:var(--bg); color:var(--txt); font:15px/1.5 -apple-system, BlinkMacSystemFont, "SF Pro Text", "Inter", system-ui, sans-serif;
+         -webkit-font-smoothing:antialiased; overflow-x:hidden; }
+  .glow { position:fixed; inset:-30vh -10vw auto; height:90vh; pointer-events:none; z-index:0;
+          background: radial-gradient(40vw 30vh at 25% 30%, rgba(62,230,200,.10), transparent 70%),
+                      radial-gradient(35vw 28vh at 80% 20%, rgba(139,123,255,.10), transparent 70%); }
+  .wrap { position:relative; z-index:1; max-width:1360px; margin:0 auto; padding:0 32px; }
+
+  /* nav + hero */
+  nav { display:flex; align-items:center; justify-content:space-between; padding:22px 0; }
+  .logo { display:flex; align-items:center; gap:10px; font-weight:650; letter-spacing:-.01em; font-size:17px; }
+  .logo i { width:22px; height:22px; border-radius:7px; background:conic-gradient(from 200deg, var(--teal), var(--teal2), var(--vio), var(--teal)); box-shadow:0 0 18px rgba(62,230,200,.45); }
+  .pill { font-size:12px; color:var(--dim); border:1px solid var(--stroke); border-radius:99px; padding:5px 12px; background:var(--card); }
+  .hero { text-align:center; padding:46px 0 34px; }
+  .eyebrow { display:inline-flex; gap:8px; align-items:center; font-size:12px; letter-spacing:.14em; text-transform:uppercase; color:var(--teal); }
+  .eyebrow::before { content:""; width:6px; height:6px; border-radius:50%; background:var(--teal); box-shadow:0 0 10px var(--teal); }
+  h1 { font-size:clamp(38px, 5.6vw, 72px); line-height:1.02; letter-spacing:-.035em; font-weight:700; margin:16px 0 18px; }
+  h1 .grad { background:linear-gradient(90deg, var(--teal), var(--teal2) 45%, var(--vio)); -webkit-background-clip:text; background-clip:text; color:transparent; }
+  .sub { color:var(--dim); font-size:clamp(16px, 1.5vw, 19px); max-width:680px; margin:0 auto; }
+  .stats { display:grid; grid-template-columns:repeat(4, 1fr); gap:1px; margin:40px auto 0; max-width:900px; background:var(--stroke);
+           border:1px solid var(--stroke); border-radius:16px; overflow:hidden; }
+  .stat { background:var(--bg2); padding:18px 12px; }
+  .stat b { display:block; font-size:28px; letter-spacing:-.02em; font-weight:650; }
+  .stat span { color:var(--dim); font-size:12.5px; }
+
+  /* stage */
+  .stage { margin:46px 0 0; border:1px solid var(--stroke); border-radius:24px; background:linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.015));
+           box-shadow:0 40px 120px -40px rgba(0,0,0,.8), inset 0 1px 0 rgba(255,255,255,.05); padding:22px; }
+  .stage-head { display:flex; align-items:center; justify-content:space-between; padding:2px 6px 16px; }
+  .live { display:flex; align-items:center; gap:8px; font-size:12px; color:var(--dim); letter-spacing:.08em; text-transform:uppercase; }
+  .live::before { content:""; width:8px; height:8px; border-radius:50%; background:#ff4d5e; box-shadow:0 0 10px #ff4d5e; animation:pulse 1.6s infinite; }
+  @keyframes pulse { 50% { opacity:.35; } }
+  .ctrl { display:flex; gap:8px; }
+  .ctrl button { font:inherit; font-size:12.5px; color:var(--txt); background:var(--card); border:1px solid var(--stroke); border-radius:99px; padding:6px 14px; cursor:pointer; transition:.2s; }
+  .ctrl button:hover { border-color:rgba(62,230,200,.5); }
+  .cols { display:grid; grid-template-columns: 1fr 40px 1.25fr 40px 0.95fr; align-items:stretch; }
+  .col { background:rgba(5,7,11,.55); border:1px solid var(--stroke); border-radius:18px; padding:18px; position:relative; overflow:hidden; min-height:520px; }
+  .col h3 { font-size:11.5px; letter-spacing:.14em; text-transform:uppercase; color:var(--dim); font-weight:600; display:flex; gap:8px; align-items:center; }
+  .col h3 em { font-style:normal; color:var(--mute); }
+  .link { display:flex; align-items:center; justify-content:center; position:relative; }
+  .link::before { content:""; position:absolute; left:4px; right:4px; height:1px; background:linear-gradient(90deg, transparent, rgba(62,230,200,.35), transparent); }
+  .link i { width:8px; height:8px; border-radius:50%; background:var(--teal); box-shadow:0 0 14px var(--teal); position:absolute; left:0; opacity:0; }
+  .link.go i { animation:travel .55s ease-in forwards; }
+  @keyframes travel { 0% { left:0; opacity:1; } 100% { left:calc(100% - 8px); opacity:1; } }
+
+  /* person */
+  #person { width:100%; height:390px; display:block; margin-top:6px; }
+  .badges { display:flex; gap:8px; flex-wrap:wrap; margin-top:4px; }
+  .badge { font-size:12px; border:1px solid var(--stroke); border-radius:99px; padding:5px 11px; color:var(--dim); display:flex; gap:7px; align-items:center; background:rgba(255,255,255,.02); }
+  .badge b { color:var(--txt); font-weight:600; }
+  .dot { width:6px; height:6px; border-radius:50%; background:var(--teal); }
+  #thought { position:absolute; top:58px; right:18px; padding:10px 16px; border-radius:16px 16px 4px 16px; background:rgba(139,123,255,.14);
+             border:1px solid rgba(139,123,255,.35); font-size:22px; font-weight:600; letter-spacing:-.01em; opacity:0; transform:translateY(6px); transition:.35s; }
+  #thought small { display:block; font-size:10.5px; font-weight:500; color:#b8b0ff; letter-spacing:.08em; text-transform:uppercase; }
+  #thought.on { opacity:1; transform:none; }
+
+  /* signals */
+  #scope { width:100%; height:300px; display:block; margin-top:12px; border-radius:12px; background:#05070b; border:1px solid rgba(255,255,255,.05); }
+  .rec { display:grid; grid-template-columns: 1fr 1.25fr; gap:14px; margin-top:14px; align-items:center; }
+  .heard { border:1px solid var(--stroke); border-radius:14px; padding:12px 14px; background:rgba(255,255,255,.02); min-height:86px; }
+  .heard small { color:var(--dim); font-size:11px; letter-spacing:.1em; text-transform:uppercase; }
+  .heard .w { font-size:28px; font-weight:650; letter-spacing:-.02em; margin-top:2px; transition:.2s; }
+  .heard .a { color:var(--teal); font-size:13px; }
+  #bars { display:grid; grid-template-columns:repeat(8, 1fr); gap:6px; height:92px; align-items:end; }
+  .bar { position:relative; display:flex; flex-direction:column; justify-content:flex-end; align-items:center; }
+  .bar div { width:100%; border-radius:5px 5px 2px 2px; background:rgba(255,255,255,.08); height:5px; transition:height .45s cubic-bezier(.2,.8,.2,1), background .3s; }
+  .bar.win div { background:linear-gradient(180deg, var(--teal), var(--teal2)); box-shadow:0 0 18px rgba(62,230,200,.35); }
+  .bar span { font-size:10.5px; color:var(--mute); margin-top:4px; }
+  .bar.win span { color:var(--txt); }
+
   /* phone */
-  .phone { width:270px; margin:0 auto; background:#000; border-radius:34px; padding:14px 12px; border:2px solid #333; }
-  .screen { background:#fff; color:#111; border-radius:22px; height:470px; display:flex; flex-direction:column; overflow:hidden; }
-  .top { padding:12px; text-align:center; font-weight:600; border-bottom:1px solid #eee; font-size:13px; }
-  .msgs { flex:1; padding:10px; display:flex; flex-direction:column; gap:6px; justify-content:flex-end; }
-  .b { max-width:75%; padding:7px 11px; border-radius:16px; font-size:13px; }
-  .in { background:#e9e9eb; align-self:flex-start; }
-  .out { background:#0b84ff; color:#fff; align-self:flex-end; }
-  .cands { display:flex; gap:4px; padding:6px; background:#f2f2f6; border-top:1px solid #e3e3e8; min-height:36px; flex-wrap:wrap; }
-  .cand { padding:4px 9px; border-radius:6px; font-size:12px; background:#fff; border:1px solid #ddd; }
-  .cand.sel { background:#0b84ff; color:#fff; border-color:#0b84ff; }
-  .compose { padding:8px 10px 14px; display:flex; gap:6px; align-items:center; }
-  .field { flex:1; border:1px solid #ccc; border-radius:16px; padding:7px 11px; font-size:13px; min-height:32px; }
-  .caret { display:inline-block; width:1px; height:14px; background:#0b84ff; vertical-align:middle; animation:blink 1s steps(1) infinite; }
-  .code { color:#0b84ff; font-weight:600; }
-  @keyframes blink { 50% { opacity:0; } }
-  #ear { margin-top:12px; text-align:center; color:var(--dim); min-height:40px; }
-  #ear b { color:var(--txt); }
-  footer { padding:0 22px 18px; display:grid; grid-template-columns: 2fr 1fr; gap:14px; }
-  #log { font:12px/1.5 ui-monospace, Menlo, monospace; color:var(--dim); max-height:140px; overflow:auto; }
-  #log .cur { color:var(--txt); }
-  .how { color:var(--dim); font-size:12px; }
-  .how b { color:var(--txt); }
+  .phone { width:262px; margin:12px auto 0; border-radius:42px; padding:9px; background:linear-gradient(145deg, #2a2f3a, #0d0f14); box-shadow:0 30px 60px -20px rgba(0,0,0,.9), inset 0 0 0 1px rgba(255,255,255,.08); }
+  .screen { border-radius:34px; overflow:hidden; background:#fff; color:#0b0b0f; height:452px; display:flex; flex-direction:column; position:relative; }
+  .sb { display:flex; justify-content:space-between; padding:11px 22px 4px; font-size:12px; font-weight:600; }
+  .island { position:absolute; top:9px; left:50%; transform:translateX(-50%); width:78px; height:22px; border-radius:20px; background:#000; }
+  .chat-h { display:flex; flex-direction:column; align-items:center; gap:3px; padding:8px 0 9px; border-bottom:1px solid #eee; background:#fafafa; }
+  .av { width:34px; height:34px; border-radius:50%; background:linear-gradient(135deg, #ffb37a, #ff6f91); color:#fff; display:grid; place-items:center; font-weight:650; font-size:14px; }
+  .chat-h b { font-size:11.5px; font-weight:600; }
+  .msgs { flex:1; padding:10px 10px 8px; display:flex; flex-direction:column; gap:5px; justify-content:flex-end; overflow:hidden; }
+  .bub { max-width:78%; padding:7px 12px; border-radius:18px; font-size:13.5px; line-height:1.3; animation:pop .35s cubic-bezier(.2,.9,.3,1.2); }
+  .bub.in { background:#e9e9eb; align-self:flex-start; border-bottom-left-radius:5px; }
+  .bub.out { background:linear-gradient(180deg, #2c9bff, #0a7cff); color:#fff; align-self:flex-end; border-bottom-right-radius:5px; }
+  .typing { display:flex; gap:3px; padding:10px 12px; }
+  .typing i { width:6px; height:6px; border-radius:50%; background:#999; animation:bl 1s infinite; }
+  .typing i:nth-child(2) { animation-delay:.15s; } .typing i:nth-child(3) { animation-delay:.3s; }
+  @keyframes bl { 50% { opacity:.3; } }
+  @keyframes pop { from { transform:scale(.85) translateY(8px); opacity:0; } }
+  .cands { display:flex; gap:5px; padding:7px 8px; background:#f3f3f6; border-top:1px solid #e6e6ea; min-height:40px; align-items:center; }
+  .cand { padding:5px 10px; border-radius:8px; font-size:12.5px; background:#fff; box-shadow:0 1px 0 rgba(0,0,0,.06); transition:.2s; }
+  .cand.sel { background:#0a7cff; color:#fff; box-shadow:0 4px 12px -2px rgba(10,124,255,.5); }
+  .cands .hint { font-size:11px; color:#999; margin-left:auto; }
+  .compose { display:flex; gap:7px; align-items:center; padding:8px 10px 20px; }
+  .field { flex:1; border:1px solid #d6d6db; border-radius:18px; padding:7px 12px; font-size:13.5px; min-height:34px; }
+  .field .code { color:#0a7cff; font-weight:600; letter-spacing:.04em; }
+  .caret { display:inline-block; width:1.5px; height:15px; background:#0a7cff; vertical-align:-2px; margin-left:1px; animation:cb 1s steps(1) infinite; }
+  @keyframes cb { 50% { opacity:0; } }
+  .send { width:28px; height:28px; border-radius:50%; background:#0a7cff; color:#fff; display:grid; place-items:center; font-size:14px; opacity:.35; transition:.2s; }
+  .send.on { opacity:1; transform:scale(1.1); }
+  #ear { margin-top:14px; display:flex; align-items:center; justify-content:center; gap:10px; color:var(--dim); font-size:13px; min-height:26px; }
+  #ear b { color:var(--txt); font-weight:600; }
+  .wave { display:flex; gap:2px; align-items:center; height:16px; }
+  .wave i { width:2px; background:var(--teal); border-radius:2px; height:30%; }
+  #ear.on .wave i { animation:wv .5s ease-in-out infinite alternate; }
+  .wave i:nth-child(2) { animation-delay:.1s !important; } .wave i:nth-child(3) { animation-delay:.2s !important; } .wave i:nth-child(4) { animation-delay:.05s !important; }
+  @keyframes wv { to { height:100%; } }
+
+  /* caption */
+  .caption { display:flex; align-items:center; gap:18px; padding:20px 8px 4px; }
+  #cap { font-size:clamp(17px, 1.6vw, 21px); letter-spacing:-.01em; flex:1; transition:opacity .25s; }
+  #cap b { color:var(--teal); font-weight:650; }
+  #cap q { color:#b8b0ff; quotes:"“" "”"; font-weight:600; }
+  #prog { display:flex; gap:5px; }
+  #prog i { width:18px; height:4px; border-radius:4px; background:rgba(255,255,255,.1); transition:.3s; }
+  #prog i.done { background:var(--teal); }
+  #prog i.cur { background:#fff; }
+
+  /* sections */
+  section.block { padding:96px 0 0; }
+  .kicker { font-size:12px; letter-spacing:.14em; text-transform:uppercase; color:var(--teal); margin-bottom:12px; }
+  h2 { font-size:clamp(28px, 3.3vw, 42px); letter-spacing:-.03em; line-height:1.08; font-weight:680; max-width:760px; }
+  .lead { color:var(--dim); font-size:17px; max-width:700px; margin-top:14px; }
+  .grid3 { display:grid; grid-template-columns:repeat(3, 1fr); gap:16px; margin-top:34px; }
+  .grid4 { display:grid; grid-template-columns:repeat(4, 1fr); gap:16px; margin-top:34px; }
+  .card { border:1px solid var(--stroke); background:var(--card); border-radius:18px; padding:24px; }
+  .card .ic { width:38px; height:38px; border-radius:11px; display:grid; place-items:center; font-size:18px; margin-bottom:16px;
+              background:linear-gradient(135deg, rgba(62,230,200,.18), rgba(139,123,255,.18)); border:1px solid var(--stroke); }
+  .card h4 { font-size:17px; letter-spacing:-.01em; margin-bottom:6px; font-weight:620; }
+  .card p { color:var(--dim); font-size:14.5px; }
+  .num { font-size:12px; color:var(--mute); font-weight:600; letter-spacing:.1em; margin-bottom:10px; }
+  .status { margin-top:34px; border:1px solid var(--stroke); border-radius:18px; overflow:hidden; }
+  .row { display:grid; grid-template-columns: 220px 120px 1fr; gap:16px; padding:16px 22px; border-top:1px solid var(--stroke); align-items:center; }
+  .row:first-child { border-top:0; }
+  .row b { font-weight:600; }
+  .tag { font-size:11.5px; border-radius:99px; padding:3px 10px; text-align:center; width:max-content; }
+  .t-done { background:rgba(62,230,200,.12); color:var(--teal); }
+  .t-now { background:rgba(255,183,77,.13); color:#ffc56b; }
+  .t-next { background:rgba(255,255,255,.06); color:var(--dim); }
+  .row span:last-child { color:var(--dim); font-size:14px; }
+  footer { padding:90px 0 50px; color:var(--mute); font-size:12.5px; display:flex; justify-content:space-between; gap:20px; flex-wrap:wrap; }
+
+  @media (max-width: 1100px) {
+    .cols { grid-template-columns:1fr; gap:14px; } .link { display:none; }
+    .grid3, .grid4 { grid-template-columns:1fr 1fr; } .stats { grid-template-columns:1fr 1fr; }
+    .row { grid-template-columns:1fr; gap:6px; }
+  }
 </style>
 </head>
 <body>
-<header>
-  <h1>SilentBand: what using it looks like</h1>
-  <button id="play">Pause</button><button id="restart">Restart</button>
-  <label class="note">speed <input id="speed" type="range" min="0.5" max="2" step="0.25" value="1"></label>
-  <span class="note">Concept animation of the real interaction (tokens and decoder from config/tokens.json and the app). EMG traces are synthetic.</span>
-</header>
+<div class="glow"></div>
+<div class="wrap">
+  <nav>
+    <div class="logo"><i></i>SilentBand</div>
+    <div class="pill">Prototype · 2026</div>
+  </nav>
 
-<main>
-  <section class="panel">
-    <h2>1. You: lips closed, no sound</h2>
-    <div id="thought">"la"<small>silently articulated</small></div>
-    <svg viewBox="0 0 360 380" width="100%">
-      <!-- head, side view, facing right -->
-      <path d="M120 40 C 190 10, 270 40, 280 120 C 284 150, 300 170, 306 190 C 310 200, 300 204, 292 206
-               C 294 220, 290 228, 286 232 C 290 240, 288 250, 280 256 C 282 270, 276 286, 256 290
-               C 236 293, 220 296, 214 316 L 214 380 L 110 380 L 116 310 C 90 290, 70 250, 70 190
-               C 70 110, 90 55, 120 40 Z" fill="#2b3140" stroke="#3b4256"/>
-      <path d="M262 236 L 288 233" stroke="#c9a0a0" stroke-width="3" stroke-linecap="round"/> <!-- closed lips -->
-      <ellipse cx="236" cy="132" rx="7" ry="4" fill="#cfd5e3"/> <!-- eye -->
-      <path d="M150 140 C 136 130, 128 152, 140 166 C 146 174, 158 170, 158 160" fill="none" stroke="#4a5266" stroke-width="5"/> <!-- ear -->
-      <circle cx="146" cy="152" r="7" fill="#e6e8ee"/> <!-- earbud -->
-      <!-- neckband -->
-      <path d="M118 300 C 150 318, 200 318, 222 300" fill="none" stroke="#4fd1c5" stroke-width="7" stroke-linecap="round" opacity=".75"/>
-      <rect x="148" y="304" width="36" height="16" rx="4" fill="#1f6f69" stroke="#4fd1c5"/>
-      <text x="166" y="316" font-size="8" fill="#e6e8ee" text-anchor="middle">board</text>
-      <!-- leads + electrodes (8 of 16 shown) -->
-      <g id="leads" stroke="#5a6278" stroke-width="1" fill="none"></g>
-      <g id="elecs"></g>
-      <text x="292" y="226" font-size="10" fill="#8b93a7">lips closed</text>
-      <text x="96" y="132" font-size="10" fill="#8b93a7">earbud voice</text>
-    </svg>
-    <div class="how"><b>Electrodes:</b> chin, under the jaw, throat and behind the ear. They pick up the tiny muscle signals (5-50 µV) of articulating a syllable without moving your lips or making a sound.</div>
-  </section>
+  <header class="hero">
+    <div class="eyebrow">Silent speech interface</div>
+    <h1>Type without a keyboard.<br><span class="grad">Without a sound.</span></h1>
+    <p class="sub">A light neckband reads the tiny muscle signals of silently articulated syllables, with lips closed. On-device AI turns them into text in any app.</p>
+    <div class="stats">
+      <div class="stat"><b>0 dB</b><span>no voice, no visible movement</span></div>
+      <div class="stat"><b>16</b><span>sensing channels</span></div>
+      <div class="stat"><b>8</b><span>silent syllables to type anything</span></div>
+      <div class="stat"><b>100%</b><span>on-device, no cloud</span></div>
+    </div>
+  </header>
 
-  <section class="panel">
-    <h2>2. SilentBand → recognizer (on your Mac)</h2>
-    <canvas id="scope" width="640" height="300"></canvas>
-    <div id="det"><div class="chip" id="tok">waiting…</div><div id="conf"><div></div></div><div class="chip" id="act">action</div></div>
-    <div class="legend" id="legend"></div>
-  </section>
+  <!-- ========================== live scene ========================== -->
+  <div class="stage" id="demo">
+    <div class="stage-head">
+      <div class="live">Live demo · replying to a message</div>
+      <div class="ctrl"><button id="play">Pause</button><button id="restart">Restart</button><button id="spd">1×</button></div>
+    </div>
 
-  <section class="panel">
-    <h2>3. Text appears in any app</h2>
-    <div class="phone"><div class="screen">
-      <div class="top">Ana</div>
-      <div class="msgs" id="msgs"><div class="b in">Where are you? 🙂</div></div>
-      <div class="cands" id="cands"></div>
-      <div class="compose"><div class="field" id="field"></div></div>
-    </div></div>
-    <div id="ear"></div>
-  </section>
-</main>
+    <div class="cols">
+      <div class="col">
+        <h3>01 <em>/</em> You</h3>
+        <div id="thought"><small>silently says</small><span id="tw">la</span></div>
+        <svg id="person" viewBox="0 0 400 420" preserveAspectRatio="xMidYMid meet">
+          <defs>
+            <linearGradient id="skin" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0" stop-color="#2d3446"/><stop offset="1" stop-color="#161a24"/>
+            </linearGradient>
+            <linearGradient id="rim" x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0" stop-color="rgba(255,255,255,0)"/><stop offset="1" stop-color="rgba(62,230,200,.55)"/>
+            </linearGradient>
+            <linearGradient id="band" x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0" stop-color="#1e8f80"/><stop offset=".5" stop-color="#3ee6c8"/><stop offset="1" stop-color="#22b8f0"/>
+            </linearGradient>
+            <radialGradient id="eg"><stop offset="0" stop-color="#ffd2bd"/><stop offset=".45" stop-color="#ff8a5b"/><stop offset="1" stop-color="rgba(255,138,91,0)"/></radialGradient>
+            <filter id="soft"><feGaussianBlur stdDeviation="6"/></filter>
+          </defs>
+          <ellipse cx="200" cy="400" rx="150" ry="14" fill="rgba(0,0,0,.5)" filter="url(#soft)"/>
+          <path d="M152 46 C 232 22 304 66 310 146 C 312 166 322 182 332 204 C 336 212 334 218 324 220
+                   C 326 230 324 236 320 240 C 324 246 322 254 316 258 C 320 272 314 290 294 298
+                   C 272 304 256 302 248 320 L 246 420 L 118 420 L 126 344 C 94 318 78 272 80 202
+                   C 82 112 100 64 152 46 Z" fill="url(#skin)"/>
+          <path d="M152 46 C 232 22 304 66 310 146 C 312 166 322 182 332 204 C 336 212 334 218 324 220
+                   C 326 230 324 236 320 240 C 324 246 322 254 316 258 C 320 272 314 290 294 298
+                   C 272 304 256 302 248 320 L 246 420" fill="none" stroke="url(#rim)" stroke-width="1.6"/>
+          <path d="M300 249 Q 310 251 319 249" stroke="#d9a3a0" stroke-width="2.4" fill="none" stroke-linecap="round"/>
+          <path d="M268 150 q 10 -6 20 0" stroke="#aab3c7" stroke-width="2" fill="none" stroke-linecap="round"/>
+          <path d="M172 176 C 156 168 148 196 160 214 C 166 222 178 222 180 210" fill="none" stroke="#3a4257" stroke-width="7" stroke-linecap="round"/>
+          <!-- earbud -->
+          <g id="bud"><circle cx="168" cy="196" r="12" fill="url(#eg)" opacity="0" id="budglow"/>
+            <circle cx="168" cy="196" r="7.5" fill="#f2f4f8"/><circle cx="168" cy="196" r="3" fill="#c9ced9"/></g>
+          <!-- leads -->
+          <g id="leads" stroke="rgba(160,175,200,.28)" stroke-width="1" fill="none"></g>
+          <!-- neckband -->
+          <path d="M120 352 C 150 376 214 376 248 350" fill="none" stroke="rgba(62,230,200,.25)" stroke-width="16" stroke-linecap="round" filter="url(#soft)"/>
+          <path d="M120 352 C 150 376 214 376 248 350" fill="none" stroke="url(#band)" stroke-width="8" stroke-linecap="round"/>
+          <rect x="166" y="358" width="40" height="18" rx="6" fill="#0b1a1a" stroke="#3ee6c8" stroke-width="1"/>
+          <circle cx="198" cy="367" r="2" fill="#3ee6c8" id="led"/>
+          <g id="elecs"></g>
+          <!-- labels -->
+          <g font-size="10.5" fill="#7d879b" font-family="-apple-system, system-ui">
+            <text x="326" y="253">lips closed</text>
+            <line x1="321" y1="250" x2="324" y2="250" stroke="#7d879b"/>
+            <text x="64" y="186">earbud</text>
+            <text x="250" y="396">SilentBand</text>
+          </g>
+        </svg>
+        <div class="badges">
+          <div class="badge"><span class="dot"></span>Sound <b id="db">0 dB</b></div>
+          <div class="badge"><span class="dot"></span>Lips <b>closed</b></div>
+          <div class="badge"><span class="dot" style="background:var(--vio)"></span>Hands <b>free</b></div>
+        </div>
+      </div>
 
-<footer>
-  <div class="panel"><h2>Step by step</h2><div id="log"></div></div>
-  <div class="panel how">
-    <h2>How typing works</h2>
-    <b>4 tokens</b> pick letter groups (abcdef · ghijklm · nopqrs · tuvwxyz), like T9.
-    <b>na</b> = next suggestion, <b>ya</b> = accept, <b>sha</b> = back, <b>ree</b> = wake/pause.
-    With no letters, the <b>local LLM</b> suggests the next word, so most words are a single "ya".
-    The earbud quietly says the current suggestion, so you never need to look.
+      <div class="link" id="l1"><i></i></div>
+
+      <div class="col">
+        <h3>02 <em>/</em> SilentBand + on-device AI</h3>
+        <canvas id="scope"></canvas>
+        <div class="rec">
+          <div class="heard"><small>Recognized</small><div class="w" id="hw">-</div><div class="a" id="ha">waiting for a syllable</div></div>
+          <div id="bars"></div>
+        </div>
+      </div>
+
+      <div class="link" id="l2"><i></i></div>
+
+      <div class="col">
+        <h3>03 <em>/</em> Any app</h3>
+        <div class="phone"><div class="screen">
+          <div class="island"></div>
+          <div class="sb"><span>9:41</span><span>●●● ▮</span></div>
+          <div class="chat-h"><div class="av">A</div><b>Ana</b></div>
+          <div class="msgs" id="msgs"></div>
+          <div class="cands" id="cands"></div>
+          <div class="compose"><div class="field" id="field"></div><div class="send" id="send">↑</div></div>
+        </div></div>
+        <div id="ear"><div class="wave"><i></i><i></i><i></i><i></i></div><span id="et">earbud feedback</span></div>
+      </div>
+    </div>
+
+    <div class="caption"><div id="cap">Press play</div><div id="prog"></div></div>
   </div>
-</footer>
+
+  <!-- ========================== pitch ========================== -->
+  <section class="block">
+    <div class="kicker">Why it matters</div>
+    <h2>Speech is the fastest way to communicate, but you can't always say it out loud.</h2>
+    <p class="lead">Meetings, public transport, hospitals, loud workplaces, or a voice you can't use. SilentBand gives people a private, hands-free channel to their devices.</p>
+    <div class="grid3">
+      <div class="card"><div class="ic">🔒</div><h4>Truly private</h4><p>Nothing is spoken and nothing is seen. Not even the people next to you can tell you are typing.</p></div>
+      <div class="card"><div class="ic">✋</div><h4>Hands &amp; eyes free</h4><p>Reply while walking, cooking or driving. The earbud reads back suggestions, so you never look at a screen.</p></div>
+      <div class="card"><div class="ic">♿</div><h4>Accessible</h4><p>A path to text for people with voice loss or limited hand mobility, built on muscles they still control.</p></div>
+    </div>
+  </section>
+
+  <section class="block">
+    <div class="kicker">How it works</div>
+    <h2>Four steps, all on your own device.</h2>
+    <div class="grid4">
+      <div class="card"><div class="num">01 · SENSE</div><h4>16-channel biosignal band</h4><p>ECG-class 24-bit analog front-ends sample the jaw, chin and throat muscles at 2,000 samples per second.</p></div>
+      <div class="card"><div class="num">02 · DECODE</div><h4>Personal syllable model</h4><p>A lightweight model learns your 8 silent syllables in four short guided sessions, and ignores chewing and swallowing.</p></div>
+      <div class="card"><div class="num">03 · PREDICT</div><h4>Local language model</h4><p>Next-word prediction means most words take a single syllable to confirm.</p></div>
+      <div class="card"><div class="num">04 · TYPE</div><h4>Works in any app</h4><p>Text goes wherever your cursor is: messages, email, documents. Earbud audio confirms every step.</p></div>
+    </div>
+  </section>
+
+  <section class="block">
+    <div class="kicker">Where we are</div>
+    <h2>Hardware designed. Software built. First human trials next.</h2>
+    <p class="lead">Published research on silently articulated speech reaches 88-97% accuracy on small vocabularies. Our next milestone tests the lips-closed variant on our own hardware.</p>
+    <div class="status">
+      <div class="row"><b>16-ch SilentBand board</b><span class="tag t-done">Designed</span><span>Two TI ADS1298 front-ends + ESP32-S3, 68×46 mm, battery-only for safety. Design-rule clean and independently reviewed.</span></div>
+      <div class="row"><b>Software stack</b><span class="tag t-done">Built</span><span>Firmware, guided setup and training, recognizer, Mac typing app with local LLM and earbud voice. Runs end-to-end in simulation.</span></div>
+      <div class="row"><b>First units</b><span class="tag t-now">Ordering</span><span>Two assembled prototypes from the PCB fab.</span></div>
+      <div class="row"><b>Lips-closed accuracy</b><span class="tag t-next">Next</span><span>Target: >80% on 8 syllables, then a 3-minute daily calibration.</span></div>
+      <div class="row"><b>Discreet wearable</b><span class="tag t-next">Then</span><span>Move sensors toward the ear; phone support.</span></div>
+    </div>
+  </section>
+
+  <footer>
+    <span>SilentBand · concept demo. Signals and word predictions in this animation are illustrative; the interaction flow is the product's real one.</span>
+    <span>Not a medical device.</span>
+  </footer>
+</div>
 
 <script>
-const GROUPS = {G1:"abcdef", G2:"ghijklm", G3:"nopqrs", G4:"tuvwxyz"};
-const MAP = {ka:"G1", ta:"G2", la:"G3", ga:"G4", na:"NEXT", ya:"ACCEPT", sha:"BACK", ree:"WAKE"};
-// Electrode sites (x, y) on the drawing, 8 of the 16 channels.
-const SITES = [[262,262],[246,276],[226,284],[206,276],[214,300],[196,302],[164,176],[176,196]];
-const SITE_NAME = ["chin L","chin R","under jaw","jaw angle","throat L","throat R","behind ear","mastoid"];
-// Each token excites its own set of muscles -> electrodes (illustrative).
+const TOKENS = ["ka","ta","la","ga","na","ya","sha","ree"];
+const ACT = {ka:"letters a-f", ta:"letters g-m", la:"letters n-s", ga:"letters t-z", na:"next suggestion", ya:"accept", sha:"back", ree:"wake"};
+// electrode sites (8 of 16 drawn), and which ones each syllable activates (illustrative)
+const SITES = [[302,282],[284,294],[262,304],[240,300],[236,330],[214,338],[176,232],[192,252]];
+const SITE_NAME = ["Chin L","Chin R","Under jaw","Jaw angle","Throat L","Throat R","Behind ear","Mastoid"];
 const PATTERN = {ka:[2,3,4], ta:[0,1,2], la:[1,2,5], ga:[3,4,5], na:[0,2,6], ya:[1,4,7], sha:[0,1,3], ree:[5,6,7]};
 
-// Scenario: reply "running late, be there soon" + send.  c = candidates, i = selected index
+// "running late be there soon." + send
 const STEPS = [
-  {t:"ree", say:"listening",                 note:"wake: arms typing"},
-  {t:"la",  code:"r",  c:["run","running","rush","so"], i:0, say:"run", note:"G3 = n o p q r s"},
-  {t:"ga",  code:"ru", c:["running","run","rush"], i:0, say:"running", note:"G4 = t u v w x y z → 'ru…'"},
-  {t:"ya",  type:"running ", c:["late","behind","to","now"], i:0, say:"late", note:"accept → types 'running'; LLM predicts next word"},
-  {t:"ya",  type:"late ", c:["be","sorry","so","."], i:0, say:"be", note:"accept 'late'"},
-  {t:"ya",  type:"be ", c:["there","right","back","home"], i:0, say:"there", note:"accept 'be'"},
-  {t:"ya",  type:"there ", c:["in","at","soon","by"], i:0, say:"in", note:"accept 'there'"},
-  {t:"na",  c:["in","at","soon","by"], i:1, say:"at", note:"next suggestion"},
-  {t:"na",  c:["in","at","soon","by"], i:2, say:"soon", note:"next suggestion"},
-  {t:"ya",  type:"soon ", c:[".","!","⏎"], i:0, say:"period", note:"accept 'soon'"},
-  {t:"na",  c:[".","!","⏎"], i:2, say:"send", note:"next → newline/send"},
-  {t:"ya",  send:true, say:"sent", note:"message sent; nobody saw or heard you type"},
+  {t:"ree", ear:"listening", cap:"Silently says <q>ree</q> to <b>wake</b> SilentBand"},
+  {t:"la", code:"r", c:["run","running","rush"], i:0, ear:"run", cap:"<q>la</q> picks letters <b>n-s</b>: the word starts with r"},
+  {t:"ga", code:"ru", c:["running","run","rush"], i:0, ear:"running", cap:"<q>ga</q> adds letters <b>t-z</b>: the AI suggests <b>running</b>"},
+  {t:"ya", type:"running ", c:["late","behind","now"], i:0, ear:"late", cap:"<q>ya</q> <b>accepts</b>. The language model already predicts the next word"},
+  {t:"ya", type:"late ", c:["be","sorry","so"], i:0, ear:"be", cap:"One syllable per word: <b>late</b>"},
+  {t:"ya", type:"be ", c:["there","right","back"], i:0, ear:"there", cap:"<b>be</b>"},
+  {t:"ya", type:"there ", c:["in","at","soon"], i:0, ear:"in", cap:"<b>there</b>"},
+  {t:"na", c:["in","at","soon"], i:1, ear:"at", cap:"<q>na</q> moves to the <b>next suggestion</b>, read out in the earbud"},
+  {t:"na", c:["in","at","soon"], i:2, ear:"soon", cap:"…until it hears <b>soon</b>"},
+  {t:"ya", type:"soon.", c:["send ↑","!","⏎"], i:0, ear:"send?", cap:"Accept, and it adds the period"},
+  {t:"ya", send:true, ear:"sent", cap:"Message sent. <b>12 silent syllables</b>: no keyboard, no voice, nobody noticed"},
 ];
 
 const $ = id => document.getElementById(id);
-const leads = $("leads"), elecs = $("elecs");
+const NS = "http://www.w3.org/2000/svg";
 SITES.forEach(([x, y], k) => {
-  leads.insertAdjacentHTML("beforeend", `<path d="M${x} ${y} Q ${(x + 166) / 2} ${(y + 330) / 2 + 10} 166 312"/>`);
-  elecs.insertAdjacentHTML("beforeend", `<circle class="elec" id="e${k}" cx="${x}" cy="${y}" r="5" fill="#8b93a7" stroke="#0f1115"/>`);
+  $("leads").insertAdjacentHTML("beforeend", `<path d="M${x} ${y} Q ${(x + 186) / 2} ${(y + 367) / 2 + 12} 186 366"/>`);
+  $("elecs").insertAdjacentHTML("beforeend",
+    `<g id="e${k}"><circle class="halo" cx="${x}" cy="${y}" r="16" fill="url(#eg)" opacity="0"/>` +
+    `<circle cx="${x}" cy="${y}" r="5.2" fill="#e8ecf3" stroke="#0b0e14" stroke-width="2"/></g>`);
 });
-$("legend").innerHTML = Object.entries(MAP).map(([t, a]) => `<span id="lg-${t}"><b>${t}</b> → ${a}${GROUPS[a] ? " " + GROUPS[a] : ""}</span>`).join("");
+$("bars").innerHTML = TOKENS.map(t => `<div class="bar" id="b-${t}"><div></div><span>${t}</span></div>`).join("");
+$("prog").innerHTML = STEPS.map(() => "<i></i>").join("");
 
-// --- scope -------------------------------------------------------------------------------
+// ---------------- signals ----------------
 const cv = $("scope"), g = cv.getContext("2d");
-const NCH = 8, W = cv.width, H = cv.height, N = 640;
-const traces = Array.from({length: NCH}, () => new Float32Array(N));
-let burst = null;  // {chans, t0}
-function gauss() { return (Math.random() + Math.random() + Math.random() - 1.5) * 1.15; }
-function scopeTick(now) {
-  for (let c = 0; c < NCH; c++) {
-    const tr = traces[c];
-    tr.copyWithin(0, 6);
-    for (let k = N - 6; k < N; k++) {
-      let a = 1;
-      if (burst && burst.chans.includes(c)) {
-        const dt = (now - burst.t0) / 1000;
-        if (dt > 0 && dt < 0.9) a += 3 * Math.sin(Math.PI * dt / 0.9) ** 2;
-      }
-      tr[k] = gauss() * a;
-    }
+let DPR = 1, W = 0, H = 0;
+const NCH = 8, GUT = 84, PX = 3;
+let cols = 0, buf = [];
+function resize() {
+  DPR = window.devicePixelRatio || 1;
+  W = cv.clientWidth; H = cv.clientHeight;
+  cv.width = W * DPR; cv.height = H * DPR; g.setTransform(DPR, 0, 0, DPR, 0, 0);
+  cols = Math.floor((W - GUT - 10) / PX);
+  buf = Array.from({length: NCH}, (_, c) => (buf[c] || []).slice(-cols));
+  buf.forEach(b => { while (b.length < cols) b.unshift(0); });
+}
+let burst = null;
+const rnd = () => (Math.random() * 2 - 1);
+function sample(c, now) {
+  let a = 0.12;
+  if (burst && burst.chans.includes(c)) {
+    const dt = (now - burst.t0) / 1000;
+    if (dt > 0 && dt < 0.95) a += 0.95 * Math.sin(Math.PI * dt / 0.95) ** 2 * (burst.chans.indexOf(c) === 1 ? 1 : 0.75);
   }
-  g.fillStyle = "#11141a"; g.fillRect(0, 0, W, H);
+  return rnd() * a * (0.7 + 0.6 * Math.random());
+}
+function drawScope(now) {
+  for (let c = 0; c < NCH; c++) { buf[c].push(sample(c, now)); buf[c].push(sample(c, now)); buf[c].splice(0, 2); }
+  g.clearRect(0, 0, W, H);
   const lane = H / NCH;
   for (let c = 0; c < NCH; c++) {
-    const y0 = lane * (c + 0.5), hot = burst && burst.chans.includes(c) && now - burst.t0 < 900;
-    g.strokeStyle = hot ? "#ff7a59" : "#4fd1c5"; g.globalAlpha = hot ? 1 : 0.6; g.lineWidth = 1;
-    g.beginPath();
-    for (let k = 0; k < N; k++) { const y = y0 + traces[c][k] * lane * 0.16; k ? g.lineTo(k * W / N, y) : g.moveTo(0, y); }
-    g.stroke(); g.globalAlpha = 1;
-    g.fillStyle = "#8b93a7"; g.font = "11px -apple-system"; g.fillText(SITE_NAME[c], 6, y0 - lane * 0.3);
+    const y0 = lane * (c + 0.5);
+    const hot = burst && burst.chans.includes(c) && now - burst.t0 < 1100;
+    g.fillStyle = hot ? "#ffd2bd" : "#5b6477"; g.font = "500 11px -apple-system, system-ui";
+    g.fillText(SITE_NAME[c], 14, y0 + 4);
+    g.fillStyle = "rgba(255,255,255,.04)"; g.fillRect(GUT, y0, W - GUT - 10, 1);
+    const grad = g.createLinearGradient(GUT, 0, W, 0);
+    if (hot) { grad.addColorStop(0, "rgba(255,138,91,.15)"); grad.addColorStop(1, "#ff8a5b"); }
+    else { grad.addColorStop(0, "rgba(62,230,200,.08)"); grad.addColorStop(1, "rgba(62,230,200,.85)"); }
+    g.strokeStyle = grad; g.lineWidth = 1.2; g.beginPath();
+    const b = buf[c];
+    for (let k = 0; k < b.length; k++) {
+      const x = GUT + k * PX, y = y0 + b[k] * lane * 0.46;
+      k ? g.lineTo(x, y) : g.moveTo(x, y);
+    }
+    g.stroke();
   }
+  // sweep head
+  g.fillStyle = "rgba(62,230,200,.9)"; g.fillRect(W - 11, 6, 1.5, H - 12);
 }
 
-// --- phone -------------------------------------------------------------------------------
+// ---------------- phone ----------------
 let typed = "", code = "";
-function renderPhone(st) {
-  $("field").innerHTML = typed + (code ? `<span class="code">${code}</span>` : "") + '<span class="caret"></span>';
-  $("cands").innerHTML = (st.c || []).map((w, k) => `<span class="cand ${k === st.i ? "sel" : ""}">${w}</span>`).join("");
+function phone(st) {
+  $("field").innerHTML = (typed || code ? "" : '<span style="color:#aaa">iMessage</span>') + typed +
+    (code ? `<span class="code">${code}</span>` : "") + '<span class="caret"></span>';
+  const c = st.c || [];
+  $("cands").innerHTML = c.map((w, k) => `<span class="cand ${k === st.i ? "sel" : ""}">${w}</span>`).join("") +
+    (c.length ? '<span class="hint">AI</span>' : "");
+  $("send").classList.toggle("on", !!typed);
+}
+function bubble(cls, text) {
+  const d = document.createElement("div"); d.className = "bub " + cls; d.innerHTML = text;
+  $("msgs").appendChild(d); return d;
 }
 
-// --- player ------------------------------------------------------------------------------
-let step = 0, playing = true, speed = 1, timer = null;
-const log = $("log");
+// ---------------- player ----------------
+let step = 0, playing = true, speed = 1, timers = [];
+const later = (ms, f) => timers.push(setTimeout(f, ms / speed));
+function clearAll() { timers.forEach(clearTimeout); timers = []; }
 function reset() {
-  step = 0; typed = ""; code = ""; burst = null;
-  $("msgs").innerHTML = '<div class="b in">Where are you? 🙂</div>';
-  $("cands").innerHTML = ""; $("ear").innerHTML = ""; log.innerHTML = "";
-  $("tok").textContent = "waiting…"; $("act").textContent = "action"; $("conf").firstChild.style.width = "0";
-  renderPhone({});
+  clearAll(); step = 0; typed = ""; code = ""; burst = null;
+  $("msgs").innerHTML = ""; bubble("in", "Hey! Where are you? 🙂");
+  $("hw").textContent = "-"; $("ha").textContent = "waiting for a syllable";
+  TOKENS.forEach(t => { const b = $("b-" + t); b.classList.remove("win"); b.firstChild.style.height = "5px"; });
+  $("et").textContent = "earbud feedback"; $("ear").classList.remove("on");
+  phone({}); progress(-1);
+  $("cap").innerHTML = "Ana asks where you are. You're in a quiet meeting.";
 }
+function progress(n) { [...$("prog").children].forEach((e, k) => e.className = k < n ? "done" : k === n ? "cur" : ""); }
+function pulse(id) { const l = $(id); l.classList.remove("go"); void l.offsetWidth; l.classList.add("go"); }
+
 function doStep() {
-  if (step >= STEPS.length) { timer = setTimeout(() => { reset(); schedule(); }, 3500 / speed); return; }
-  const n = step, st = STEPS[step], act = MAP[st.t];
+  if (!playing) return;
+  if (step >= STEPS.length) { later(4200, () => { reset(); later(1800, doStep); }); return; }
+  const n = step++, st = STEPS[n];
+  progress(n);
   // 1. articulate
-  $("thought").innerHTML = `"${st.t}"<small>silently articulated</small>`; $("thought").style.opacity = 1;
-  document.querySelectorAll(".elec").forEach(e => { e.setAttribute("fill", "#8b93a7"); e.setAttribute("r", 5); });
-  PATTERN[st.t].forEach(k => { const e = $("e" + k); e.setAttribute("fill", "#ff7a59"); e.setAttribute("r", 7); });
+  $("tw").textContent = st.t; $("thought").classList.add("on");
+  for (let k = 0; k < SITES.length; k++) $("e" + k).querySelector(".halo").setAttribute("opacity", PATTERN[st.t].includes(k) ? 1 : 0);
   burst = {chans: PATTERN[st.t], t0: performance.now()};
-  document.querySelectorAll(".legend span").forEach(s => s.classList.remove("on"));
-  // 2. recognize (after the burst)
-  setTimeout(() => {
-    const p = (0.86 + Math.random() * 0.12);
-    $("tok").innerHTML = `heard <b>${st.t}</b>`; $("act").innerHTML = `→ <b>${act}</b>`;
-    $("conf").firstChild.style.width = (p * 100).toFixed(0) + "%";
-    $("lg-" + st.t).classList.add("on");
-    // 3. app reacts
-    if (st.code !== undefined) code = st.code; else code = "";
+  $("cap").style.opacity = 0;
+  later(250, () => { $("cap").innerHTML = st.cap; $("cap").style.opacity = 1; });
+  later(700, () => pulse("l1"));
+  // 2. recognize
+  later(1100, () => {
+    $("thought").classList.remove("on");
+    for (let k = 0; k < SITES.length; k++) $("e" + k).querySelector(".halo").setAttribute("opacity", 0);
+    const p = 0.9 + Math.random() * 0.08;
+    let rest = 1 - p;
+    TOKENS.forEach(t => {
+      const b = $("b-" + t), win = t === st.t;
+      const v = win ? p : Math.min(rest, Math.random() * 0.06);
+      if (!win) rest -= v;
+      b.classList.toggle("win", win); b.firstChild.style.height = Math.max(5, v * 70) + "px";
+    });
+    $("hw").textContent = `“${st.t}”`; $("ha").textContent = `${ACT[st.t]} · ${(p * 100).toFixed(0)}% confident`;
+    pulse("l2");
+  });
+  // 3. app
+  later(1500, () => {
+    code = st.code || "";
     if (st.type) typed += st.type;
     if (st.send) {
-      $("msgs").insertAdjacentHTML("beforeend", `<div class="b out">${typed.trim()}.</div>`);
-      typed = ""; code = "";
-      setTimeout(() => $("msgs").insertAdjacentHTML("beforeend", '<div class="b in">ok no rush!</div>'), 1200 / speed);
+      bubble("out", typed.trim()); typed = ""; code = "";
+      later(900, () => { const t = bubble("in", '<div class="typing"><i></i><i></i><i></i></div>'); t.style.padding = "0";
+        later(1500, () => { t.remove(); bubble("in", "No rush! See you soon 👋"); }); });
     }
-    renderPhone(st);
-    $("ear").innerHTML = st.say ? `🎧 earbud: <b>“${st.say}”</b>` : "";
-    log.querySelectorAll(".cur").forEach(d => d.classList.remove("cur"));
-    log.insertAdjacentHTML("beforeend", `<div class="cur">${String(n + 1).padStart(2)}. ${st.t.padEnd(3)} → ${act.padEnd(6)} ${st.note}</div>`);
-    log.scrollTop = log.scrollHeight;
-    $("thought").style.opacity = 0;
-  }, 900 / speed);
-  step++;
-  schedule();
+    phone(st);
+    $("et").innerHTML = `earbud: <b>“${st.ear}”</b>`; $("ear").classList.add("on");
+    $("budglow").setAttribute("opacity", 1);
+    later(700, () => { $("ear").classList.remove("on"); $("budglow").setAttribute("opacity", 0); });
+  });
+  later(2900, doStep);
 }
-function schedule() { clearTimeout(timer); if (playing) timer = setTimeout(doStep, 2000 / speed); }
-$("play").onclick = () => { playing = !playing; $("play").textContent = playing ? "Pause" : "Play"; if (playing) schedule(); else clearTimeout(timer); };
-$("restart").onclick = () => { clearTimeout(timer); reset(); playing = true; $("play").textContent = "Pause"; schedule(); };
-$("speed").oninput = e => { speed = +e.target.value; };
-function loop(now) { scopeTick(now); requestAnimationFrame(loop); }
-reset(); requestAnimationFrame(loop); schedule();
+$("play").onclick = () => { playing = !playing; $("play").textContent = playing ? "Pause" : "Play"; if (playing) { clearAll(); doStep(); } else clearAll(); };
+$("restart").onclick = () => { reset(); playing = true; $("play").textContent = "Pause"; later(1200, doStep); };
+$("spd").onclick = () => { speed = speed === 1 ? 1.5 : speed === 1.5 ? 0.75 : 1; $("spd").textContent = speed + "×"; };
+document.addEventListener("keydown", e => { if (e.code === "Space") { e.preventDefault(); $("play").click(); } });
+window.addEventListener("resize", resize);
+resize(); reset();
+(function loop(now) { drawScope(now); requestAnimationFrame(loop); })(performance.now());
+later(1800, doStep);
 </script>
 </body>
 </html>
