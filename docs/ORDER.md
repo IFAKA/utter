@@ -35,9 +35,16 @@ None of the 13 extended parts had a basic or preferred-extended equivalent that 
 - The 3.3 V LDO must supply ~355 mA Wi-Fi peaks from a LiPo, which rules out XC6206 and AMS1117.
 
 ## Amazon.es (≈ EUR 35-45)
-- 1S LiPo, 3.7 V, 500-1000 mAh, with protection circuit and **JST-PH 2.0** plug. Polarity does not matter for safety: Q1 blocks a reversed cell, and the board then just won't power on. If that happens, swap the two crimps.
+- 1S LiPo **503040** (600 mAh, at most 40 × 30 × 5 mm so it fits the housing), with protection circuit and **JST-PH 2.0** plug, lead ≥ 50 mm. Polarity does not matter for safety: Q1 blocks a reversed cell, and the board then just won't power on. If that happens, swap the two crimps.
 - Ag/AgCl pre-gelled snap electrodes (pack of 50+) and snap lead wires ending in 2.54 mm Dupont female sockets (10+ leads).
 - Optional IMU: GY-LSM6DS3 breakout plus 4 Dupont wires. J2 pin order is 3V3, GND, SDA, SCL (pin 1 is marked).
+- Housing: 4 × M2 × 10 pan-head self-tapping screws and a 25 mm elastic or silicone strap (~40 cm, adjustable).
+
+## Housing (3D print, `hardware/enclosure/`)
+`python3 hardware/enclosure/pod.py` writes `out/pod_base.stl` and `out/pod_lid.stl` (needs `pip install manifold3d numpy`; Python ≤ 3.13). Before writing, it checks that every footprint on the PCB, the board and the cell fit without touching the shell, and it fails otherwise. Outer size is 79 × 62 × 17 mm (91 mm across the strap lugs). The bulge on the USB side is a pocket for the battery plug: J4 opens towards the board edge, so the plug needs about 7 mm beyond it. After changing `pod.py`, run `hardware/enclosure/web.py` to update the landing page's 3D kit (`docs/assets/kit.js`).
+- Print in PETG: 0.2 mm layers, 4 walls, 30 % infill, no supports. The base prints floor down; the lid prints outer face down.
+- Assembly: put the cell between the floor rails, with its lead going up the channel next to J4. Set the board on the ledge, USB-C side towards the cut-outs, and plug in the cell. Put the lid on (the pegs press the board down), then fit the 4 screws. The electrode leads and IMU plug go through the lid openings onto J1 and J2.
+- Print one first and check it before printing more. Whether the USB-C plug seats fully and whether the switch can be reached depend on how far the parts overhang the board edge, which the PCB file does not give exactly. If either one doesn't work, change the wall recesses in `pod.py`.
 
 ## Independent review checklist (Fable)
 1. ADS1298 x2 on a shared SPI bus with separate CS. U1 is the clock master (CLKSEL=1, CLK_EN) and drives U2's CLK through 33 Ω. U2 has CLKSEL=0. START, RESET and PWDN are shared. Check against datasheet sections 9.5 and 10.1.
