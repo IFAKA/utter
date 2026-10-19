@@ -1,7 +1,7 @@
-"""Generate the SilentBand schematic from circuit.py (one sheet, every pin tied to a global net label).
+"""Generate the Utter schematic from circuit.py (one sheet, every pin tied to a global net label).
 
 Run with any Python 3.9+:  python3 gen_sch.py
-Output: hardware/out/silentband.kicad_sch (then ERC + netlist parity via build.sh)
+Output: hardware/out/utter.kicad_sch (then ERC + netlist parity via build.sh)
 Checks: every symbol pin has a pad in circuit.py (pin numbers == pad numbers) and vice versa
 (footprint-only pads such as switch shells are listed).
 """
@@ -17,9 +17,9 @@ import sexpr  # noqa: E402
 from sexpr import Sym  # noqa: E402
 
 OUT = os.path.join(circuit.REPO, "hardware/out")
-SCH = os.path.join(OUT, "silentband.kicad_sch")
+SCH = os.path.join(OUT, "utter.kicad_sch")
 G = 2.54
-ROOT = str(_uuid.uuid5(_uuid.NAMESPACE_URL, "silentband/root"))
+ROOT = str(_uuid.uuid5(_uuid.NAMESPACE_URL, "utter/root"))
 FLAG_NETS = ["GND", "VBUS", "VBAT_SW", "VSYS", "VSYS_A"]  # nets fed by connectors/switches
 GROUP_TITLES = {"conn": "Electrode header", "afe1": "Input filters U1 (IN1-8, REF, RLD)",
                 "afe2": "Input filters U2 (IN9-16)", "ads1": "ADS1298 master (clock out, RLD)",
@@ -28,7 +28,7 @@ GROUP_TITLES = {"conn": "Electrode header", "afe1": "Input filters U1 (IN1-8, RE
 
 
 def uid(*key) -> str:
-    return str(_uuid.uuid5(_uuid.NAMESPACE_URL, "silentband/" + "/".join(map(str, key))))
+    return str(_uuid.uuid5(_uuid.NAMESPACE_URL, "utter/" + "/".join(map(str, key))))
 
 
 def snap(v: float) -> float:
@@ -121,10 +121,10 @@ def main():
     paper_h = gy + shelf_h + 20.0
 
     # ---- emit ----
-    sch = [Sym("kicad_sch"), [Sym("version"), 20250114], [Sym("generator"), "silentband_gen"],
+    sch = [Sym("kicad_sch"), [Sym("version"), 20250114], [Sym("generator"), "utter_gen"],
            [Sym("generator_version"), "10.0"], [Sym("uuid"), ROOT],
            [Sym("paper"), "User", round(PAPER_W + 20, 1), round(max(paper_h, 300.0), 1)],
-           [Sym("title_block"), [Sym("title"), "SilentBand v1"], [Sym("rev"), "1"],
+           [Sym("title_block"), [Sym("title"), "Utter v1"], [Sym("rev"), "1"],
             [Sym("comment"), 1, "Generated from hardware/gen/circuit.py - do not edit by hand"]]]
     sch.append([Sym("lib_symbols")] + list(lib.values()))
     for t, x, y in texts:
@@ -144,7 +144,7 @@ def main():
             s.append(prop(k, v, x, y, hide=True))
         for q in sexpr.pins(sym):
             s.append([Sym("pin"), q["number"], [Sym("uuid"), uid("pin", refdes, q["number"], q["name"])]])
-        s.append([Sym("instances"), [Sym("project"), "silentband",
+        s.append([Sym("instances"), [Sym("project"), "utter",
                                      [Sym("path"), "/" + ROOT, [Sym("reference"), refdes], [Sym("unit"), 1]]]])
         sch.append(s)
         for q in sexpr.pins(sym):

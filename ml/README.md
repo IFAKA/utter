@@ -1,11 +1,11 @@
-# ml: SilentBand host tools (`sb`)
+# ml: Utter host tools (`utter`)
 
 ```sh
 uv sync && uv run pytest     # setup + tests
-uv run sb --help
+uv run utter --help
 ```
 
-## Gaddy dataset (for `sb gaddy`)
+## Gaddy dataset (for `utter gaddy`)
 Gaddy & Klein silent-speech EMG, CC-BY-4.0, https://zenodo.org/records/4064409 (3.7 GB). Not committed; ml/data is gitignored.
 
 ```sh

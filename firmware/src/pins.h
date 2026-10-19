@@ -1,4 +1,4 @@
-// SilentBand pin map (ESP32-S3-MINI-1). The schematic generator reads this file:
+// Utter pin map (ESP32-S3-MINI-1). The schematic generator reads this file:
 // keep one "#define PIN_<NAME> <gpio>" per line. Avoids strapping pins (0, 3, 45, 46) and USB (19, 20).
 #pragma once
 #define PIN_SCLK 12   // ADS1298 SCLK (both chips)

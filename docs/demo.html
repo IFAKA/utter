@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>SilentBand: type with your mouth closed</title>
+<title>Utter: type with your mouth closed</title>
 <style>
   :root {
     --ink:#1d1d1f; --ink2:#424245; --mute:#86868b; --line:#d2d2d7; --gray:#f5f5f7; --white:#fff;
@@ -116,7 +116,7 @@
   .pad .pk { transition-property:background, color, transform, box-shadow, opacity; }
   .pad:not(.armed) .pk:not([data-s="ree"]) { opacity:.4; }
   .pad.armed .pk[data-s="ree"] span::before { content:""; display:inline-block; width:5px; height:5px; border-radius:50%; background:#30d158; margin-right:4px; vertical-align:1px; }
-  /* phone: no keyboard and no focus while paused; ree focuses the field and slides the SilentBand keypad up */
+  /* phone: no keyboard and no focus while paused; ree focuses the field and slides the Utter keypad up */
   .kb { position:relative; height:0; overflow:hidden; background:#d3d5db; flex:none; transition:height .55s var(--ease); }
   .kb.silent { height:132px; }
   .kb > .pad { position:absolute; left:0; right:0; top:0; height:132px; grid-template-rows:1fr 1fr; transform:translateY(40%); transition:transform .55s var(--ease); }
@@ -380,19 +380,19 @@
 </head>
 <body>
 
-<nav><div class="w"><b>SilentBand</b><a href="#day">A day with it</a><a href="#how">How it works</a><a href="#try">Try it</a><a href="#agents">For AI agents</a><a href="#hardware">Hardware</a><a href="#kit">In the box</a><a href="#faq">FAQ</a><a class="btn" href="#join">Join the waitlist</a></div></nav>
+<nav><div class="w"><b>Utter</b><a href="#day">A day with it</a><a href="#how">How it works</a><a href="#try">Try it</a><a href="#agents">For AI agents</a><a href="#hardware">Hardware</a><a href="#kit">In the box</a><a href="#faq">FAQ</a><a class="btn" href="#join">Join the waitlist</a></div></nav>
 
 <header class="hero">
   <div class="w">
-    <p class="intro">SilentBand</p>
+    <p class="intro">Utter</p>
     <h1>Type with your<br><span class="grad">mouth closed.</span></h1>
     <p class="lede">It feels the tiny muscle signals under your jaw and turns them into text. For your messages and your AI agents. No voice, no keyboard.</p>
     <div class="cta"><a class="btn" href="#join">Join the waitlist</a><a class="btn ghost" href="#day">See it in use</a></div>
   </div>
   <div id="stage">
-  <canvas id="band3d" role="img" aria-label="SilentBand prototype worn: case on a strap at the back of the neck, gel electrodes on the chin, jaw and throat"></canvas>
+  <canvas id="band3d" role="img" aria-label="Utter prototype worn: case on a strap at the back of the neck, gel electrodes on the chin, jaw and throat"></canvas>
   <div class="kit-ctl hero-ctl"><button data-m="proto" class="on">Prototype v1</button><button data-m="concept">Concept</button></div>
-  <svg id="band" viewBox="0 0 880 400" aria-label="SilentBand neckband">
+  <svg id="band" viewBox="0 0 880 400" aria-label="Utter concept from above: the case at the back of the neck, one band along the jaw to the chin, a throat strip, 16 electrodes">
     <defs>
       <linearGradient id="gBand" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#4a4a4f"/><stop offset=".55" stop-color="#232326"/><stop offset="1" stop-color="#121214"/></linearGradient>
       <linearGradient id="gSheen" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="rgba(255,255,255,.35)"/><stop offset=".3" stop-color="rgba(255,255,255,0)"/></linearGradient>
@@ -401,16 +401,20 @@
       <radialGradient id="gFloor" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="rgba(0,0,0,.7)"/><stop offset="1" stop-color="rgba(0,0,0,0)"/></radialGradient>
     </defs>
     <ellipse cx="440" cy="352" rx="300" ry="26" fill="url(#gFloor)"/>
-    <path id="arc" d="M190 70 C 170 330, 710 330, 690 70" fill="none" stroke="url(#gBand)" stroke-width="44" stroke-linecap="round"/>
-    <path d="M190 70 C 170 330, 710 330, 690 70" fill="none" stroke="url(#gSheen)" stroke-width="40" stroke-linecap="round"/>
+    <!-- seen from above, to scale with the 3D concept: case 79 x 62 mm at the back, band 16 mm, chin piece 30 mm -->
+    <path d="M405 70 C 330 40, 300 30, 292 34 M475 70 C 550 40, 580 30, 588 34" fill="none" stroke="#2a2a2e" stroke-width="3" stroke-linecap="round"/>
+    <circle cx="288" cy="34" r="11" fill="url(#gPod)" stroke="rgba(255,255,255,.12)"/><circle cx="592" cy="34" r="11" fill="url(#gPod)" stroke="rgba(255,255,255,.12)"/>
+    <path id="throat" d="M234 146 C 256 300, 624 300, 646 146" fill="none" stroke="url(#gBand)" stroke-width="20" stroke-linecap="round"/>
+    <path id="arc" d="M390 80 C 140 80, 160 330, 440 334 C 720 330, 740 80, 490 80" fill="none" stroke="url(#gBand)" stroke-width="24" stroke-linecap="round"/>
+    <path d="M390 80 C 140 80, 160 330, 440 334 C 720 330, 740 80, 490 80" fill="none" stroke="url(#gSheen)" stroke-width="20" stroke-linecap="round"/>
+    <rect x="395" y="310" width="90" height="48" rx="20" fill="url(#gBand)"/>
     <g id="pads"></g>
-    <rect x="150" y="34" width="80" height="96" rx="34" fill="url(#gPod)" stroke="rgba(255,255,255,.12)"/>
-    <rect x="650" y="34" width="80" height="96" rx="34" fill="url(#gPod)" stroke="rgba(255,255,255,.12)"/>
-    <circle id="led" cx="440" cy="265" r="3.2" fill="#7fd6c6"/>
+    <rect x="380" y="28" width="120" height="94" rx="10" fill="url(#gPod)" stroke="rgba(255,255,255,.12)"/>
+    <circle id="led" cx="470" cy="50" r="3.2" fill="#7fd6c6"/>
     <g id="pulses"></g>
   </svg>
   </div>
-  <small>Drag to turn it; point at a part to see what it is. <b>Prototype v1</b> is the kit you can build today, to scale: the printed case on a strap at the back of the neck, 16 stick-on gel electrodes on the chin, jaw and throat, two behind the ears, a lead from each to the case. <b>Concept</b> is the wearable version we&rsquo;re designing. Head scan: Lee Perry-Smith, CC BY 3.0.</small>
+  <small>Drag to turn it; point at a part to see what it is. <b>Prototype v1</b> is the kit you can build today, to scale: the printed case on a strap at the back of the neck, 16 stick-on gel electrodes on the chin, jaw and throat, two behind the ears, a lead from each to the case. <b>Concept</b> is the most compact version this board allows: the same case and electrode spots, with the leads moulded into one band. Head scan: Lee Perry-Smith, CC BY 3.0.</small>
 </header>
 
 <section class="proof">
@@ -423,12 +427,12 @@
 </section>
 
 <section class="statement">
-  <div class="w"><p>Talking to your phone is loud. Typing pulls your eyes and your hands away. <b>SilentBand lets you write while you sit in a meeting, ride a train or read your agent's work: you silently shape a syllable, and words appear.</b></p></div>
+  <div class="w"><p>Talking to your phone is loud. Typing pulls your eyes and your hands away. <b>Utter lets you write while you sit in a meeting, ride a train or read your agent's work: you silently shape a syllable, and words appear.</b></p></div>
 </section>
 
 <section class="moments gray" id="day">
   <div class="w">
-    <h2>A day with SilentBand.</h2>
+    <h2>A day with Utter.</h2>
     <p class="lede">What you do, what you hear in your earbud, and what appears on screen.</p>
 
     <div class="moment">
@@ -527,7 +531,7 @@
   <div class="w">
     <div class="eyebrow">Built for AI agents</div>
     <h2>Your agent asks.<br><span class="grad">You answer, silently.</span></h2>
-    <p class="lede" style="margin-top:20px">Agents need short, frequent replies: yes, run it, fix that test. SilentBand connects to Claude Code, so every reply starts from what the agent just said.</p>
+    <p class="lede" style="margin-top:20px">Agents need short, frequent replies: yes, run it, fix that test. Utter connects to Claude Code, so every reply starts from what the agent just said.</p>
     <div class="tiles">
       <div class="tile"><div class="big">−39<em>%</em></div><h4>It knows what was asked</h4><p>The agent's last message becomes the AI's context. In our benchmark, that cuts the syllables per word by 39%.</p></div>
       <div class="tile"><div class="big">1</div><h4>Syllable to approve</h4><p>When the agent asks permission, <b>ya</b> allows and <b>sha</b> denies. You don't need to look at the screen.</p></div>
@@ -557,7 +561,7 @@
     <div class="eyebrow">The hardware</div>
     <h2>A 16-channel biosignal lab,<br>the size of a matchbox.</h2>
     <div class="hw">
-      <div><img src="assets/board.png" alt="SilentBand v1 circuit board"><small>SilentBand v1 prototype board · 68 × 46 mm · machine-assembled</small></div>
+      <div><img src="assets/board.png" alt="Utter v1 circuit board"><small>Utter v1 prototype board · 68 × 46 mm · machine-assembled</small></div>
       <dl>
         <dt>Sensing</dt><dd>2 × TI ADS1298 · 24-bit · 16 channels</dd>
         <dt>Noise</dt><dd>Below 1 µV, 20–500 Hz</dd>
@@ -583,14 +587,14 @@
     <p class="lede">The v1 prototype kit to scale, built from the same files that make the board and print the case. Turn it, take it apart, and point at any part.</p>
     <div class="kit">
       <div class="kit-stage" id="kitStage">
-        <img class="kit-fallback" src="assets/board.png" alt="SilentBand v1 circuit board">
-        <canvas id="kit3d" aria-label="3D model of the SilentBand v1 kit"></canvas>
+        <img class="kit-fallback" src="assets/board.png" alt="Utter v1 circuit board">
+        <canvas id="kit3d" aria-label="3D model of the Utter v1 kit"></canvas>
         <div class="kit-hint">Drag to turn · point at a part</div>
         <div class="kit-ctl"><button data-x="0" class="on">Assembled</button><button data-x="1">Exploded</button></div>
       </div>
       <ol class="kit-list" id="kitList">
         <li data-k="lid"><span class="src">3D-printed</span><b>Lid</b><p>PETG. It has openings for the electrode leads and the motion sensor, windows for the two lights, and pinholes for reset and boot. Five pegs hold the board in place.</p></li>
-        <li data-k="board"><span class="src">Factory-assembled</span><b>SilentBand board</b><p>68 × 46 mm, 4 layers, 107 parts. Two TI ADS1298 chips read 16 channels at 24-bit. An ESP32-S3 sends the signals to your computer over Wi-Fi. Charging is over USB-C, and recording stops while the cable is plugged in.</p></li>
+        <li data-k="board"><span class="src">Factory-assembled</span><b>Utter board</b><p>68 × 46 mm, 4 layers, 107 parts. Two TI ADS1298 chips read 16 channels at 24-bit. An ESP32-S3 sends the signals to your computer over Wi-Fi. Charging is over USB-C, and recording stops while the cable is plugged in.</p></li>
         <li data-k="batt"><span class="src">Included</span><b>Battery</b><p>LiPo 503040: 3.7 V, 600 mAh, 40 × 30 × 5 mm, with a protection circuit and a JST-PH plug. It sits under the board.</p></li>
         <li data-k="base"><span class="src">3D-printed</span><b>Case</b><p>PETG, 79 × 62 × 17 mm closed, 91 mm across the strap lugs. Inside are a shelf for the board, rails for the battery and a pocket for its plug, plus cut-outs for USB-C and the power switch.</p></li>
         <li data-k="screws"><span class="src">Included</span><b>4 screws</b><p>M2 × 10 mm, self-tapping. There's no glue, so the battery can be replaced.</p></li>
@@ -600,7 +604,7 @@
         <li data-k="imu"><span class="src">Optional</span><b>Motion sensor</b><p>An LSM6DS3 board on 4 wires. It helps tell jaw movement apart from speech.</p></li>
       </ol>
     </div>
-    <p class="kit-note">This is the prototype kit for early testers: the case is 3D-printed, and the electrodes are standard medical snap electrodes. The slim band at the top of the page is a concept for the product version.</p>
+    <p class="kit-note">This is the prototype kit for early testers: the case is 3D-printed, and the electrodes are standard medical snap electrodes. The Concept view at the top of the page is the same kit with the leads moulded into one band.</p>
   </div>
 </section>
 
@@ -641,7 +645,7 @@
   </div>
 </section>
 
-<footer><div class="w"><span>SilentBand · prototype, 2026</span><span>The scenes above are animations; the syllables, decoder and flow are the product's real ones. Not a medical device.</span></div></footer>
+<footer><div class="w"><span>Utter · prototype, 2026</span><span>The scenes above are animations; the syllables, decoder and flow are the product's real ones. Not a medical device.</span></div></footer>
 
 <script>
 // Statement: one span per word so each lights up as it scrolls past (CSS scroll timeline).
@@ -832,17 +836,19 @@ const streakEls = [...streaks.children];
 
 /* ---------------- hero band: contacts + signal pulses ---------------- */
 const arc = document.getElementById("arc"), AL = arc.getTotalLength();
-const pads = document.getElementById("pads"), pulses = document.getElementById("pulses");
-[.2, .28, .36, .44, .56, .64, .72, .8].forEach(f => { const p = arc.getPointAtLength(f * AL);
-  pads.insertAdjacentHTML("beforeend", `<circle cx="${p.x}" cy="${p.y - 14}" r="4.2" fill="#9a9aa0" stroke="#0d0d0f" stroke-width="1.5"/>`); });
+const pads = document.getElementById("pads"), pulses = document.getElementById("pulses"), thr = document.getElementById("throat"), TL = thr.getTotalLength();
+const stud = (x, y) => pads.insertAdjacentHTML("beforeend", `<circle cx="${x}" cy="${y}" r="4.2" fill="#9a9aa0" stroke="#0d0d0f" stroke-width="1.5"/>`);
+[.2, .26, .32, .38, .62, .68, .74, .8].forEach(f => { const p = arc.getPointAtLength(f * AL); stud(p.x, p.y); });         // jaw, 4 per side
+[[422, 324], [458, 324], [422, 344], [458, 344]].forEach(([x, y]) => stud(x, y));                                       // chin, 2 x 2
+[.2, .4, .6, .8].forEach(f => { const p = thr.getPointAtLength(f * TL); stud(p.x, p.y); });                             // throat
 for (let k = 0; k < 2; k++) pulses.insertAdjacentHTML("beforeend", `<circle r="26" fill="url(#gGlow)" opacity="0"/>`);
 const hero = new Clock();
 function heroLoop(t0) {
   [...pulses.children].forEach((c, k) => {
-    const from = k ? .8 : .2;
+    const [from, to] = k ? [.62, .97] : [.38, .03];                 // signals travel along the band into the case
     hero.tween(t0 + k * 180, 1500, p => {
-      const pt = arc.getPointAtLength(lerp(from, .5, p) * AL);
-      c.setAttribute("cx", pt.x); c.setAttribute("cy", pt.y - 6); c.setAttribute("opacity", Math.sin(p * Math.PI));
+      const pt = arc.getPointAtLength(lerp(from, to, p) * AL);
+      c.setAttribute("cx", pt.x); c.setAttribute("cy", pt.y); c.setAttribute("opacity", Math.sin(p * Math.PI));
     }, E.inOut);
   });
   hero.tween(t0 + 1500, 600, p => document.getElementById("led").setAttribute("r", 3.2 + 3 * Math.sin(p * Math.PI)), E.lin);
@@ -1135,8 +1141,8 @@ function snap(p) {
   return {p: bp, n: n.normalize()};
 }
 
-/* Device, product concept: a neckband. Board (68 x 46 mm) and LiPo sit in the housing on the back of the neck; soft arms run up
-   under the jaw and clasp under the chin; a strip runs down the throat; tails reach the mastoids for REF/RLD. Each piece is swept along the skin. */
+/* Device, concept: a band moulded to the skin (each piece swept along the scan), built further down around the v1 case.
+   Tails reach the mastoids for REF/RLD. */
 const conceptG = new THREE.Group(), protoG = new THREE.Group(); rig.add(conceptG, protoG);   // two views: concept neckband, prototype v1
 const shell = new THREE.MeshPhysicalMaterial({color: 0x1a1a1d, roughness: .4, clearcoat: .5, clearcoatRoughness: .35, side: THREE.DoubleSide});
 const smooth = x => x * x * (3 - 2 * x);
@@ -1177,10 +1183,7 @@ function sweep(spec, closed, to = conceptG, mat = shell) {                      
   return t => { const i = idxOf(Math.round(t * (closed ? M : M - 1))), f = F[i]; return f.p.clone().addScaledVector(f.n, prof(t)[1] + .014); };   // point on the outer face
 }
 const mirror = rows => rows.map(([x, ...r]) => [-x, ...r]);
-const arm = [[.62, -.84, 1.44, .28, .075], [1.05, -.68, .95, .22, .07], [1.28, -.86, .15, .22, .07], [1.3, -1.02, -.6, .24, .075], [1.12, -1.3, -1.3, .3, .085], [.6, -1.4, -1.82, .78, .18]];
 const tag = (o, part) => (o.userData.part = part, o);              // hover labels, see PARTS
-const loop = sweep([[0, -.9, 1.62, .52, .085], ...arm, [0, -1.42, -1.92, .82, .2], ...mirror(arm).reverse()], true); const loopMesh = tag(conceptG.children.at(-1), "loop");
-const throat = sweep([[0, -.9, 1.62, .2, .06], [0, -1.12, 1.22, .17, .055], [0, -1.3, 1.0, .19, .06]], false); const throatMesh = tag(conceptG.children.at(-1), "throat");
 const tail = [[1.28, -.8, .1, .07, .035], [1.3, -.3, -.25, .05, .03], [1.3, .2, -.5, .05, .03], [1.27, .6, -.66, .05, .03]];
 const refs = [];
 for (const tl of [tail, mirror(tail)]) {                            // thin lead to a round gel pad on the mastoid (REF / RLD)
@@ -1195,20 +1198,15 @@ const glowTex = (() => { const c = document.createElement("canvas"); c.width = c
   const r = g.createRadialGradient(32, 32, 0, 32, 32, 32); r.addColorStop(0, "rgba(255,255,255,1)"); r.addColorStop(.35, "rgba(255,255,255,.35)"); r.addColorStop(1, "rgba(255,255,255,0)");
   g.fillStyle = r; g.fillRect(0, 0, 64, 64); return new THREE.CanvasTexture(c); })();
 const glow = (color, size) => { const g = new THREE.Sprite(new THREE.SpriteMaterial({map: glowTex, color, blending: THREE.AdditiveBlending, depthWrite: false, transparent: true, opacity: 0})); g.scale.setScalar(size); return g; };
-const jaw = [.085, .125, .165, .2];
-const sites = [...[-.035, -.012, .012, .035].map(t => loop((t + 1) % 1)), ...jaw.map(t => loop(t)), ...jaw.map(t => loop(1 - t)), ...[.15, .4, .65, .88].map(t => throat(t))];
 const lamps = (pts, to, size) => pts.map(p => {
   const dot = new THREE.Mesh(new THREE.SphereGeometry(.018, 16, 12), new THREE.MeshStandardMaterial({color: 0x1a1a1d, metalness: .2, roughness: .4, emissive: 0xff5a1f, emissiveIntensity: 0}));
   const g = glow(0xff5a1f, size); dot.raycast = () => {}; dot.position.copy(p); g.position.copy(p); to.add(dot, g);
   return {dot, g};
 });
-const conceptLamps = lamps(sites, conceptG, .42);
-const led = new THREE.Mesh(new THREE.SphereGeometry(.03, 16, 12), new THREE.MeshBasicMaterial({color: 0x7fd6c6}));
-const conceptGlow = glow(0x7fd6c6, .35); led.position.copy(loop(1 - 5.5 / 14)); conceptGlow.position.copy(led.position); conceptG.add(tag(led, "led"), conceptGlow);
 
 /* Hover highlight: an inverted hull (the part's surface pushed out along its normals, back faces only) draws an orange rim,
    and the same hull's front faces add a faint orange tint over the part. */
-const loopPart = q => q.z < -1.25 ? "housing" : q.z > 1.2 && Math.abs(q.x) < .55 ? "chin" : q.x > 0 ? "jawL" : "jawR";
+const loopPart = q => q.z > 1.0 && Math.abs(q.x) < .5 ? "chin" : q.x > 0 ? "jawL" : "jawR";
 const hiMat = new THREE.MeshBasicMaterial({color: 0xff7a3d, side: THREE.BackSide, toneMapped: false}), OUT = {};
 const tintMat = new THREE.MeshBasicMaterial({color: 0xff7a3d, transparent: true, opacity: .28, blending: THREE.AdditiveBlending, depthWrite: false, toneMapped: false});
 const hull = (g, key, parent) => { for (const mat of [hiMat, tintMat]) { const m = new THREE.Mesh(g, mat); m.visible = false; m.raycast = () => {}; parent.add(m); (OUT[key] ||= []).push(m); } };
@@ -1224,17 +1222,15 @@ function outline(key, src, parent, w, keep = () => true) {
   hull(g, key, parent);
 }
 const shellOut = (key, obj, s) => { const o = new THREE.Group(); o.scale.set(...s); obj.add(o); hull(obj.geometry, key, o); };
-for (const k of ["housing", "chin", "jawL", "jawR"]) outline(k, loopMesh.geometry, rig, .04, q => loopPart(q) === k);
-outline("throat", throatMesh.geometry, rig, .04);
 for (const [lead, pad, side] of refs) { outline("ref" + side, lead.geometry, rig, .03); shellOut("ref" + side, pad, [1.22, 2.2, 1.22]); }
-shellOut("led", led, [1.7, 1.7, 1.7]);
 /* Prototype v1, the kit you can build today (same data as "What's in the box", 1 mm = .02 units): the printed case on a 25 mm strap
    at the back of the neck, 16 snap gel electrodes on the chin, jaw and throat, REF / RLD behind the ears, a colored lead from each into J1. */
 const K = window.KIT, {BW, BH, ZT, TOP, LID} = K.dims, MM = .02, fp = Object.fromEntries(K.parts.map(([r, ...v]) => [r, v]));
 const PM = (color, roughness = .5, metalness = 0, o = {}) => new THREE.MeshStandardMaterial({color, roughness, metalness, ...o});
 const podG = new THREE.Group(); protoG.add(podG);
 const kmesh = d => { const g = new THREE.BufferGeometry(); g.setAttribute("position", new THREE.Float32BufferAttribute(d.p, 3)); g.setIndex(d.i); g.computeVertexNormals(); return g; };
-const shellG = [[K.base, PM(0x3a3b40, .6)], [K.lid, PM(0x46474d, .58)]].map(([d, m]) => {
+const caseM = [PM(0x3a3b40, .6), PM(0x46474d, .58)];
+const shellG = [[K.base, caseM[0]], [K.lid, caseM[1]]].map(([d, m]) => {
   const g = kmesh(d), f = g.toNonIndexed(); f.computeVertexNormals();
   const o = new THREE.Mesh(f, m); o.castShadow = o.receiveShadow = true; podG.add(tag(o, "pod")); outline("pod", g, podG, 1.4); return g;
 });
@@ -1283,6 +1279,32 @@ const protoLamps = lamps(protoSites, protoG, .5);
 const [d0, d1, d2, d3] = fp.D1;
 const pled = new THREE.Mesh(new THREE.SphereGeometry(.9, 16, 12), new THREE.MeshBasicMaterial({color: 0x7fd6c6})); pled.position.set((d0 + d2) / 2, (d1 + d3) / 2, TOP + LID);
 podG.add(tag(pled, "led")); podG.updateMatrixWorld(true); const protoGlow = glow(0x7fd6c6, .3); protoGlow.position.copy(pled.getWorldPosition(new V3())); protoG.add(protoGlow);
+/* Concept: the most compact version that can be built with this board. The case is the v1 case (same STL); the 18 loose
+   leads become wires inside one moulded band (16 x 4 mm arms) that clips into the case lugs. Its 16 snap studs sit over v1's
+   electrode sites, so the same Ø 20 mm gel pads and the same channel map work unchanged. */
+for (const [k, arr] of Object.entries(OUT)) arr.forEach(m => m.userData.hull = k);
+const cpod = podG.clone(); conceptG.add(cpod);
+const loose = []; cpod.traverse(o => { if (o.userData.hull) OUT[o.userData.hull].push(o); else if (caseM.includes(o.material)) o.material = shell; else if (o.material === PLUG) loose.push(o); });
+loose.forEach(o => o.removeFromParent());
+{ const jx = 4.6, jy = (J1(1)[1] + J1(19)[1]) / 2, idc = new THREE.Mesh(new THREE.BoxGeometry(5.1, 25.4, 9), PLUG);   // one 2x10 IDC plug in J1
+  idc.position.set(jx, jy, ZT + 9.5); cpod.add(tag(idc, "pod")); cpod.updateMatrixWorld(true);
+  const CW = v => cpod.localToWorld(new V3(...v));
+  for (const x of [bb.min.x + 3, bb.max.x - 3]) {                        // each band end: its 9 wires in one bundle, over the case edge into the plug
+    const e = x < pc.x ? bb.min.x : bb.max.x, d = Math.sign(x - pc.x), far = Math.sign(jx - pc.x) !== d;
+    const pts = [[x, pc.y, 1], [e + d * 4, jy, 4], [e + d * 3, jy, TOP + LID + 7], ...(far ? [[BW / 2, jy, TOP + LID + 12]] : []), [jx + d * 6, jy, ZT + 23], [jx, jy, ZT + 14]].map(CW);
+    const c = new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts, false, "centripetal"), 80, .03, 8), shell); conceptG.add(tag(c, "pod")); } }
+const jawB = [...jawE].reverse().map(([x, y, z]) => [x, y, z, .32, .08]);
+const band = sweep([lugW[0], [1.3, -1.45, -1.2, .34, .08], ...jawB, [.4, -.86, 1.3, .56, .08], [0, -.88, 1.33, .62, .08], [-.4, -.86, 1.3, .56, .08],
+  ...mirror(jawB).reverse(), [-1.3, -1.45, -1.2, .34, .08], lugW[1]].map((r, i, a) => i === 0 || i === a.length - 1 ? [...r.slice(0, 3), .34, .08] : r), false);
+const bandMesh = tag(conceptG.children.at(-1), "loop");
+const thr = [[1.28, -1.1, -.7, .3, .07], [1.0, -1.15, .4, .3, .07], [.62, -1.12, .8, .32, .07], [.21, -1.12, .98, .32, .07]];
+sweep([...thr, ...mirror(thr).reverse()], false); const throatMesh = tag(conceptG.children.at(-1), "throat");
+for (const k of ["chin", "jawL", "jawR"]) outline(k, bandMesh.geometry, rig, .04, q => loopPart(q) === k);
+outline("throat", throatMesh.geometry, rig, .04);
+SITES.slice(0, 16).forEach((xyz, i) => { const {p, n} = snap(new V3(...xyz)), o = new THREE.Mesh(new THREE.CylinderGeometry(.2, .2, .02, 40), FOAM);
+  o.position.copy(p).addScaledVector(n, .012); o.quaternion.setFromUnitVectors(up, n); conceptG.add(tag(o, KIND(i))); });
+const conceptLamps = lamps(protoSites, conceptG, .5);
+const conceptGlow = glow(0x7fd6c6, .3); conceptGlow.position.copy(protoGlow.position); conceptG.add(conceptGlow);
 let contacts = protoLamps, ledGlow = protoGlow; conceptG.visible = false;
 const mode = m => { conceptG.visible = m === "concept"; protoG.visible = !conceptG.visible; contacts = conceptG.visible ? conceptLamps : protoLamps;
   ledGlow = conceptG.visible ? conceptGlow : protoGlow; [...conceptLamps, ...protoLamps].forEach(c => c.g.material.opacity = 0); light(null); go(true); };
@@ -1316,13 +1338,12 @@ cv.addEventListener("pointermove", e => { if (!drag) return;
 const release = () => { drag = null; cv.style.cursor = "grab"; };
 cv.addEventListener("pointerup", e => { const tap = drag && Math.hypot(e.clientX - drag.x, e.clientY - drag.y) < 5; release(); if (tap) hover(e); });
 
-/* Hover (or tap) a part to name it. The loop is one mesh, so its hit point decides housing, chin clasp or jaw arm. */
+/* Hover (or tap) a part to name it. The band is one mesh, so its hit point decides chin piece or jaw arm. */
 const PARTS = {
-  housing: ["Main unit", "The 16-channel EMG board (2\u00d7 ADS1298, ESP32-S3) and the battery. Sends signals to your computer over Wi-Fi."],
-  chin: ["Chin clasp \u00b7 4 sensors", "Under the chin, over the muscles that move the tongue and open the jaw."],
-  jaw: ["Jaw arm \u00b7 4 sensors", "Along the underside of the jaw. Each mouth key is a pattern across all 16 channels, not one sensor."],
-  throat: ["Throat pad \u00b7 4 sensors", "Over the larynx and the base of the tongue."],
-  ref: ["Reference pad", "On the bone behind the ear (REF / RLD). Cancels body noise; it doesn\u2019t measure speech."],
+  chin: ["Chin piece \u00b7 4 snap studs", "Part of one moulded band, 16 \u00d7 4 mm, with the wires inside. Gel pads snap on underneath, over the muscles that move the tongue and open the jaw."],
+  jaw: ["Jaw arm \u00b7 4 snap studs", "Along the underside of the jaw, ending in the case lugs. Each mouth key is a pattern across all 16 channels, not one electrode."],
+  throat: ["Throat strip \u00b7 4 snap studs", "Over the larynx and the base of the tongue."],
+  ref: ["Reference lead", "A thin lead to a gel pad on the bone behind the ear (REF / RLD). Cancels body noise; it doesn\u2019t measure speech."],
   led: ["Status light", "Shows power and connection."],
   pod: ["Main unit \u00b7 79 \u00d7 62 \u00d7 17 mm", "3D-printed case on the back of the neck: the 16-channel board (2\u00d7 ADS1298, ESP32-S3) and a 600 mAh battery. Sends signals to your computer over Wi-Fi."],
   strap: ["Strap \u00b7 25 mm elastic", "Runs through the case\u2019s lugs and holds it on the back of the neck."],
@@ -1527,7 +1548,7 @@ function focus(k, sub) {
   for (const li of list.children) li.classList.toggle("on", li.dataset.k === k);
 }
 const INFO = {
-  lid: ["Lid", "3D-printed PETG"], base: ["Case", "3D-printed PETG · 91 mm across the lugs"], board: ["SilentBand board", "68 × 46 mm · factory-assembled"],
+  lid: ["Lid", "3D-printed PETG"], base: ["Case", "3D-printed PETG · 91 mm across the lugs"], board: ["Utter board", "68 × 46 mm · factory-assembled"],
   batt: ["Battery", "LiPo 503040 · 3.7 V · 600 mAh"], screws: ["Screw", "M2 × 10 mm, self-tapping"], strap: ["Strap", "25 mm elastic"],
   leads: ["Electrode lead", "Snap end + 2.54 mm socket"], pads: ["Electrode", "Ag/AgCl, pre-gelled, disposable"], imu: ["Motion sensor", "LSM6DS3 · optional"],
 };

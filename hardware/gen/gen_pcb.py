@@ -1,7 +1,7 @@
-"""Build the SilentBand PCB from circuit.py: placement, planes, FreeRouting, zone fill.
+"""Build the Utter PCB from circuit.py: placement, planes, FreeRouting, zone fill.
 
 Run with KiCad's bundled Python (see build.sh):  kpython gen_pcb.py [--no-route]
-Output: hardware/out/silentband.kicad_pcb
+Output: hardware/out/utter.kicad_pcb
 """
 from __future__ import annotations
 
@@ -19,7 +19,7 @@ import circuit  # noqa: E402
 import sexpr  # noqa: E402
 
 OUT = os.path.join(circuit.REPO, "hardware/out")
-PCB = os.path.join(OUT, "silentband.kicad_pcb")
+PCB = os.path.join(OUT, "utter.kicad_pcb")
 FREEROUTING = os.path.join(circuit.REPO, "tools/bin/freerouting.jar")
 FPLIB = os.path.join(sexpr.SHARED, "footprints")
 
@@ -342,7 +342,7 @@ def write_project():
         "diff_pair_via_gap": 0.25, "bus_width": 12, "wire_width": 6, "line_style": 0, "priority": prio,
         "pcb_color": "rgba(0, 0, 0, 0.000)", "schematic_color": "rgba(0, 0, 0, 0.000)"}
     pro = {
-        "meta": {"filename": "silentband.kicad_pro", "version": 3},
+        "meta": {"filename": "utter.kicad_pro", "version": 3},
         "board": {"design_settings": {
             "rules": {  # JLCPCB 4-layer capabilities, with margin
                 "min_clearance": 0.1, "min_track_width": 0.1, "min_connection": 0.0,
@@ -509,7 +509,7 @@ def build(route=True):
         x, y = pcbnew.ToMM(pos.x), pcbnew.ToMM(pos.y)
         lab = str(i) if i <= 16 else ("REF" if i <= 18 else "RLD")
         silk(b, lab, x + (-3.6 if i % 2 else 3.6), y, 0.8)
-    silk(b, "SilentBand v1", 30, H - 1.2, 1.0)
+    silk(b, "Utter v1", 30, H - 1.2, 1.0)
     jb = fps["J4"]
     for pad, lab in (("1", "+"), ("2", "-")):
         pos = jb.FindPadByNumber(pad).GetPosition()
@@ -520,8 +520,11 @@ def build(route=True):
         dsn, ses = PCB.replace(".kicad_pcb", ".dsn"), PCB.replace(".kicad_pcb", ".ses")
         pcbnew.ExportSpecctraDSN(b, dsn)
         f_cu_only(dsn, CLOCKS)
-        subprocess.run(["java", "-jar", FREEROUTING, "-de", dsn, "-do", ses, "-mp", "100", "-host", "KiCad"],
-                       check=True, stdout=subprocess.DEVNULL if "-q" in sys.argv else None)
+        if "--reuse-route" in sys.argv and os.path.exists(ses):
+            print("reusing", ses, "(no FreeRouting)")
+        else:
+            subprocess.run(["java", "-jar", FREEROUTING, "-de", dsn, "-do", ses, "-mp", "100", "-host", "KiCad"],
+                           check=True, stdout=subprocess.DEVNULL if "-q" in sys.argv else None)
         pcbnew.ImportSpecctraSES(b, ses)
         for t in b.GetTracks():  # FreeRouting necks down at fine-pitch pads; fab minimum is 0.1 mm
             if t.GetClass() == "PCB_TRACK" and t.GetWidth() < MM(0.1):

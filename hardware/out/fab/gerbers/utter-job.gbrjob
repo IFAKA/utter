@@ -5,12 +5,12 @@
       "Application": "Pcbnew",
       "Version": "10.0.7"
     },
-    "CreationDate": "2026-10-19T18:49:48+02:00"
+    "CreationDate": "2026-10-20T01:38:35+02:00"
   },
   "GeneralSpecs": {
     "ProjectId": {
-      "Name": "silentband",
-      "GUID": "73696c65-6e74-4626-916e-642e6b696361",
+      "Name": "utter",
+      "GUID": "75747465-722e-46b6-9963-61645f706362",
       "Revision": "rev?"
     },
     "Size": {
@@ -42,52 +42,52 @@
   ],
   "FilesAttributes": [
     {
-      "Path": "silentband-F_Cu.gtl",
+      "Path": "utter-F_Cu.gtl",
       "FileFunction": "Copper,L1,Top",
       "FilePolarity": "Positive"
     },
     {
-      "Path": "silentband-In1_Cu.g1",
+      "Path": "utter-In1_Cu.g1",
       "FileFunction": "Copper,L2,Inr",
       "FilePolarity": "Positive"
     },
     {
-      "Path": "silentband-In2_Cu.g2",
+      "Path": "utter-In2_Cu.g2",
       "FileFunction": "Copper,L3,Inr",
       "FilePolarity": "Positive"
     },
     {
-      "Path": "silentband-B_Cu.gbl",
+      "Path": "utter-B_Cu.gbl",
       "FileFunction": "Copper,L4,Bot",
       "FilePolarity": "Positive"
     },
     {
-      "Path": "silentband-F_Paste.gtp",
+      "Path": "utter-F_Paste.gtp",
       "FileFunction": "SolderPaste,Top",
       "FilePolarity": "Positive"
     },
     {
-      "Path": "silentband-F_Silkscreen.gto",
+      "Path": "utter-F_Silkscreen.gto",
       "FileFunction": "Legend,Top",
       "FilePolarity": "Positive"
     },
     {
-      "Path": "silentband-B_Silkscreen.gbo",
+      "Path": "utter-B_Silkscreen.gbo",
       "FileFunction": "Legend,Bot",
       "FilePolarity": "Positive"
     },
     {
-      "Path": "silentband-F_Mask.gts",
+      "Path": "utter-F_Mask.gts",
       "FileFunction": "SolderMask,Top",
       "FilePolarity": "Negative"
     },
     {
-      "Path": "silentband-B_Mask.gbs",
+      "Path": "utter-B_Mask.gbs",
       "FileFunction": "SolderMask,Bot",
       "FilePolarity": "Negative"
     },
     {
-      "Path": "silentband-Edge_Cuts.gm1",
+      "Path": "utter-Edge_Cuts.gm1",
       "FileFunction": "Profile",
       "FilePolarity": "Positive"
     }

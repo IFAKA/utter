@@ -1,1 +1,0 @@
-"""SilentBand host package."""

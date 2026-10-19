@@ -1,4 +1,4 @@
-"""`sb` command line: one entry point for every host-side step."""
+"""`utter` command line: one entry point for every host-side step."""
 from __future__ import annotations
 
 import argparse
@@ -28,7 +28,7 @@ def _board(args):
 
 def cmd_fakeboard(args):
     from .fakeboard import FakeBoard
-    print(f"fake SilentBand on udp/{P.CTRL_PORT} (Ctrl-C to stop)")
+    print(f"fake Utter on udp/{P.CTRL_PORT} (Ctrl-C to stop)")
     FakeBoard(leadoff_mask=args.leadoff_mask).serve()
 
 
@@ -63,7 +63,7 @@ def _sessions(paths):
     from .dataset import SESSIONS
     ps = [Path(p) for p in paths] if paths else sorted(p for p in SESSIONS.glob("*") if (p / "emg.npy").exists())
     if not ps:
-        raise SystemExit("No sessions. Record with `sb record` (or `sb synth` for synthetic ones).")
+        raise SystemExit("No sessions. Record with `utter record` (or `utter synth` for synthetic ones).")
     return ps
 
 
@@ -128,13 +128,13 @@ def cmd_gaddy(args):
 
 
 def main(argv=None):
-    ap = argparse.ArgumentParser(prog="sb", description="SilentBand host tools")
+    ap = argparse.ArgumentParser(prog="utter", description="Utter host tools")
     sub = ap.add_subparsers(required=True)
 
     def add(name, fn, help_):
         p = sub.add_parser(name, help=help_)
         p.set_defaults(fn=fn)
-        p.add_argument("--host", help="board IP (default: mDNS silentband.local)")
+        p.add_argument("--host", help="board IP (default: mDNS utter.local)")
         p.add_argument("--fake", action="store_true", help="use the built-in board emulator")
         return p
 

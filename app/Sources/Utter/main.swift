@@ -1,7 +1,7 @@
-// SilentTyping menu-bar app: receives silent-token events (UDP 127.0.0.1:47800, from
-// `sb engine` or `sb keysim`), decodes them to words, types into the focused app via
+// Utter menu-bar app: receives silent-token events (UDP 127.0.0.1:47800, from
+// `utter engine` or `utter keysim`), decodes them to words, types into the focused app via
 // Accessibility (CGEvent), and speaks the current candidate in the earbuds.
-// Agent integration (app/hooks/silentband_hook.py, a Claude Code hook) sends two more events:
+// Agent integration (app/hooks/utter_hook.py, a Claude Code hook) sends two more events:
 //   {"type":"agent","text":...}       the agent's last reply: spoken briefly, and used as LLM context
 //   {"type":"permission","text":...}  a permission prompt: ACCEPT presses Return (allow), BACK Escape (deny)
 import AppKit
@@ -69,7 +69,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     var permission: String?  // pending agent permission prompt
     var voice: Voice!
     var listener: NWListener?
-    var lastStatus = "waiting for tokens (sb keysim / sb engine)"
+    var lastStatus = "waiting for tokens (utter keysim / utter engine)"
     var language = UserDefaults.standard.string(forKey: "language") ?? "en"
     var dryRun = CommandLine.arguments.contains("--dry-run")  // print instead of typing
     let work = DispatchQueue(label: "decoder")

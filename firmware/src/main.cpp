@@ -1,4 +1,4 @@
-// SilentBand firmware: 2x ADS1298 (16 ch) -> UDP packets per docs/PROTOCOL.md.
+// Utter firmware: 2x ADS1298 (16 ch) -> UDP packets per docs/PROTOCOL.md.
 // Safety: acquisition is refused/stopped while USB VBUS is present (battery-only recording).
 #include <Arduino.h>
 #include <ArduinoJson.h>
@@ -189,7 +189,7 @@ void setup() {
   pinMode(PIN_LED, OUTPUT);
   pinMode(PIN_VBUS, INPUT);  // external divider; pulled to GND when no USB
   analogReadResolution(12);
-  prefs.begin("sb");
+  prefs.begin("utter");
   ready = xQueueCreate(POOL, sizeof(int));
   freeq = xQueueCreate(POOL, sizeof(int));
   for (int i = 0; i < POOL; i++) xQueueSend(freeq, &i, 0);
@@ -199,7 +199,7 @@ void setup() {
   imuBegin();
   WiFi.mode(WIFI_STA);
   WiFi.setSleep(false);  // latency over power: modem sleep adds 100+ ms jitter
-  WiFi.setHostname("silentband");
+  WiFi.setHostname("utter");
   String ssid = prefs.getString("ssid", "");
   if (ssid.length()) WiFi.begin(ssid.c_str(), prefs.getString("pass", "").c_str());
 }
@@ -221,7 +221,7 @@ void loop() {
 
   if (WiFi.status() == WL_CONNECTED) {
     if (!udpUp) { ctrl.begin(CTRL_PORT); udpUp = true; }
-    if (!mdnsUp && MDNS.begin("silentband")) { MDNS.addService("silentband", "udp", CTRL_PORT); mdnsUp = true; }
+    if (!mdnsUp && MDNS.begin("utter")) { MDNS.addService("utter", "udp", CTRL_PORT); mdnsUp = true; }
     int len = ctrl.parsePacket();
     if (len > 0 && len < 1024) {
       char buf[1024];

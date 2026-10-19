@@ -3,9 +3,9 @@ import threading
 import numpy as np
 import pytest
 
-from sbhost import dataset, engine, protocol as P, train
-from sbhost.fakeboard import FakeBoard
-from sbhost.stream import Board
+from utter import dataset, engine, protocol as P, train
+from utter.fakeboard import FakeBoard
+from utter.stream import Board
 
 TOK = P.load_tokens()["candidates"]
 

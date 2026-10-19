@@ -7,8 +7,8 @@ Key facts (sources in docs/SOURCES.md):
 
 ## Stages (do not advance until the gate passes)
 0. Software only, EUR 0: Mac input-method app, LLM suggestions, earbud voice, keyboard-as-fake-sensor with injected errors; train on Gaddy dataset (Zenodo 4064409). Gate: type a sentence at 80% simulated accuracy; model near published results.
-0.5. Signal check before buying the board (research pass 2026-10-19, see below). Gate: user decides between (a) order SilentBand, (b) EUR ~130 Cyton clone pilot first, using the lips-closed vs mouthed comparison.
-1. Hardware (~EUR 225-255): own SilentBand board, 2x ADS1298 = 16 ch + ESP32-S3, battery only, JLC-assembled (docs/HARDWARE.md, order card docs/ORDER.md). Gate: shorted-input noise ~<1 uV; clear jaw-clench signal.
+0.5. Signal check before buying the board (research pass 2026-10-19, see below). Gate: user decides between (a) order Utter, (b) EUR ~130 Cyton clone pilot first, using the lips-closed vs mouthed comparison.
+1. Hardware (~EUR 225-255): own Utter board, 2x ADS1298 = 16 ch + ESP32-S3, battery only, JLC-assembled (docs/HARDWARE.md, order card docs/ORDER.md). Gate: shorted-input noise ~<1 uV; clear jaw-clench signal.
 2. Record ~16 candidate tokens + rest class, ~100 reps each; keep 8 least confusable. Gate: >80% with lips closed. Fail -> more articulation, then wristband fallback (Meta, Nature 2025).
 3. Connect neckband to app: real silent typing in any app.
 4. Hide: move electrodes toward ear, 3-minute calibration. Gate: still >80%.

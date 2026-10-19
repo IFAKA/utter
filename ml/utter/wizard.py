@@ -42,7 +42,7 @@ def find_port(wait_s: float = 120) -> str:
             con.print("Plug the board into this Mac with a USB-C cable (battery can stay connected).")
             said = True
         time.sleep(0.5)
-    raise SystemExit("No SilentBand on USB found.")
+    raise SystemExit("No Utter on USB found.")
 
 
 def serial_cmd(port: str, msg: dict, timeout: float = 5.0) -> dict:
@@ -166,7 +166,7 @@ def setup(skip_flash: bool = False, host: str | None = None) -> None:
     path.write_text(json.dumps(res, indent=1))
     show(res)
     con.print(f"report: {path}")
-    con.print("[bold green]Board ready.[/] Next: sb electrodes" if res["pass"] else
+    con.print("[bold green]Board ready.[/] Next: utter electrodes" if res["pass"] else
               "[bold red]Board failed acceptance.[/] Keep the report; do not record yet.")
 
 
@@ -217,6 +217,6 @@ def electrodes(board: Board, channels: list[int] | None = None, fs: int = 2000) 
                         break
                 else:
                     good_since = None
-        con.print("[bold green]All electrodes good.[/] Next: sb record")
+        con.print("[bold green]All electrodes good.[/] Next: utter record")
     finally:
         board.stop()

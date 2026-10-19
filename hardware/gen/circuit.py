@@ -1,4 +1,4 @@
-"""SilentBand circuit: the single source of truth for schematic, PCB and BOM.
+"""Utter circuit: the single source of truth for schematic, PCB and BOM.
 
 Each part: reference, KiCad symbol, KiCad footprint, value, LCSC code, {pad: net}, placement group.
 Pad numbers equal symbol pin numbers for every symbol used here (checked by gen_sch.py).

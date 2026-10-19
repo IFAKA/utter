@@ -26,7 +26,7 @@ def run(board, fake: bool = False):
     n = int(WINDOW_S * fs)
     t = np.arange(n) / fs - WINDOW_S
     fig, ax = plt.subplots(figsize=(11, 8))
-    fig.canvas.manager.set_window_title("SilentBand scope")
+    fig.canvas.manager.set_window_title("Utter scope")
     lines = [ax.plot(t, np.zeros(n), lw=0.6)[0] for _ in range(16)]
     ax.set_xlim(-WINDOW_S, 0); ax.set_ylim(-1, 16.5)
     ax.set_yticks(range(16), [f"ch{c + 1}" for c in range(16)])

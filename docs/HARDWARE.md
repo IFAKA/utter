@@ -10,7 +10,7 @@ User constraints: DIY, Spain (21% IVA, EUR 150 IOSS threshold), cheapest that ke
 - Rest-class artefacts (chew/swallow): cheap external IMU near jaw (ExG+IMU 94%/12 cmds, Whispering Wearables 2024).
 - Safety: battery only; firmware blocks acquisition while USB VBUS present.
 
-## Design: "SilentBand" v1 (designed 2026-10-19, DRC/ERC clean, awaiting independent review + order approval)
+## Design: "Utter" v1 (designed 2026-10-19, DRC/ERC clean, awaiting independent review + order approval)
 Source of truth: hardware/gen/circuit.py. `hardware/gen/build.sh` regenerates the PCB (scripted placement + FreeRouting), schematic, checks (check.py) and JLC files (out/fab/). Order card: docs/ORDER.md.
 - 2x TI ADS1298 (LCSC C527440, ~$20 each; ADS1299 ~$55 and overkill for EMG) = 16 ch, 24 bit, 2 kSPS. Shared SPI bus with separate CS (simpler and more robust than daisy chain). U1 is the clock master and the only RLD driver.
 - Monopolar inputs: every INxN goes to REF, and bipolar pairs are built digitally. There are no solder jumpers. Each input has 10k + 470 pF C0G. No TVS: the 10k resistors limit current and the board runs on battery only. Fable should review this.

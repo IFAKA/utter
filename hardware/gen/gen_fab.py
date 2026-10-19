@@ -19,7 +19,7 @@ import sexpr  # noqa: E402
 OUT = os.path.join(circuit.REPO, "hardware/out")
 FAB = os.path.join(OUT, "fab")
 CLI = os.path.join(sexpr.KICAD, "Contents/MacOS/kicad-cli")
-PCB, SCH = os.path.join(OUT, "silentband.kicad_pcb"), os.path.join(OUT, "silentband.kicad_sch")
+PCB, SCH = os.path.join(OUT, "utter.kicad_pcb"), os.path.join(OUT, "utter.kicad_sch")
 LAYERS = "F.Cu,In1.Cu,In2.Cu,B.Cu,F.Mask,B.Mask,F.Paste,F.Silkscreen,B.Silkscreen,Edge.Cuts"
 
 
@@ -34,7 +34,7 @@ def main():
     cli("pcb", "export", "gerbers", "--layers", LAYERS, "--no-x2", "--subtract-soldermask", "-o", gdir + "/", PCB)
     cli("pcb", "export", "drill", "--format", "excellon", "--drill-origin", "absolute", "--excellon-units", "mm",
         "-o", gdir + "/", PCB)
-    zpath = os.path.join(FAB, "silentband-gerbers.zip")
+    zpath = os.path.join(FAB, "utter-gerbers.zip")
     with zipfile.ZipFile(zpath, "w", zipfile.ZIP_DEFLATED) as z:
         for f in sorted(os.listdir(gdir)):
             z.write(os.path.join(gdir, f), f)
@@ -45,7 +45,7 @@ def main():
     parts = {p.ref: p for p in circuit.build()}
     rows = list(csv.DictReader(open(pos)))
     os.remove(pos)
-    with open(os.path.join(FAB, "silentband-cpl.csv"), "w", newline="") as f:
+    with open(os.path.join(FAB, "utter-cpl.csv"), "w", newline="") as f:
         w = csv.writer(f)
         w.writerow(["Designator", "Mid X", "Mid Y", "Layer", "Rotation"])
         for r in rows:
@@ -63,13 +63,13 @@ def main():
         if not p.dnp:
             groups.setdefault((p.value, p.footprint.split(":")[1], p.lcsc), []).append(p.ref)
     key = lambda r: (r.rstrip("0123456789"), int(r[len(r.rstrip("0123456789")):]))
-    with open(os.path.join(FAB, "silentband-bom.csv"), "w", newline="") as f:
+    with open(os.path.join(FAB, "utter-bom.csv"), "w", newline="") as f:
         w = csv.writer(f)
         w.writerow(["Comment", "Designator", "Footprint", "LCSC Part #", "Quantity"])
         for (val, fp, lcsc), refs in sorted(groups.items(), key=lambda kv: key(sorted(kv[1], key=key)[0])):
             w.writerow([val, ",".join(sorted(refs, key=key)), fp, lcsc, len(refs)])
 
-    cli("sch", "export", "pdf", "-o", os.path.join(FAB, "silentband-schematic.pdf"), SCH)
+    cli("sch", "export", "pdf", "-o", os.path.join(FAB, "utter-schematic.pdf"), SCH)
     for side in ("top", "bottom"):
         try:
             cli("pcb", "render", "--side", side, "--quality", "high", "--width", "1600", "--height", "1100",
@@ -77,7 +77,7 @@ def main():
         except subprocess.CalledProcessError:
             print(f"warning: 3D render ({side}) failed")
     cli("pcb", "export", "pdf", "--layers", "F.Cu,F.Silkscreen,Edge.Cuts", "--mode-single",
-        "-o", os.path.join(FAB, "silentband-top-assembly.pdf"), PCB)
+        "-o", os.path.join(FAB, "utter-top-assembly.pdf"), PCB)
     print("fab outputs in", FAB, f"({len(groups)} BOM lines, {len(rows)} placements)")
 
 

@@ -1,6 +1,6 @@
 #!/bin/sh
-# Regenerate the SilentBand board end to end: PCB (placement + FreeRouting), schematic, checks, fab outputs.
-#   ./build.sh [--no-route] [-q]
+# Regenerate the Utter board end to end: PCB (placement + FreeRouting), schematic, checks, fab outputs.
+#   ./build.sh [--no-route] [--reuse-route] [-q]
 set -eo pipefail
 cd "$(dirname "$0")"
 KICAD_APP="${KICAD_APP:-$HOME/Applications/KiCad/KiCad.app}"

@@ -18,7 +18,7 @@ import sexpr  # noqa: E402
 
 OUT = os.path.join(circuit.REPO, "hardware/out")
 CLI = os.path.join(sexpr.KICAD, "Contents/MacOS/kicad-cli")
-PCB, SCH = os.path.join(OUT, "silentband.kicad_pcb"), os.path.join(OUT, "silentband.kicad_sch")
+PCB, SCH = os.path.join(OUT, "utter.kicad_pcb"), os.path.join(OUT, "utter.kicad_sch")
 FOOTPRINT_ONLY = {("SW3", "SH"), ("J4", "MP")}  # mechanical GND pads with no symbol pin
 # ERC waivers (reviewed): both ADS DOUT on MISO (tri-state while CS high); unused ADS GPIO1-4 tied to GND
 # (GPIO register = inputs); TESTP/TESTN tied to AVDD per datasheet.

@@ -4,8 +4,8 @@ Software: ~8 silent tokens + local LLM next-word suggestions + earbud voice; Mac
 User priority: prove it works before optimizing; speed is secondary. Follow gates in PLAN.md.
 
 ## State (2026-10-19)
-- Hardware: SilentBand v1 designed (2x ADS1298 = 16 ch, ESP32-S3-WROOM-1, 68x46 mm, 4 layers, JLC PCBA). `hardware/gen/build.sh` regenerates everything and fails unless DRC 0/0, ERC clean (with documented waivers), and circuit == schematic == PCB. Fab files are in hardware/out/fab/. NOT ORDERED. Cost ~EUR 225-255 all-in. Details: docs/HARDWARE.md, docs/ORDER.md.
-- Software done: firmware (PlatformIO, builds), `sb` host tools (ml/, 3 tests pass), Mac app (swift build OK; st-gate PASS = Stage 0 gate), setup wizard, guided recording. See docs/USAGE.md.
+- Hardware: Utter v1 designed (2x ADS1298 = 16 ch, ESP32-S3-WROOM-1, 68x46 mm, 4 layers, JLC PCBA). `hardware/gen/build.sh` regenerates everything and fails unless DRC 0/0, ERC clean (with documented waivers), and circuit == schematic == PCB. Fab files are in hardware/out/fab/. NOT ORDERED. Cost ~EUR 225-255 all-in. Details: docs/HARDWARE.md, docs/ORDER.md.
+- Software done: firmware (PlatformIO, builds), `utter` host tools (ml/, 3 tests pass), Mac app (swift build OK; st-gate PASS = Stage 0 gate), setup wizard, guided recording. See docs/USAGE.md.
 - User wants: DIY, in Spain, cheapest that keeps/improves quality, design from requirements, user's manual part <=6 steps with a guided UI.
 
 ## Next step

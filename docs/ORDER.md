@@ -1,4 +1,4 @@
-# Order card: SilentBand v1 (APPROVED 2026-10-19, user places the order)
+# Order card: Utter v1 (APPROVED 2026-10-19, user places the order)
 
 Status 2026-10-19: machine-checked, Fable-reviewed (no blockers), approved by the user. Nobody places this order except the user.
 
@@ -7,10 +7,10 @@ Regenerate everything with `hardware/gen/build.sh` (~1.5 min). It fails unless D
 ## Files (hardware/out/fab/)
 | File | Use |
 |---|---|
-| silentband-gerbers.zip | JLCPCB "Add gerber file" |
-| silentband-bom.csv | PCBA step: BOM (LCSC part numbers) |
-| silentband-cpl.csv | PCBA step: CPL (placement) |
-| silentband-schematic.pdf, silentband-top-assembly.pdf, render-top/bottom.png | review only |
+| utter-gerbers.zip | JLCPCB "Add gerber file" |
+| utter-bom.csv | PCBA step: BOM (LCSC part numbers) |
+| utter-cpl.csv | PCBA step: CPL (placement) |
+| utter-schematic.pdf, utter-top-assembly.pdf, render-top/bottom.png | review only |
 
 ## JLCPCB settings
 - PCB: 4 layers, 68 x 46 mm, 1.6 mm FR-4, qty 5, green mask, lead-free HASL. Everything else stays at the defaults.

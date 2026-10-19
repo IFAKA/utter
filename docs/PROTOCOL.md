@@ -1,13 +1,13 @@
-# SilentBand protocol v1
+# Utter protocol v1
 
-Implemented by `firmware/src/` (board), `ml/sbhost/protocol.py` + `ml/sbhost/fakeboard.py` (host / emulator).
+Implemented by `firmware/src/` (board), `ml/utter/protocol.py` + `ml/utter/fakeboard.py` (host / emulator).
 
 ## Ports (UDP)
 - 47700: data, board -> host (host listens).
 - 47701: control, host -> board. Replies go back to the sender's address.
 - 47800: token events, engine/simulator -> Mac app (localhost only).
 
-Discovery: mDNS `silentband.local`, service `_silentband._udp` port 47701. The host sends `subscribe`; the board streams to that sender. No IP is compiled in.
+Discovery: mDNS `utter.local`, service `_utter._udp` port 47701. The host sends `subscribe`; the board streams to that sender. No IP is compiled in.
 
 ## Data packet (little-endian header)
 | off | type | field |

@@ -1,4 +1,4 @@
-"""SilentBand v1 pod: back-of-neck housing for hardware/out/silentband.kicad_pcb (68 x 46 mm, no holes).
+"""Utter v1 pod: back-of-neck housing for hardware/out/utter.kicad_pcb (68 x 46 mm, no holes).
 
 All feature positions are KiCad board coordinates (mm, origin top-left, y down) so they can be checked
 against the PCB directly; k(x, y) maps them to model space (y up). Run:
@@ -19,7 +19,7 @@ import numpy as np
 from manifold3d import CrossSection, JoinType, Manifold
 
 HERE = Path(__file__).resolve().parent
-PCB = HERE.parent / "out" / "silentband.kicad_pcb"
+PCB = HERE.parent / "out" / "utter.kicad_pcb"
 OUT = HERE / "out"
 SEG = 48
 
@@ -188,7 +188,7 @@ def stl(m, path):
     rec = np.zeros(len(t), dtype=[("n", "<f4", 3), ("v", "<f4", (3, 3)), ("a", "<u2")])
     rec["n"], rec["v"] = n, tri
     with open(path, "wb") as fh:
-        fh.write(b"SilentBand pod".ljust(80, b"\0") + struct.pack("<I", len(t)))
+        fh.write(b"Utter pod".ljust(80, b"\0") + struct.pack("<I", len(t)))
         fh.write(rec.tobytes())
 
 

@@ -1,4 +1,4 @@
-"""SilentBand wire format v1 (see docs/PROTOCOL.md)."""
+"""Utter wire format v1 (see docs/PROTOCOL.md)."""
 from __future__ import annotations
 
 import json

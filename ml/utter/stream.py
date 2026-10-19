@@ -13,12 +13,12 @@ from . import protocol as P
 
 
 def discover(timeout: float = 3.0) -> str | None:
-    """Resolve silentband.local via mDNS; returns IP or None."""
+    """Resolve utter.local via mDNS; returns IP or None."""
     try:
         from zeroconf import Zeroconf
         zc = Zeroconf()
         try:
-            info = zc.get_service_info("_silentband._udp.local.", "silentband._silentband._udp.local.",
+            info = zc.get_service_info("_utter._udp.local.", "utter._utter._udp.local.",
                                        timeout=int(timeout * 1000))
             if info and info.parsed_addresses():
                 return info.parsed_addresses()[0]
@@ -27,7 +27,7 @@ def discover(timeout: float = 3.0) -> str | None:
     except Exception:
         pass
     try:
-        return socket.gethostbyname("silentband.local")
+        return socket.gethostbyname("utter.local")
     except OSError:
         return None
 

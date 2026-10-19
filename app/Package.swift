@@ -2,11 +2,11 @@
 import PackageDescription
 
 let package = Package(
-    name: "SilentTyping",
+    name: "Utter",
     platforms: [.macOS(.v13)],
     targets: [
         .target(name: "TypingCore", resources: [.copy("Resources")]),
-        .executableTarget(name: "SilentTyping", dependencies: ["TypingCore"]),
+        .executableTarget(name: "Utter", dependencies: ["TypingCore"]),
         .executableTarget(name: "st-gate", dependencies: ["TypingCore"]),
     ]
 )

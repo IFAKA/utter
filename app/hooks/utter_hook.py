@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Claude Code hook -> SilentTyping (UDP 127.0.0.1:47800). Fire-and-forget: never blocks the agent.
+"""Claude Code hook -> the Utter app (UDP 127.0.0.1:47800). Fire-and-forget: never blocks the agent.
 
 Stop          sends the agent's last reply: the earbud reads its first sentence, and the
               language model predicts your answer from it.
