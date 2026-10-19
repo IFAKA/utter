@@ -25,3 +25,22 @@ Key facts (sources in docs/SOURCES.md):
 - Open vocab, Gaddy & Klein: 68% -> 42.2% WER (ACL 2021), one speaker, 19 h of data; later work claims <10% with LLM post-correction (Benster 2024, unverified). Real open-vocab needs hours of data per user and mouth movement. Not a 12-minute x4 sessions job.
 - Cheap pilots exist: 8-ch OpenBCI Cyton at 250 Hz with 8 words (MindScribe 2025, IIT Kanpur 9.3% WER on face electrodes). 250 Hz is below the 1-2 kSPS this board targets, so a Cyton pilot shows feasibility but not our final accuracy.
 - Consequence: keep the 8-token + LLM design; open-vocab is a Stage 5 stretch needing hours of per-user recording.
+
+## Typing-efficiency benchmark (2026-10-19)
+`app/.build/release/st-gate --llm [--corpus chat|agent] [--context] [--phrases] [--browse N] [--quick-pick]`, gemma3:1b, gestures per word (≈ wpm at 1.5 s/gesture):
+
+| Setup | 100% recognition | 90% | 80% |
+|---|---|---|---|
+| Chat, current decoder | 3.25 (12.3) | 4.10 (9.8) | 5.87 (6.8) |
+| Chat, user also takes the 2nd suggestion (na ya) | 3.17 | 4.14 | 5.28 |
+| Chat, quick-pick (na + key = suggestion 3-6) | 3.11 | 3.98 | 5.40 |
+| Agent replies, LLM sees only the reply | 5.34 (7.5) | 7.64 | 11.34 |
+| Agent replies, LLM sees the agent's last message | **3.82 (10.5)** | **4.64** | **5.76** |
+| ... plus quick-pick | 3.62 | 4.55 | 5.83 |
+| ... plus whole-reply suggestions (gemma3:1b) | 3.85 | 4.65 | 7.96 |
+
+Conclusions:
+- Agent context is the one big win: −39% gestures at 90%. The app must receive the agent's last message, e.g. from a Claude Code Stop hook.
+- Quick-pick gains only 3-5% and adds a mode, so it stays off.
+- Whole-reply suggestions from a 1B model are generic ("yes please"), so there is no measurable gain. Revisit with a larger model or the agent's own suggested prompts. The benchmark only counts exact matches, which undervalues equivalent replies.
+- Permission prompts (approve / reject) should map directly to ya / sha: one gesture. Not built yet.

@@ -14,7 +14,9 @@ public enum Output: Equatable {
 ///   ACCEPT  type the current candidate + space
 ///   BACK    remove the last group, or delete the last typed word if the code is empty
 ///   WAKE    arm / pause (paused ignores everything except WAKE)
-/// With an empty code, candidates are the language model's next-word predictions, plus "." and newline.
+/// With an empty code, candidates are the language model's next-word predictions, plus "." and newline;
+/// before the first word, whole-reply phrases from the predictor come first.
+/// quickPick: right after one NEXT from the predictions, G1..G4 accept candidates 3..6 directly.
 public final class Decoder {
     public private(set) var armed = false
     public private(set) var code: [Int] = []
@@ -25,6 +27,7 @@ public final class Decoder {
     let lexicon: Lexicon
     let predictor: Predictor
     public static let newline = "⏎"
+    public var quickPick = false
 
     public init(lexicon: Lexicon, predictor: Predictor = NoPredictor(), armed: Bool = false) {
         self.lexicon = lexicon
@@ -51,6 +54,13 @@ public final class Decoder {
         func backoff(_ zipf: Double) -> Double { (zipf - 9) * 2.302585 - 1.5 }
         if code.isEmpty {
             var c = preds.map(\.word).filter { lexicon.contains($0) }
+            if text.isEmpty {
+                let ph = predictor.phrases()
+                if !ph.isEmpty {
+                    let head: [String] = Array(ph.prefix(1)) + Array(c.prefix(1))
+                    c = head + Array(ph.dropFirst()) + Array(c.dropFirst())
+                }
+            }
             if !context.trimmingCharacters(in: .whitespaces).isEmpty { c += [".", Self.newline] }
             candidates = Array(c.prefix(14))
             return
@@ -79,23 +89,17 @@ public final class Decoder {
         var out: [Output] = [.earcon(a)]
         switch a {
         case .g1, .g2, .g3, .g4:
-            code.append(a.group!)
-            refresh()
+            if quickPick && code.isEmpty && index == 1 && candidates.count > 2 + a.group! {
+                index = 2 + a.group!
+                out += accept()
+            } else {
+                code.append(a.group!)
+                refresh()
+            }
         case .next:
             if !candidates.isEmpty { index = (index + 1) % candidates.count }
         case .accept:
-            guard let w = current else { break }
-            let s = w == Self.newline ? "\n" : (w == "." ? ". " : w + " ")
-            let attach = w == "." && text.hasSuffix(" ")  // attach the period to the previous word
-            if attach {
-                text.removeLast()
-                out.append(.backspace(1))
-            }
-            text += s
-            typedWords.append((s, attach))
-            out.append(.type(s))
-            code = []
-            refresh()
+            out += accept()
         case .back:
             if !code.isEmpty {
                 code.removeLast()
@@ -113,6 +117,23 @@ public final class Decoder {
             break
         }
         if let c = current { out.append(.speak(c == Self.newline ? "new line" : (c == "." ? "period" : c))) }
+        return out
+    }
+
+    private func accept() -> [Output] {
+        guard let w = current else { return [] }
+        var out: [Output] = []
+        let s = w == Self.newline ? "\n" : (w == "." ? ". " : w + " ")
+        let attach = w == "." && text.hasSuffix(" ")  // attach the period to the previous word
+        if attach {
+            text.removeLast()
+            out.append(.backspace(1))
+        }
+        text += s
+        typedWords.append((s, attach))
+        out.append(.type(s))
+        code = []
+        refresh()
         return out
     }
 }
