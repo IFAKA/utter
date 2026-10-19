@@ -137,6 +137,29 @@
   #cap b { font-weight:600; }
   .clock { font:11px/1 var(--mono); color:var(--idim); }
 
+  .pad { display:grid; grid-template-columns:repeat(8, 1fr); gap:6px; margin-top:14px; }
+  .pk { --h:0; border-radius:10px; padding:9px 12px 10px; border:1px solid var(--istroke);
+        background:rgba(255,90,31,calc(var(--h) * .16)); box-shadow:inset 0 0 0 1px rgba(255,90,31,calc(var(--h) * .9)); }
+  .pk:nth-child(4) { margin-right:12px; }
+  .pk b { font:italic 400 20px/1 var(--serif); color:var(--itxt); }
+  .pk span { display:block; font:10.5px/1.2 var(--mono); color:var(--idim); margin-top:6px; }
+  .grp { display:inline-block; font:600 11px/1 var(--mono); padding:3px 5px; border-radius:5px; margin-right:3px; vertical-align:1px;
+         background:rgba(10,132,255,.12); color:#0a84ff; }
+  .tin .grp { background:rgba(255,138,91,.15); color:#ff8a5b; }
+
+  /* ---------- how it works ---------- */
+  .how { padding:40px 0 6px; }
+  .steps { display:grid; grid-template-columns:repeat(3, 1fr); gap:40px; }
+  .stp span { font:12px/1 var(--mono); color:var(--sig); display:block; margin-bottom:10px; }
+  .stp h3 { font:400 23px/1.2 var(--serif); margin-bottom:8px; }
+  .stp p { color:var(--ink2); font-size:15px; }
+  .kp { display:grid; grid-template-columns:1fr 1fr; gap:28px; margin-top:36px; }
+  .kp h5 { font:12px/1 var(--mono); color:var(--mute); font-weight:400; letter-spacing:.04em; }
+  .kp .keys { margin-top:10px; gap:8px; }
+  .kp .key { padding:14px 14px 12px; } .kp .key b { font-size:28px; } .kp .key span { margin-top:8px; }
+  .ex { margin-top:20px; color:var(--ink2); font-size:15.5px; max-width:900px; }
+  .ex b { font:italic 400 18px/1 var(--serif); color:var(--sig); }
+
   /* ---------- sections ---------- */
   section { padding:110px 0 0; }
   .sh { display:grid; grid-template-columns: 1fr 1.55fr; gap:56px; border-top:1px solid var(--ink); padding-top:18px; }
@@ -183,15 +206,37 @@
 </head>
 <body>
 <div class="wrap">
-  <div class="top"><b>SilentBand</b><nav><a href="#demo">Demo</a><a href="#alphabet">Alphabet</a><a href="#hardware">Hardware</a><a href="#status">Status</a></nav></div>
+  <div class="top"><b>SilentBand</b><nav><a href="#demo">Demo</a><a href="#alphabet">Why 8</a><a href="#hardware">Hardware</a><a href="#status">Status</a></nav></div>
 
   <header class="hero">
     <h1>Message people. Prompt agents. <i>Say nothing.</i></h1>
     <div>
-      <p>You silently articulate one of eight syllables with your lips closed. A neckband reads the muscle activity under your jaw, and your computer turns it into text, in a chat or in a coding agent's prompt.</p>
+      <p>Your mouth becomes an 8-key keyboard. You silently shape a syllable with your lips closed, and a neckband reads your jaw muscles. An AI turns those keys into text, in a chat or in a coding agent's prompt.</p>
       <div class="meta"><span>16 channels</span><span>runs locally</span><span>prototype, Oct 2026</span></div>
     </div>
   </header>
+
+  <!-- ===================== how it works ===================== -->
+  <div class="how">
+    <div class="steps">
+      <div class="stp"><span>1</span><h3>Silently shape a syllable</h3><p>Lips closed, no sound. You think “ka”, and your tongue and jaw move slightly, as if you were about to say it.</p></div>
+      <div class="stp"><span>2</span><h3>The neckband feels the muscles</h3><p>16 skin sensors under the jaw pick up the muscles' tiny electrical signal and tell which of the 8 syllables it was.</p></div>
+      <div class="stp"><span>3</span><h3>AI turns 8 keys into any word</h3><p>Each syllable is a key, like on an old phone keypad. The AI predicts the word you mean, and an earbud whispers it so you can confirm.</p></div>
+    </div>
+    <div class="kp">
+      <div><h5>Four keys pick letters</h5><div class="keys">
+        <div class="key"><b>ka</b><span>a b c d e f</span></div>
+        <div class="key"><b>ta</b><span>g h i j k l m</span></div>
+        <div class="key"><b>la</b><span>n o p q r s</span></div>
+        <div class="key"><b>ga</b><span>t u v w x y z</span></div></div></div>
+      <div><h5>Four keys control</h5><div class="keys">
+        <div class="key cmd"><b>na</b><span>next suggestion</span></div>
+        <div class="key cmd"><b>ya</b><span>accept / send</span></div>
+        <div class="key cmd"><b>sha</b><span>back</span></div>
+        <div class="key cmd"><b>ree</b><span>wake / pause</span></div></div></div>
+    </div>
+    <p class="ex">Example: to type <i>running</i>, think <b>la</b> (first letter is n–s), then <b>ga</b> (second is t–z). The AI's top guess is now <i>running</i>, and the earbud says it; <b>ya</b> accepts it. Often the AI already knows the next word, and you just think <b>ya</b>.</p>
+  </div>
 
   <!-- ===================== demo ===================== -->
   <div class="stage" id="demo">
@@ -265,27 +310,20 @@
       </div>
     </div>
 
+    <div class="pad" id="pad"></div>
     <div class="caption"><div id="cap"></div><div class="clock" id="clock"></div></div>
   </div>
 
   <!-- ===================== alphabet ===================== -->
   <section id="alphabet">
     <div class="sh">
-      <div class="n">01<b>The alphabet</b></div>
+      <div class="n">01<b>Why eight syllables</b></div>
       <div>
-        <h2>Eight syllables. <i>Any word.</i></h2>
-        <p>Four syllables narrow down the letters, like the old phone keypad. Four more steer. A local language model predicts the next word from the conversation or the codebase, so most words cost a single <em>ya</em>. In the demo above, the four-word reply takes seven syllables.</p>
+        <h2>Few keys the sensor can tell apart. <i>An AI does the rest.</i></h2>
+        <p>Reading whole words from a closed mouth isn't reliable yet: the best published result still gets 42% of words wrong, and that is with the mouth moving and 19 hours of training data. A few very different tongue and jaw shapes are much easier: research reaches 88–97% on small sets like this one.</p>
+        <p>Each syllable uses a different part of the mouth, so each produces a different muscle pattern: <b>k</b> the back of the tongue, <b>t</b> the tip, <b>l</b> the sides, <b>sh</b> the whole tongue spread, <b>ee</b> the cheeks. The names themselves don't matter; we keep whichever eight the sensor separates best.</p>
+        <p>The AI turns those few keys into words. It reads the chat or the codebase and predicts what comes next, so most words need just one <em>ya</em>. The four-word reply in the demo takes seven syllables.</p>
       </div>
-    </div>
-    <div class="keys">
-      <div class="key"><b>ka</b><span>letters a b c d e f</span></div>
-      <div class="key"><b>ta</b><span>letters g h i j k l m</span></div>
-      <div class="key"><b>la</b><span>letters n o p q r s</span></div>
-      <div class="key"><b>ga</b><span>letters t u v w x y z</span></div>
-      <div class="key cmd"><b>na</b><span>next suggestion</span></div>
-      <div class="key cmd"><b>ya</b><span>accept / send</span></div>
-      <div class="key cmd"><b>sha</b><span>back</span></div>
-      <div class="key cmd"><b>ree</b><span>wake / pause</span></div>
     </div>
   </section>
 
@@ -369,13 +407,13 @@ const SITE = ["chin L", "chin R", "under jaw", "jaw angle", "throat L", "throat 
 const PAT = {ka: [2, 3, 4], ta: [0, 1, 2], la: [1, 2, 5], ga: [3, 4, 5], na: [0, 2, 6], ya: [1, 4, 7], sha: [0, 1, 3], ree: [5, 6, 7]};
 
 const CHAT = {
-  intro: "Marta asks if you're still coming. You're in a meeting, so you reply without typing or speaking.",
+  intro: "Marta asks if you're still coming. You are in a meeting. Watch which key each silent syllable presses.",
   first: () => addMsg("in", "still coming tonight?", sim + 500),
   steps: [
     {t: "ree", ear: "listening", cap: "<q>ree</q> wakes SilentBand."},
-    {t: "ya", type: "yes ", c: ["yes", "sure", "sorry"], ear: "yes", cap: "Before you give any letters, the model predicts the reply, and <q>ya</q> accepts <b>yes</b>."},
-    {t: "la", code: "r", c: ["really", "running", "right"], ear: "really", cap: "<q>la</q> narrows the next word to letters <b>n–s</b>."},
-    {t: "ga", code: "ru", c: ["running", "run", "rush"], ear: "running", cap: "<q>ga</q> adds letters <b>t–z</b>, and the earbud whispers the top match: <b>running</b>."},
+    {t: "ya", type: "yes ", c: ["yes", "sure", "sorry"], ear: "yes", cap: "<q>ya</q> means accept. The AI guessed the reply starts with <b>yes</b>, so no letters were needed."},
+    {t: "la", code: "n–s", c: ["really", "running", "right"], ear: "really", cap: "<q>la</q> means the next word starts with one of <b>n o p q r s</b>. Top guesses: really, running, right."},
+    {t: "ga", code: "n–s t–z", c: ["running", "run", "rush"], ear: "running", cap: "<q>ga</q> means the second letter is one of <b>t u v w x y z</b>. Now <b>running</b> leads, and the earbud whispers it."},
     {t: "ya", type: "running ", c: ["late", "behind", "now"], ear: "late", cap: "<q>ya</q> accepts it. The model already predicts <b>late</b>."},
     {t: "ya", type: "late", c: ["send", ".", "!"], ear: "send?", cap: "Each predicted word costs one more <q>ya</q>."},
     {t: "ya", send: true, ear: "sent", cap: "Sent. Seven silent syllables, and nobody in the meeting heard a thing."},
@@ -388,7 +426,7 @@ const AGENT = {
     {t: "ree", ear: "listening", cap: "<q>ree</q> wakes SilentBand in the agent's prompt."},
     {t: "ya", type: "fix ", c: ["fix", "add", "explain"], ear: "fix", cap: "With a failing test in the session, the model ranks <b>fix</b> first, and <q>ya</q> accepts it."},
     {t: "ya", type: "the ", c: ["the", "this", "a"], ear: "the", cap: "<q>ya</q> again: <b>the</b>."},
-    {t: "ta", code: "l", c: ["login", "lint", "last"], ear: "login", cap: "<q>ta</q> narrows to letters <b>g–m</b>, and <b>login</b> comes first because it names the failing test."},
+    {t: "ta", code: "g–m", c: ["login", "lint", "last"], ear: "login", cap: "<q>ta</q> means the word starts with one of <b>g h i j k l m</b>. <b>login</b> leads, because that is the failing test."},
     {t: "ya", type: "login ", c: ["test", "page", "flow"], ear: "test", cap: "<q>ya</q> accepts <b>login</b>, and <b>test</b> is predicted next."},
     {t: "ya", type: "test", c: ["⏎ send", "tests", "flow"], ear: "send?", cap: "<q>ya</q> accepts <b>test</b>."},
     {t: "ya", send: true, ear: "sent", cap: "Prompt sent."},
@@ -403,6 +441,8 @@ SITES.forEach(([x, y], k) => {
 });
 $("bars").innerHTML = TOKENS.map(t => `<div class="b" id="b-${t}"><i></i><span>${t}</span></div>`).join("");
 const barH = Object.fromEntries(TOKENS.map(t => [t, 3]));
+$("pad").innerHTML = TOKENS.map(t => `<div class="pk" id="k-${t}"><b>${t}</b><span>${ACT[t]}</span></div>`).join("");
+const grp = c => c ? c.split(" ").map(s => `<span class="grp">${s}</span>`).join("") : "";
 
 /* ---------------- signal: generated on sim time ---------------- */
 const cv = $("scope"), g = cv.getContext("2d");
@@ -475,12 +515,12 @@ function pulse(id, t, d, vertical) {
 /* ---------------- surfaces ---------------- */
 let typed = "", code = "";
 function chatRender(st) {
-  $("field").innerHTML = (typed || code ? "" : '<span class="ph">iMessage</span>') + typed + (code ? `<span class="code">${code}</span>` : "") + '<span class="caret"></span>';
+  $("field").innerHTML = (typed || code ? "" : '<span class="ph">iMessage</span>') + typed + (code ? `${grp(code)}` : "") + '<span class="caret"></span>';
   $("cands").innerHTML = (st.c || []).map((w, k) => `<span class="cand ${k === 0 ? "sel" : ""}">${w}</span>`).join("");
   $("send").style.opacity = typed ? 1 : .3;
 }
 function termRender(st) {
-  $("tin").innerHTML = `<span class="p">›</span>${typed}${code ? `<span class="code">${code}</span>` : ""}<span class="caret"></span>`;
+  $("tin").innerHTML = `<span class="p">›</span>${typed}${code ? `${grp(code)}` : ""}<span class="caret"></span>`;
   $("tsug").innerHTML = (st.c || []).map((w, k) => `<span class="s ${k === 0 ? "sel" : ""}">${w}</span>`).join("") +
     (st.c ? '<span class="k">ya accept · na next · sha back</span>' : "");
 }
@@ -539,6 +579,8 @@ function step(st, T, isChat) {
     $("rw").textContent = `“${st.t}”`; $("ra").textContent = `${ACT[st.t]} · ${(pw * 100).toFixed(0)}%`;
   });
   tween(T + 1040, 300, p => { $("rw").style.opacity = p; $("rw").style.transform = `translateY(${(1 - p) * 6}px)`; });
+  tween(T + 1040, 140, p => $("k-" + st.t).style.setProperty("--h", p));
+  tween(T + 1700, 700, p => $("k-" + st.t).style.setProperty("--h", 1 - p), E.inOut);
   pulse("lb", T + 1180, 320, false);
   at(T + 1500, () => {
     code = st.code || ""; if (st.type) typed += st.type;
@@ -596,6 +638,7 @@ function resetDOM() {
   $("sc0").style.opacity = 0; $("sc1").style.opacity = 0; $("cap").innerHTML = ""; $("rw").textContent = "–"; $("ra").textContent = "";
   TOKENS.forEach(t => { barH[t] = 3; const b = $("b-" + t); b.classList.remove("win"); b.firstChild.style.height = "3px"; });
   $("thought").style.opacity = 0; $("ear").style.opacity = 0;
+  TOKENS.forEach(t => $("k-" + t).style.setProperty("--h", 0));
 }
 function restart() { sim = 0; events = []; tweens = []; resetDOM(); program(); }
 function seekScene(n) {
