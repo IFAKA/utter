@@ -1,0 +1,22 @@
+# Using SilentBand + SilentTyping
+
+One-time host setup (already done on this Mac): `uv`, PlatformIO (`pio`), Ollama with `ollama pull gemma3:1b`, Xcode command line tools. Then:
+
+```sh
+cd ml && uv sync            # host tools; `uv run sb --help` lists every command
+cd app && swift build -c release
+```
+
+## Your 6 steps
+1. **Order** the boards with the card in docs/ORDER.md, plus the Amazon.es items listed there.
+2. **Plug** the LiPo into J4 and the electrode leads into J1. J1 pins 1-16 are EL1-16, 17/18 are REF and 19/20 are RLD; pin 1 is marked on the silkscreen. Plug the optional IMU into J2.
+3. **Plug in USB-C** and run `uv run sb setup`. It flashes the firmware, checks that both ADS1298 chips answer, copies the Mac's Wi-Fi to the board, asks you to unplug USB, then runs the acceptance test (internal test signal and shorted-input noise). The board refuses to record while USB is plugged in.
+4. **Stick the electrodes** (chin, under the jaw, throat, behind the ear; REF and RLD on the mastoid or collarbone). Run `uv run sb electrodes` and press each one until it shows green.
+5. **Record 4 sessions** of about 12 minutes with `uv run sb record`. A game prompts each silent token and the rest class. Then run `uv run sb train` (add `--rank 8` to find the best electrode sites).
+6. **Next day**, do a 3-minute check: `uv run sb record --minutes 3`, then `uv run sb train`. The cross-day accuracy is the Stage 2 gate (>80%).
+
+## Typing
+- Start the app with `app/.build/release/SilentTyping` (a menu-bar icon). Grant Accessibility permission when asked. `--dry-run` shows the text without typing it.
+- Live input: `uv run sb engine` sends recognised tokens to the app over UDP 127.0.0.1:47800.
+- Without hardware: `uv run sb keysim --accuracy 0.8` uses the keyboard as a fake sensor with injected errors. `uv run sb fakeboard`, or `--fake` on any command, emulates the board.
+- Gates: `swift run st-gate` (Stage 0 typing gate) and `uv run sb gaddy` (real-EMG benchmark, see ml/README.md).

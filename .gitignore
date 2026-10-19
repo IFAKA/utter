@@ -3,3 +3,9 @@ __pycache__/
 .venv/
 data/
 *.npy
+tools/bin/
+*.jar
+firmware/.pio/
+app/.build/
+hardware/out/*.dsn
+hardware/out/*.ses

@@ -1,7 +1,17 @@
 # Handoff for a new chat
 Goal: covert "silent typing" input method (no keyboard, no voice). Lips closed, internal articulation; sEMG on chin/throat/behind ear.
-Hardware: ADS1299 + ESP32-S3 neckband, ~EUR 175 (Spain, IVA incl.). Reference build in ../neurodaq (read-only; its submodules not yet fetched).
 Software: ~8 silent tokens + local LLM next-word suggestions + earbud voice; Mac app first.
 User priority: prove it works before optimizing; speed is secondary. Follow gates in PLAN.md.
-Next step: Stage 0 - build keyboard-as-fake-sensor simulator in app/ (measure tokens/sentence at 80%/90% accuracy); optionally download Gaddy dataset into ml/data (gitignored).
+
+## State (2026-10-19)
+- Hardware: SilentBand v1 designed (2x ADS1298 = 16 ch, ESP32-S3-WROOM-1, 68x46 mm, 4 layers, JLC PCBA). `hardware/gen/build.sh` regenerates everything and fails unless DRC 0/0, ERC clean (with documented waivers), and circuit == schematic == PCB. Fab files are in hardware/out/fab/. NOT ORDERED. Cost ~EUR 225-255 all-in. Details: docs/HARDWARE.md, docs/ORDER.md.
+- Software done: firmware (PlatformIO, builds), `sb` host tools (ml/, 3 tests pass), Mac app (swift build OK; st-gate PASS = Stage 0 gate), setup wizard, guided recording. See docs/USAGE.md.
+- User wants: DIY, in Spain, cheapest that keeps/improves quality, design from requirements, user's manual part <=6 steps with a guided UI.
+
+## Next step
+1. Fable reviews the schematic and PCB using the checklist in docs/ORDER.md. Fix findings, then rerun build.sh.
+2. User approves and places the order (ORDER.md) and buys the Amazon.es items.
+3. After delivery: USAGE.md steps 2-6, then the Stage 1 gate.
+
 Model guidance: Sonnet for software; Fable for schematic/PCB review before ordering, safety, and Stage 2 failure analysis.
+Never place orders or spend money; user approves the order card.

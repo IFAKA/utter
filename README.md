@@ -1,10 +1,15 @@
 # silent-typing
 
 Covert text input: silently articulate (lips closed, no sound) and text appears in any app.
-Surface EMG (chin/throat/behind ear) -> ADS1299 + ESP32-S3 -> ~8 silent tokens -> local LLM suggestions -> earbud feedback -> typed text.
+Surface EMG (chin/throat/behind ear) -> SilentBand (2x ADS1298 = 16 ch + ESP32-S3) -> ~8 silent tokens -> local LLM suggestions -> earbud feedback -> typed text.
 
-**Not a medical device.** Battery-powered / isolated operation only.
+**Not a medical device.** Battery-powered operation only; the firmware refuses to record while USB is connected.
 
-Reference (read-only, MIT): ../neurodaq (carlos-lorenzo/neurodaq) for ADS1299 driver and board design. Credit it wherever code is reused.
+- docs/PLAN.md: stages and pass/fail gates
+- docs/USAGE.md: setup and the user's 6 steps
+- docs/HARDWARE.md, docs/ORDER.md: board design and order card
+- Layout: hardware/ (generated KiCad board, `hardware/gen/build.sh`), firmware/ (PlatformIO), ml/ (`sb` host tools), app/ (Mac menu-bar app)
 
-See docs/PLAN.md for stages and pass/fail gates.
+## Third-party data
+- app/Sources/TypingCore/Resources/words_{en,es}.txt are derived from wordfreq (https://github.com/rspeer/wordfreq) word lists, CC-BY-SA 4.0. The derived lists keep that license.
+- The Gaddy & Klein silent-speech EMG dataset (https://zenodo.org/records/4064409), CC-BY-4.0, is downloaded locally and not redistributed.
