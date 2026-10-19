@@ -3,672 +3,613 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>SilentBand: silent typing for chats and AI agents</title>
+<title>SilentBand: type with your mouth closed</title>
 <style>
   :root {
-    --paper:#f2efe7; --ink:#151515; --ink2:#3b3a36; --mute:#7a766c; --rule:#d8d2c3;
-    --sig:#ff5a1f; --sig2:#ff8a5b; --cool:#9fd8cf;
-    --inst:#0d0e10; --inst2:#15171b; --istroke:rgba(255,255,255,.07); --itxt:#e9e7e1; --idim:#8a8a86;
-    --serif: ui-serif, "New York", "Iowan Old Style", "Charter", Georgia, serif;
-    --sans: -apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif;
-    --mono: ui-monospace, "SF Mono", "JetBrains Mono", Menlo, monospace;
+    --ink:#1d1d1f; --ink2:#424245; --mute:#86868b; --line:#d2d2d7; --gray:#f5f5f7; --white:#fff;
+    --sig:#ff5a1f; --ear:#7fd6c6;
+    --sans: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Helvetica Neue", system-ui, sans-serif;
+    --mono: ui-monospace, "SF Mono", Menlo, monospace;
   }
   * { box-sizing:border-box; margin:0; padding:0; }
-  body { background:var(--paper); color:var(--ink); font:16px/1.55 var(--sans); -webkit-font-smoothing:antialiased; }
-  .wrap { max-width:1320px; margin:0 auto; padding:0 40px; }
-  a { color:inherit; }
+  html { scroll-behavior:smooth; }
+  body { font:17px/1.47 var(--sans); color:var(--ink); background:var(--white); -webkit-font-smoothing:antialiased; letter-spacing:-.012em; }
+  .w { max-width:1100px; margin:0 auto; padding:0 28px; }
+  a { color:inherit; text-decoration:none; }
+  .btn { display:inline-block; background:var(--sig); color:#fff; font-weight:500; font-size:16px; padding:11px 22px; border-radius:980px; }
+  .btn.ghost { background:transparent; color:var(--sig); padding:11px 6px; }
+  .btn.ghost::after { content:" ›"; }
+  .eyebrow { font-size:17px; font-weight:600; color:var(--sig); margin-bottom:10px; }
+  h1, h2 { font-weight:600; letter-spacing:-.035em; line-height:1.05; }
+  h2 { font-size:clamp(36px, 5.2vw, 60px); }
+  .lede { font-size:clamp(19px, 2vw, 22px); color:var(--ink2); line-height:1.4; max-width:680px; }
+  .dark { background:#000; color:#f5f5f7; } .dark .lede { color:#a1a1a6; }
+  .gray { background:var(--gray); }
+  section { padding:130px 0; }
 
-  /* ---------- top + hero ---------- */
-  .top { display:flex; justify-content:space-between; align-items:baseline; padding:26px 0 0; font:12px/1 var(--mono); color:var(--mute); letter-spacing:.04em; }
-  .top b { color:var(--ink); font-weight:600; letter-spacing:.02em; font-size:13px; }
-  .top nav a { text-decoration:none; margin-left:22px; }
-  .top nav a:hover { color:var(--ink); }
-  .hero { display:grid; grid-template-columns: 1.55fr 1fr; gap:56px; align-items:end; padding:56px 0 34px; border-bottom:1px solid var(--rule); }
-  h1 { font:400 clamp(40px, 5vw, 64px)/1.02 var(--serif); letter-spacing:-.02em; }
-  h1 i { font-style:italic; color:var(--sig); }
-  .hero p { color:var(--ink2); font-size:17px; max-width:470px; }
-  .hero .meta { margin-top:20px; display:flex; gap:18px; font:12px/1 var(--mono); color:var(--mute); }
-  .hero .meta span::before { content:"— "; }
+  /* nav */
+  nav { position:sticky; top:0; z-index:50; background:rgba(0,0,0,.72); backdrop-filter:saturate(180%) blur(20px); -webkit-backdrop-filter:saturate(180%) blur(20px); color:#f5f5f7; }
+  nav .w { display:flex; align-items:center; height:52px; gap:28px; font-size:13px; }
+  nav b { font-size:17px; font-weight:600; letter-spacing:-.02em; margin-right:auto; }
+  nav a:not(.btn) { color:#c7c7cc; } nav a:not(.btn):hover { color:#fff; }
+  nav .btn { font-size:13px; padding:5px 13px; }
 
-  /* ---------- instrument stage ---------- */
-  .stage { margin:34px 0 0; background:var(--inst); color:var(--itxt); border-radius:20px; padding:20px 22px 16px; position:relative;
-           box-shadow: 0 1px 0 rgba(255,255,255,.04) inset, 0 50px 80px -50px rgba(20,18,10,.55); }
-  .bar-top { display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; }
-  .tabs { display:flex; gap:6px; }
-  .tab { font:12px/1 var(--mono); color:var(--idim); letter-spacing:.03em; padding:9px 14px 10px; border-radius:9px; position:relative; overflow:hidden;
-         background:rgba(255,255,255,.03); border:1px solid var(--istroke); min-width:190px; cursor:pointer; user-select:none; transition:color .3s, background .3s; }
-  .tab.on { color:var(--itxt); background:rgba(255,255,255,.06); }
-  .tab .fill { position:absolute; left:0; bottom:0; height:2px; background:var(--sig); width:0; }
-  .ctrl { display:flex; gap:6px; }
-  .ctrl button { font:12px/1 var(--mono); color:var(--itxt); background:transparent; border:1px solid var(--istroke); border-radius:9px; padding:9px 12px; cursor:pointer; min-width:44px; }
-  .ctrl button:hover { border-color:rgba(255,255,255,.25); }
+  /* hero */
+  .hero { background:radial-gradient(70% 55% at 50% 78%, #2a2a2f 0%, #000 70%); color:#f5f5f7; text-align:center; padding:96px 0 0; overflow:hidden; }
+  .hero h1 { font-size:clamp(52px, 8.4vw, 104px); }
+  .hero .lede { margin:22px auto 30px; color:#a1a1a6; }
+  .hero .cta { display:flex; gap:18px; justify-content:center; align-items:center; }
+  #band { display:block; width:min(880px, 100%); margin:24px auto 0; }
+  .hero small { display:block; color:#6e6e73; font-size:12px; padding:0 0 26px; }
 
-  .grid { display:grid; grid-template-columns: 430px 56px 1fr; }
-  .left { display:grid; grid-template-rows: 280px 30px auto; }
-  .card { background:var(--inst2); border:1px solid var(--istroke); border-radius:14px; position:relative; overflow:hidden; }
-  .lbl { position:absolute; top:12px; left:14px; font:10.5px/1 var(--mono); color:var(--idim); letter-spacing:.12em; text-transform:uppercase; z-index:2; }
-  .lbl b { color:var(--itxt); font-weight:500; }
+  /* statement */
+  .statement p { font-size:clamp(28px, 3.6vw, 44px); font-weight:600; letter-spacing:-.03em; line-height:1.18; max-width:940px; color:var(--mute); }
+  .statement p b { color:var(--ink); font-weight:600; }
 
-  #person { position:absolute; inset:18px 0 0 0; width:100%; height:calc(100% - 18px); }
-  #thought { position:absolute; right:16px; top:40px; font:italic 400 26px/1 var(--serif); color:#fff; padding:10px 14px 12px; border-radius:12px 12px 2px 12px;
-             background:rgba(255,90,31,.12); border:1px solid rgba(255,90,31,.4); opacity:0; }
-  #thought small { display:block; font:10px/1 var(--mono); font-style:normal; letter-spacing:.1em; color:var(--sig2); margin-bottom:7px; text-transform:uppercase; }
-  .chips { position:absolute; left:14px; bottom:12px; display:flex; gap:6px; }
-  .chip { font:11px/1 var(--mono); color:var(--idim); border:1px solid var(--istroke); padding:6px 8px; border-radius:7px; }
-  .chip b { color:var(--itxt); font-weight:500; }
-  #ear { position:absolute; left:14px; top:38px; font:11px/1 var(--mono); color:var(--idim); display:flex; align-items:center; gap:8px; opacity:0; }
-  #ear b { color:var(--cool); font-weight:500; font-size:12px; }
-  #ear .w { display:flex; gap:2px; align-items:center; height:14px; }
-  #ear .w i { display:block; width:2px; border-radius:1px; background:var(--cool); height:4px; }
-
-  .vlink, .hlink { position:relative; }
-  .vlink::before { content:""; position:absolute; left:50%; top:2px; bottom:2px; width:1px; background:rgba(255,255,255,.12); }
-  .hlink::before { content:""; position:absolute; top:var(--y, 50%); left:4px; right:4px; height:1px; background:rgba(255,255,255,.12); }
-  .pdot { position:absolute; width:7px; height:7px; border-radius:50%; background:var(--sig); box-shadow:0 0 0 4px rgba(255,90,31,.15); opacity:0; }
-  .vlink .pdot { left:calc(50% - 3.5px); top:0; }
-  .hlink .pdot { left:0; top:calc(var(--y, 50%) - 3.5px); }
-
-  .sig { padding:34px 12px 12px; }
-  #scope { width:100%; height:196px; display:block; }
-  .rec { display:grid; grid-template-columns: 150px 1fr; gap:12px; margin-top:12px; padding-top:12px; border-top:1px solid var(--istroke); align-items:end; }
-  .rec small { display:block; font:10px/1 var(--mono); color:var(--idim); letter-spacing:.12em; text-transform:uppercase; margin-bottom:8px; }
-  #rw { font:italic 400 30px/1 var(--serif); }
-  #ra { font:11px/1.3 var(--mono); color:var(--sig2); margin-top:8px; min-height:15px; }
-  #bars { display:grid; grid-template-columns:repeat(8, 1fr); gap:5px; height:74px; align-items:end; }
-  .b { display:flex; flex-direction:column; align-items:center; justify-content:flex-end; height:100%; }
-  .b i { display:block; width:100%; height:3px; border-radius:3px 3px 1px 1px; background:rgba(255,255,255,.12); }
-  .b span { font:10px/1 var(--mono); color:#5d5d5a; margin-top:5px; }
-  .b.win i { background:var(--sig); } .b.win span { color:var(--itxt); }
-
-  .surface { position:relative; border-radius:14px; overflow:hidden; min-height:560px;
-             background: radial-gradient(120% 80% at 50% 0%, #1b1d22 0%, #111215 60%); border:1px solid var(--istroke); }
-  .scene { position:absolute; inset:0; display:flex; align-items:center; justify-content:center; opacity:0; }
+  /* moments */
+  .moments h2 { text-align:center; } .moments .lede { text-align:center; margin:18px auto 80px; }
+  .moment { display:grid; grid-template-columns: 1fr 1.35fr; gap:64px; align-items:center; margin-bottom:120px; }
+  .moment:last-child { margin-bottom:0; }
+  .moment.flip { grid-template-columns: 1.35fr 1fr; } .moment.flip .copy { order:2; }
+  .moment .when { font:600 14px/1 var(--sans); color:var(--mute); letter-spacing:.02em; margin-bottom:14px; }
+  .moment h3 { font-size:clamp(30px, 3.4vw, 40px); font-weight:600; letter-spacing:-.03em; line-height:1.1; margin-bottom:16px; }
+  .moment p { color:var(--ink2); font-size:19px; }
+  .scene { position:relative; height:620px; border-radius:28px; overflow:hidden; background:#111; isolation:isolate; }
+  .env { position:absolute; inset:0; z-index:-1; overflow:hidden; }
+  .env i { position:absolute; border-radius:50%; filter:blur(26px); display:block; }
+  .subs { position:absolute; left:24px; bottom:24px; width:calc(100% - 340px); display:grid; gap:10px; z-index:3; }
+  .scene.wide .subs { width:auto; right:24px; grid-template-columns:1fr 1fr; }
+  .sub { background:rgba(0,0,0,.55); backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px); color:#fff; border-radius:16px; padding:12px 15px 13px; }
+  .sub span { display:block; font:600 11px/1 var(--sans); letter-spacing:.06em; text-transform:uppercase; color:#a1a1a6; margin-bottom:7px; }
+  .sub b, .sub i { display:block; will-change:opacity, transform; }
+  .sub b { font:600 26px/1.15 var(--sans); color:var(--sig); }
+  .sub i { font:500 18px/1.3 var(--sans); font-style:normal; color:var(--ear); }
 
   /* phone */
-  .phone { width:276px; border-radius:46px; padding:10px; background:#1d1e22; box-shadow: 0 0 0 1px rgba(255,255,255,.08) inset, 0 30px 60px -20px rgba(0,0,0,.8); }
-  .screen { position:relative; border-radius:37px; overflow:hidden; background:#fff; color:#111; height:512px; display:flex; flex-direction:column; font-family:var(--sans); }
-  .island { position:absolute; top:10px; left:50%; width:84px; height:24px; margin-left:-42px; border-radius:20px; background:#000; }
-  .sb { display:flex; justify-content:space-between; padding:13px 26px 2px; font-size:12.5px; font-weight:600; }
-  .ch { text-align:center; padding:10px 0 9px; border-bottom:1px solid #eee; background:#f9f9f9; }
-  .av { width:36px; height:36px; margin:0 auto 3px; border-radius:50%; background:#c9b8a6; color:#fff; display:grid; place-items:center; font-weight:600; font-size:14px; }
+  .phone { position:absolute; right:7%; top:38px; width:272px; transform:rotate(-2.5deg); border-radius:44px; padding:9px; background:#1c1c1e;
+           box-shadow:0 0 0 1.5px #3a3a3c inset, 0 40px 70px -20px rgba(0,0,0,.7); }
+  .scr { border-radius:36px; overflow:hidden; background:#fff; color:#111; height:530px; display:flex; flex-direction:column; position:relative; font-size:14px; }
+  .isl { position:absolute; top:10px; left:50%; width:86px; height:25px; margin-left:-43px; border-radius:20px; background:#000; }
+  .ch { text-align:center; padding:46px 0 9px; border-bottom:1px solid #eee; background:#f9f9f9; }
+  .av { width:38px; height:38px; margin:0 auto 4px; border-radius:50%; color:#fff; display:grid; place-items:center; font-weight:600; }
   .ch b { font-size:11.5px; font-weight:600; }
-  .msgs { flex:1; padding:12px 11px 8px; display:flex; flex-direction:column; justify-content:flex-end; gap:5px; }
-  .bub { max-width:80%; padding:7px 12px 8px; border-radius:18px; font-size:14px; line-height:1.3; }
-  .bub.in { background:#e9e9eb; align-self:flex-start; border-bottom-left-radius:6px; }
-  .bub.out { background:#0a84ff; color:#fff; align-self:flex-end; border-bottom-right-radius:6px; }
+  .msgs { flex:1; padding:12px 10px; display:flex; flex-direction:column; justify-content:flex-end; gap:5px; }
+  .bub { max-width:80%; padding:7px 12px 8px; border-radius:18px; line-height:1.3; }
+  .bub.in { background:#e9e9eb; align-self:flex-start; } .bub.out { background:#0a84ff; color:#fff; align-self:flex-end; }
   .dots { display:flex; gap:3px; padding:4px 2px; } .dots i { width:7px; height:7px; border-radius:50%; background:#a0a0a5; display:block; }
-  .cands { display:flex; gap:5px; padding:7px 8px; background:#f3f3f5; border-top:1px solid #e5e5e8; min-height:42px; align-items:center; }
+  .cands { display:flex; gap:5px; padding:7px 8px; background:#f2f2f6; border-top:1px solid #e3e3e8; min-height:42px; align-items:center; }
   .cand { padding:5px 10px 6px; border-radius:8px; font-size:13px; background:#fff; box-shadow:0 1px 0 rgba(0,0,0,.07); }
   .cand.sel { background:#0a84ff; color:#fff; }
-  .compose { display:flex; gap:7px; align-items:center; padding:8px 10px 22px; }
-  .field { flex:1; border:1px solid #d5d5da; border-radius:18px; padding:7px 12px; font-size:14px; min-height:35px; }
+  .compose { display:flex; gap:7px; align-items:center; padding:8px 10px 26px; }
+  .field { flex:1; border:1px solid #d5d5da; border-radius:18px; padding:7px 12px; min-height:35px; }
   .ph { color:#b0b0b5; }
-  .code { color:#0a84ff; font-weight:600; letter-spacing:.05em; }
+  .grp { display:inline-block; font:600 11px/1 var(--mono); padding:3px 5px; border-radius:5px; margin-right:3px; vertical-align:1px; background:rgba(10,132,255,.12); color:#0a84ff; }
   .caret { display:inline-block; width:1.5px; height:16px; background:#0a84ff; vertical-align:-3px; margin-left:1px; animation:cb 1.05s steps(1) infinite; }
   @keyframes cb { 50% { opacity:0; } }
-  .send { width:29px; height:29px; border-radius:50%; background:#0a84ff; color:#fff; display:grid; place-items:center; font-size:15px; opacity:.3; }
+  .send { width:29px; height:29px; border-radius:50%; background:#0a84ff; color:#fff; display:grid; place-items:center; opacity:.3; }
 
-  /* terminal */
-  .term { width:min(760px, 92%); height:496px; border-radius:12px; background:#1a1a1a; box-shadow: 0 0 0 1px rgba(255,255,255,.09) inset, 0 40px 70px -30px rgba(0,0,0,.85);
-          display:flex; flex-direction:column; font:13px/1.55 var(--mono); color:#d6d4ce; overflow:hidden; }
-  .tt { display:flex; align-items:center; gap:8px; padding:11px 14px; color:#8d8b85; font-size:12px; border-bottom:1px solid rgba(255,255,255,.06); }
-  .tt i { width:11px; height:11px; border-radius:50%; display:block; }
-  .tt span { margin-left:10px; }
-  .tb { flex:1; padding:14px 18px 6px; display:flex; flex-direction:column; justify-content:flex-end; gap:3px; overflow:hidden; }
-  .tb .ln { white-space:pre-wrap; }
-  .tb .hint { color:#76746e; }
-  .tb .u { color:#9a988f; margin-bottom:6px; } .tb .u b { color:#ecebe6; font-weight:500; }
-  .tb .tool { color:#ecebe6; margin-top:4px; } .tb .tool::before { content:"⏺ "; color:#7fc8a9; }
-  .tb .sub { color:#8d8b85; padding-left:16px; } .tb .sub::before { content:"⎿ "; }
-  .tb .add { color:#7fc8a9; padding-left:16px; background:rgba(127,200,169,.07); } .tb .del { color:#e57b6b; padding-left:16px; background:rgba(229,123,107,.07); }
-  .tb .ok { color:#ecebe6; margin-top:6px; } .tb .ok::before { content:"⏺ "; color:#ff8a5b; }
-  .tb .think { color:#ff8a5b; }
-  .tin { margin:6px 14px 6px; border:1px solid #4a4944; border-radius:8px; padding:9px 12px; color:#ecebe6; min-height:40px; }
-  .tin .p { color:#8d8b85; margin-right:8px; }
-  .tin .code { color:#ff8a5b; }
-  .tin .caret { background:#ecebe6; height:15px; }
-  .tsug { padding:0 16px 14px; font-size:12px; color:#76746e; display:flex; gap:12px; min-height:30px; align-items:center; }
-  .tsug .s { color:#a9a7a0; padding:1px 6px; } .tsug .s.sel { color:#151515; background:#ff8a5b; border-radius:4px; }
-  .tsug .k { margin-left:auto; }
+  /* laptop terminal */
+  .term { position:absolute; left:6%; right:6%; top:6%; height:64%; border-radius:12px; background:#1a1a1a; box-shadow:0 0 0 1px rgba(255,255,255,.1) inset, 0 40px 70px -24px rgba(0,0,0,.8);
+          display:flex; flex-direction:column; font:12.5px/1.55 var(--mono); color:#d6d4ce; overflow:hidden; }
+  .tt { display:flex; align-items:center; gap:7px; padding:10px 13px; color:#8d8b85; font-size:11.5px; border-bottom:1px solid rgba(255,255,255,.06); }
+  .tt i { width:10px; height:10px; border-radius:50%; display:block; } .tt span { margin-left:8px; }
+  .tb { flex:1; padding:12px 16px 4px; display:flex; flex-direction:column; justify-content:flex-end; gap:2px; overflow:hidden; }
+  .ln { white-space:pre-wrap; }
+  .ln.u { color:#ecebe6; margin-bottom:6px; } .ln.u::before { content:"› "; color:#8d8b85; }
+  .ln.tool { color:#ecebe6; margin-top:3px; } .ln.tool::before { content:"⏺ "; color:#7fc8a9; }
+  .ln.sub2 { color:#8d8b85; padding-left:16px; } .ln.sub2::before { content:"⎿ "; }
+  .ln.add { color:#7fc8a9; padding-left:16px; background:rgba(127,200,169,.07); } .ln.del { color:#e57b6b; padding-left:16px; background:rgba(229,123,107,.07); }
+  .ln.ok { color:#ecebe6; margin-top:5px; } .ln.ok::before { content:"⏺ "; color:#ff8a5b; }
+  .ln.think { color:#ff8a5b; } .ln.hint { color:#ecebe6; } .ln.hint::before { content:"⏺ "; color:#e5c07b; }
+  .ln.perm { border:1px solid #e5c07b; border-radius:8px; padding:8px 10px; margin:6px 0; color:#ecebe6; }
+  .ln.perm em { font-style:normal; color:#e5c07b; } .ln.perm .o { display:block; color:#8d8b85; } .ln.perm .o.s { color:#ecebe6; }
+  .tin { margin:4px 12px 10px; border:1px solid #4a4944; border-radius:8px; padding:8px 11px; color:#ecebe6; min-height:37px; }
+  .tin::before { content:"›"; color:#8d8b85; margin-right:8px; }
+  .tin .grp { background:rgba(255,138,91,.15); color:#ff8a5b; } .tin .caret { background:#ecebe6; height:14px; }
+  .tsug { padding:0 14px 12px; font-size:11.5px; color:#76746e; display:flex; gap:10px; min-height:26px; align-items:center; }
+  .tsug .s { padding:1px 6px; color:#a9a7a0; } .tsug .s.sel { color:#151515; background:#ff8a5b; border-radius:4px; }
 
-  .caption { display:flex; align-items:center; gap:20px; padding:16px 4px 2px; min-height:52px; }
-  #cap { font:400 21px/1.3 var(--serif); color:#f3f1ec; flex:1; }
-  #cap q { quotes:"“" "”"; font-style:italic; color:var(--sig2); }
-  #cap b { font-weight:600; }
-  .clock { font:11px/1 var(--mono); color:var(--idim); }
+  /* how */
+  .steps { display:grid; grid-template-columns:repeat(3, 1fr); gap:48px; margin-top:72px; }
+  .steps .n { font-size:64px; font-weight:600; letter-spacing:-.04em; color:var(--sig); line-height:1; margin-bottom:18px; }
+  .steps h4 { font-size:24px; font-weight:600; letter-spacing:-.025em; margin-bottom:8px; }
+  .steps p { color:var(--ink2); }
+  .keyboard { margin-top:90px; background:var(--gray); border-radius:28px; padding:44px; }
+  .keyboard h4 { font-size:28px; font-weight:600; letter-spacing:-.03em; margin-bottom:6px; }
+  .keyboard > p { color:var(--ink2); margin-bottom:28px; max-width:720px; }
+  .keys { display:grid; grid-template-columns:repeat(8, 1fr); gap:10px; }
+  .key { background:#fff; border-radius:16px; padding:18px 14px 16px; box-shadow:0 1px 2px rgba(0,0,0,.06); }
+  .key b { display:block; font-size:28px; font-weight:600; letter-spacing:-.03em; }
+  .key span { display:block; font-size:13px; color:var(--mute); margin-top:6px; line-height:1.3; }
+  .key.c { background:var(--ink); color:#fff; } .key.c span { color:#a1a1a6; }
+  .keys .gap { grid-column:span 4; font:600 12px/1 var(--sans); color:var(--mute); letter-spacing:.06em; text-transform:uppercase; padding:4px 2px; }
 
-  .pad { display:grid; grid-template-columns:repeat(8, 1fr); gap:6px; margin-top:14px; }
-  .pk { --h:0; border-radius:10px; padding:9px 12px 10px; border:1px solid var(--istroke);
-        background:rgba(255,90,31,calc(var(--h) * .16)); box-shadow:inset 0 0 0 1px rgba(255,90,31,calc(var(--h) * .9)); }
-  .pk:nth-child(4) { margin-right:12px; }
-  .pk b { font:italic 400 20px/1 var(--serif); color:var(--itxt); }
-  .pk span { display:block; font:10.5px/1.2 var(--mono); color:var(--idim); margin-top:6px; }
-  .grp { display:inline-block; font:600 11px/1 var(--mono); padding:3px 5px; border-radius:5px; margin-right:3px; vertical-align:1px;
-         background:rgba(10,132,255,.12); color:#0a84ff; }
-  .tin .grp { background:rgba(255,138,91,.15); color:#ff8a5b; }
+  /* agents */
+  .tiles { display:grid; grid-template-columns:repeat(3, 1fr); gap:20px; margin-top:64px; }
+  .tile { background:#1c1c1e; border-radius:28px; padding:34px 30px 30px; }
+  .tile .big { font-size:56px; font-weight:600; letter-spacing:-.04em; line-height:1; color:#fff; margin-bottom:18px; }
+  .tile .big em { font-style:normal; color:var(--sig); }
+  .tile h4 { font-size:21px; font-weight:600; letter-spacing:-.02em; color:#f5f5f7; margin-bottom:8px; }
+  .tile p { color:#a1a1a6; font-size:16px; }
 
-  /* ---------- how it works ---------- */
-  .how { padding:40px 0 6px; }
-  .steps { display:grid; grid-template-columns:repeat(3, 1fr); gap:40px; }
-  .stp span { font:12px/1 var(--mono); color:var(--sig); display:block; margin-bottom:10px; }
-  .stp h3 { font:400 23px/1.2 var(--serif); margin-bottom:8px; }
-  .stp p { color:var(--ink2); font-size:15px; }
-  .kp { display:grid; grid-template-columns:1fr 1fr; gap:28px; margin-top:36px; }
-  .kp h5 { font:12px/1 var(--mono); color:var(--mute); font-weight:400; letter-spacing:.04em; }
-  .kp .keys { margin-top:10px; gap:8px; }
-  .kp .key { padding:14px 14px 12px; } .kp .key b { font-size:28px; } .kp .key span { margin-top:8px; }
-  .ex { margin-top:20px; color:var(--ink2); font-size:15.5px; max-width:900px; }
-  .ex b { font:italic 400 18px/1 var(--serif); color:var(--sig); }
+  /* under the hood */
+  .hood { display:grid; grid-template-columns: 1fr 1.25fr; gap:64px; align-items:center; }
+  .lab { background:#0d0e10; border-radius:28px; padding:26px 22px 20px; color:#e9e7e1; }
+  .lab .lbl { font:600 11px/1 var(--sans); letter-spacing:.06em; text-transform:uppercase; color:#8a8a86; margin-bottom:12px; display:flex; justify-content:space-between; }
+  #scope { width:100%; height:230px; display:block; }
+  .lab .rk { display:grid; grid-template-columns:repeat(8, 1fr); gap:6px; margin-top:16px; }
+  .rk div { --h:0; text-align:center; border-radius:10px; padding:9px 0; font-size:15px; font-weight:600; color:#8a8a86; background:rgba(255,90,31,calc(var(--h) * .9)); }
+  .rk div.on { color:#fff; }
+  .hood ul { list-style:none; margin-top:28px; border-top:1px solid var(--line); }
+  .hood li { padding:14px 0; border-bottom:1px solid var(--line); display:flex; justify-content:space-between; gap:20px; font-size:16px; }
+  .hood li span { color:var(--mute); }
 
-  /* ---------- sections ---------- */
-  section { padding:110px 0 0; }
-  .sh { display:grid; grid-template-columns: 1fr 1.55fr; gap:56px; border-top:1px solid var(--ink); padding-top:18px; }
-  .sh .n { font:12px/1.4 var(--mono); color:var(--mute); }
-  .sh .n b { display:block; color:var(--ink); font-weight:600; margin-top:4px; letter-spacing:.02em; }
-  h2 { font:400 clamp(30px, 3.4vw, 44px)/1.08 var(--serif); letter-spacing:-.015em; }
-  h2 i { color:var(--sig); }
-  .sh p { color:var(--ink2); margin-top:16px; max-width:640px; }
+  /* hardware */
+  .hw { display:grid; grid-template-columns: 1.2fr 1fr; gap:56px; align-items:center; margin-top:64px; }
+  .hw img { width:100%; display:block; border-radius:18px; box-shadow:0 40px 60px -36px rgba(0,0,0,.45); }
+  .hw small { display:block; color:var(--mute); font-size:13px; margin-top:12px; }
+  dl { display:grid; grid-template-columns: 130px 1fr; }
+  dt, dd { padding:13px 0; border-bottom:1px solid var(--line); font-size:16px; }
+  dt { color:var(--mute); }
 
-  .keys { display:grid; grid-template-columns:repeat(4, 1fr); gap:10px; margin-top:40px; }
-  .key { background:#faf8f3; border:1px solid var(--rule); border-bottom-width:3px; border-radius:12px; padding:18px 18px 16px; }
-  .key b { font:italic 400 34px/1 var(--serif); display:block; }
-  .key span { font:12px/1.3 var(--mono); color:var(--mute); display:block; margin-top:12px; }
-  .key.cmd { background:var(--ink); color:var(--paper); border-color:var(--ink); }
-  .key.cmd span { color:#a9a597; }
+  /* status */
+  .road { display:grid; grid-template-columns:repeat(5, 1fr); margin-top:64px; position:relative; }
+  .road::before { content:""; position:absolute; left:0; right:0; top:9px; height:2px; background:var(--line); }
+  .road .st { position:relative; padding-right:20px; }
+  .road .dot { width:20px; height:20px; border-radius:50%; background:#fff; border:2px solid var(--line); margin-bottom:18px; position:relative; }
+  .road .done .dot { background:var(--ink); border-color:var(--ink); }
+  .road .now .dot { border-color:var(--sig); box-shadow:0 0 0 5px rgba(255,90,31,.15); }
+  .road h5 { font-size:18px; font-weight:600; letter-spacing:-.02em; margin-bottom:6px; }
+  .road p { font-size:14.5px; color:var(--ink2); }
+  .road .tag { font-size:12px; font-weight:600; color:var(--mute); margin-bottom:8px; display:block; }
+  .road .now .tag { color:var(--sig); }
 
-  .hw { display:grid; grid-template-columns: 1.15fr 1fr; gap:48px; margin-top:40px; align-items:start; }
-  .hw figure img { width:100%; display:block; border-radius:8px; box-shadow: 0 30px 50px -30px rgba(20,18,10,.5); }
-  .hw figcaption { font:12px/1.4 var(--mono); color:var(--mute); margin-top:12px; }
-  dl.spec { display:grid; grid-template-columns: 150px 1fr; border-top:1px solid var(--rule); }
-  dl.spec dt, dl.spec dd { padding:13px 0; border-bottom:1px solid var(--rule); }
-  dl.spec dt { font:12px/1.5 var(--mono); color:var(--mute); padding-top:15px; }
-  dl.spec dd { font-size:15px; }
+  /* faq */
+  .faq { max-width:820px; margin:56px auto 0; }
+  details { border-bottom:1px solid var(--line); padding:22px 0; }
+  summary { font-size:21px; font-weight:600; letter-spacing:-.02em; cursor:pointer; list-style:none; display:flex; justify-content:space-between; }
+  summary::-webkit-details-marker { display:none; }
+  summary::after { content:"+"; color:var(--mute); font-weight:400; }
+  details[open] summary::after { content:"–"; }
+  details p { color:var(--ink2); margin-top:12px; max-width:700px; }
 
-  .gates { margin-top:40px; border-top:1px solid var(--rule); }
-  .gate { display:grid; grid-template-columns: 70px 1.1fr 1.5fr 150px; gap:20px; padding:18px 0; border-bottom:1px solid var(--rule); align-items:baseline; }
-  .gate .s { font:12px/1 var(--mono); color:var(--mute); }
-  .gate h4 { font:400 20px/1.25 var(--serif); }
-  .gate p { color:var(--ink2); font-size:14.5px; }
-  .gate .st { font:11.5px/1 var(--mono); justify-self:end; padding:6px 9px; border-radius:6px; border:1px solid var(--rule); color:var(--mute); }
-  .gate .st.done { background:var(--ink); color:var(--paper); border-color:var(--ink); }
-  .gate .st.now { border-color:var(--sig); color:var(--sig); }
-  .note { margin-top:22px; font:13px/1.55 var(--mono); color:var(--mute); max-width:820px; }
+  .final { text-align:center; }
+  .final h2 { font-size:clamp(44px, 7vw, 80px); }
+  .final .lede { margin:20px auto 34px; }
+  footer { background:var(--gray); color:var(--mute); font-size:12px; padding:22px 0 30px; }
+  footer .w { display:flex; justify-content:space-between; gap:20px; border-top:1px solid var(--line); padding-top:18px; }
 
-  footer { margin-top:120px; padding:22px 0 40px; border-top:1px solid var(--rule); display:flex; justify-content:space-between; gap:20px; font:12px/1.5 var(--mono); color:var(--mute); }
-
-  @media (max-width: 1180px) {
-    .grid { grid-template-columns:1fr; } .hlink { height:30px; } .hlink::before, .hlink .pdot { display:none; }
-    .hero, .sh, .hw { grid-template-columns:1fr; gap:24px; } .keys { grid-template-columns:repeat(2, 1fr); }
-    .gate { grid-template-columns: 50px 1fr; } .gate p, .gate .st { grid-column:2; justify-self:start; }
+  @media (max-width: 900px) {
+    .moment, .moment.flip, .hood, .hw { grid-template-columns:1fr; gap:32px; } .moment.flip .copy { order:0; }
+    .steps, .tiles { grid-template-columns:1fr; } .keys { grid-template-columns:repeat(4, 1fr); } .road { grid-template-columns:1fr; gap:26px; } .road::before { display:none; }
+    .subs { width:auto; right:24px; } .phone { right:50%; margin-right:-136px; }
+    nav a:not(.btn) { display:none; }
   }
-  @media (prefers-reduced-motion: reduce) { .caret { animation:none; } }
 </style>
 </head>
 <body>
-<div class="wrap">
-  <div class="top"><b>SilentBand</b><nav><a href="#demo">Demo</a><a href="#alphabet">Why 8</a><a href="#hardware">Hardware</a><a href="#status">Status</a></nav></div>
 
-  <header class="hero">
-    <h1>Message people. Prompt agents. <i>Say nothing.</i></h1>
-    <div>
-      <p>Your mouth becomes an 8-key keyboard. You silently shape a syllable with your lips closed, and a neckband reads your jaw muscles. An AI turns those keys into text, in a chat or in a coding agent's prompt.</p>
-      <div class="meta"><span>16 channels</span><span>runs locally</span><span>prototype, Oct 2026</span></div>
+<nav><div class="w"><b>SilentBand</b><a href="#day">A day with it</a><a href="#how">How it works</a><a href="#agents">For AI agents</a><a href="#hardware">Hardware</a><a href="#faq">FAQ</a><a class="btn" href="#join">Join the waitlist</a></div></nav>
+
+<header class="hero">
+  <div class="w">
+    <h1>Type with your<br>mouth closed.</h1>
+    <p class="lede">SilentBand feels the tiny muscle signals under your jaw and turns them into text, for your messages and your AI agents. No voice, and no keyboard.</p>
+    <div class="cta"><a class="btn" href="#join">Join the waitlist</a><a class="btn ghost" href="#day">See it in use</a></div>
+  </div>
+  <svg id="band" viewBox="0 0 880 400" aria-label="SilentBand neckband">
+    <defs>
+      <linearGradient id="gBand" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#4a4a4f"/><stop offset=".55" stop-color="#232326"/><stop offset="1" stop-color="#121214"/></linearGradient>
+      <linearGradient id="gSheen" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="rgba(255,255,255,.35)"/><stop offset=".3" stop-color="rgba(255,255,255,0)"/></linearGradient>
+      <linearGradient id="gPod" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#58585e"/><stop offset="1" stop-color="#18181a"/></linearGradient>
+      <radialGradient id="gGlow"><stop offset="0" stop-color="rgba(255,90,31,.9)"/><stop offset=".4" stop-color="rgba(255,90,31,.25)"/><stop offset="1" stop-color="rgba(255,90,31,0)"/></radialGradient>
+      <radialGradient id="gFloor" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="rgba(0,0,0,.7)"/><stop offset="1" stop-color="rgba(0,0,0,0)"/></radialGradient>
+    </defs>
+    <ellipse cx="440" cy="352" rx="300" ry="26" fill="url(#gFloor)"/>
+    <path id="arc" d="M190 70 C 170 330, 710 330, 690 70" fill="none" stroke="url(#gBand)" stroke-width="44" stroke-linecap="round"/>
+    <path d="M190 70 C 170 330, 710 330, 690 70" fill="none" stroke="url(#gSheen)" stroke-width="40" stroke-linecap="round"/>
+    <g id="pads"></g>
+    <rect x="150" y="34" width="80" height="96" rx="34" fill="url(#gPod)" stroke="rgba(255,255,255,.12)"/>
+    <rect x="650" y="34" width="80" height="96" rx="34" fill="url(#gPod)" stroke="rgba(255,255,255,.12)"/>
+    <circle id="led" cx="440" cy="265" r="3.2" fill="#7fd6c6"/>
+    <g id="pulses"></g>
+  </svg>
+  <small>Concept design. The prototype electronics are shown below.</small>
+</header>
+
+<section class="statement">
+  <div class="w"><p>Talking to your phone is loud. Typing pulls your eyes and your hands away. <b>SilentBand lets you write while you sit in a meeting, ride a train or read your agent's work: you silently shape a syllable, and words appear.</b></p></div>
+</section>
+
+<section class="moments gray" id="day">
+  <div class="w">
+    <h2>A day with SilentBand.</h2>
+    <p class="lede">What you do, what you hear in your earbud, and what appears on screen.</p>
+
+    <div class="moment">
+      <div class="copy"><div class="when">09:40 · In a meeting</div><h3>Reply to Marta.<br>Nobody notices.</h3>
+        <p>Your phone stays face down in your lap. You silently say a few syllables, and the earbud whispers each word before it's typed. Seven syllables, then sent.</p></div>
+      <div class="scene" id="s0">
+        <div class="env" style="background:linear-gradient(180deg,#6b5a48 0%,#3a3129 45%,#1d1915 100%)">
+          <i style="left:8%;top:6%;width:22%;height:36%;background:#2a221b"></i><i style="left:38%;top:2%;width:20%;height:34%;background:#241d17"></i>
+          <i style="left:68%;top:8%;width:24%;height:38%;background:#2c241c"></i><i style="left:-10%;top:52%;width:120%;height:30%;background:#8a7154;opacity:.45"></i>
+        </div>
+        <div class="phone"><div class="scr"><div class="isl"></div><div class="ch"><div class="av" style="background:#c9a68a">M</div><b>Marta</b></div>
+          <div class="msgs"></div><div class="cands"></div><div class="compose"><div class="field"></div><div class="send">↑</div></div></div></div>
+        <div class="subs"><div class="sub"><span>You, silently</span><b class="you">–</b></div><div class="sub"><span>In your ear</span><i class="ear">–</i></div></div>
+      </div>
     </div>
-  </header>
 
-  <!-- ===================== how it works ===================== -->
-  <div class="how">
+    <div class="moment flip">
+      <div class="copy"><div class="when">14:15 · At your desk</div><h3>Tell your agent what to do.<br>Keep your hands free.</h3>
+        <p>Your coding agent says a test is failing. You answer without reaching for the keyboard: predictions come from what the agent just said. When it asks permission, one syllable approves.</p></div>
+      <div class="scene wide" id="s1">
+        <div class="env" style="background:radial-gradient(90% 70% at 50% 30%, #23314a 0%, #0f1520 60%, #07090d 100%)">
+          <i style="left:20%;top:70%;width:60%;height:30%;background:#2b3a55;opacity:.6"></i>
+        </div>
+        <div class="term"><div class="tt"><i style="background:#ff5f57"></i><i style="background:#febc2e"></i><i style="background:#28c840"></i><span>agent · ~/code/shop-api</span></div>
+          <div class="tb"></div><div class="tin"></div><div class="tsug"></div></div>
+        <div class="subs"><div class="sub"><span>You, silently</span><b class="you">–</b></div><div class="sub"><span>In your ear</span><i class="ear">–</i></div></div>
+      </div>
+    </div>
+
+    <div class="moment">
+      <div class="copy"><div class="when">19:05 · On a crowded train</div><h3>Answer privately.<br>Without saying it out loud.</h3>
+        <p>Your mum asks if you've landed. The language model already guesses the answer from her question, so it takes four syllables, and nobody around you hears a word.</p></div>
+      <div class="scene" id="s2">
+        <div class="env" style="background:linear-gradient(180deg,#1b2430 0%,#10151c 100%)"><div class="streaks"></div></div>
+        <div class="phone"><div class="scr"><div class="isl"></div><div class="ch"><div class="av" style="background:#9bb3c9">M</div><b>Mum</b></div>
+          <div class="msgs"></div><div class="cands"></div><div class="compose"><div class="field"></div><div class="send">↑</div></div></div></div>
+        <div class="subs"><div class="sub"><span>You, silently</span><b class="you">–</b></div><div class="sub"><span>In your ear</span><i class="ear">–</i></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="how">
+  <div class="w">
+    <div class="eyebrow">How it works</div>
+    <h2>Eight silent syllables.<br>Any word you want.</h2>
     <div class="steps">
-      <div class="stp"><span>1</span><h3>Silently shape a syllable</h3><p>Lips closed, no sound. You think “ka”, and your tongue and jaw move slightly, as if you were about to say it.</p></div>
-      <div class="stp"><span>2</span><h3>The neckband feels the muscles</h3><p>16 skin sensors under the jaw pick up the muscles' tiny electrical signal and tell which of the 8 syllables it was.</p></div>
-      <div class="stp"><span>3</span><h3>AI turns 8 keys into any word</h3><p>Each syllable is a key, like on an old phone keypad. The AI predicts the word you mean, and an earbud whispers it so you can confirm.</p></div>
+      <div><div class="n">1</div><h4>Wear it</h4><p>A light band sits around your neck, with skin sensors under the jaw. A normal earbud does the talking.</p></div>
+      <div><div class="n">2</div><h4>Silently shape a syllable</h4><p>Lips closed, no sound. Your tongue and jaw move slightly, as if you were about to say “ka”. The band reads those muscle signals.</p></div>
+      <div><div class="n">3</div><h4>Hear the word, and it's typed</h4><p>The AI on your computer predicts the word you mean and whispers it. One more syllable accepts it, in any app you can type in.</p></div>
     </div>
-    <div class="kp">
-      <div><h5>Four keys pick letters</h5><div class="keys">
-        <div class="key"><b>ka</b><span>a b c d e f</span></div>
-        <div class="key"><b>ta</b><span>g h i j k l m</span></div>
-        <div class="key"><b>la</b><span>n o p q r s</span></div>
-        <div class="key"><b>ga</b><span>t u v w x y z</span></div></div></div>
-      <div><h5>Four keys control</h5><div class="keys">
-        <div class="key cmd"><b>na</b><span>next suggestion</span></div>
-        <div class="key cmd"><b>ya</b><span>accept / send</span></div>
-        <div class="key cmd"><b>sha</b><span>back</span></div>
-        <div class="key cmd"><b>ree</b><span>wake / pause</span></div></div></div>
+    <div class="keyboard">
+      <h4>Your mouth becomes an 8-key keyboard.</h4>
+      <p>Four syllables narrow down the letters, like an old phone keypad. Four more steer. Most of the time the AI already knows the next word, so you just say <b>ya</b>.</p>
+      <div class="keys">
+        <div class="gap">Pick letters</div><div class="gap">Control</div>
+        <div class="key"><b>ka</b><span>a b c d e f</span></div><div class="key"><b>ta</b><span>g h i j k l m</span></div>
+        <div class="key"><b>la</b><span>n o p q r s</span></div><div class="key"><b>ga</b><span>t u v w x y z</span></div>
+        <div class="key c"><b>ya</b><span>accept, send</span></div><div class="key c"><b>na</b><span>next suggestion</span></div>
+        <div class="key c"><b>sha</b><span>back</span></div><div class="key c"><b>ree</b><span>wake, pause</span></div>
+      </div>
     </div>
-    <p class="ex">Example: to type <i>running</i>, think <b>la</b> (first letter is n–s), then <b>ga</b> (second is t–z). The AI's top guess is now <i>running</i>, and the earbud says it; <b>ya</b> accepts it. Often the AI already knows the next word, and you just think <b>ya</b>.</p>
   </div>
+</section>
 
-  <!-- ===================== demo ===================== -->
-  <div class="stage" id="demo">
-    <div class="bar-top">
-      <div class="tabs"><div class="tab" id="tab0" data-s="0">01 · Reply to a friend<div class="fill"></div></div>
-                        <div class="tab" id="tab1" data-s="1">02 · Prompt an AI agent<div class="fill"></div></div></div>
-      <div class="ctrl"><button id="play">Pause</button><button id="restart">Restart</button><button id="spd">1×</button></div>
+<section class="dark" id="agents">
+  <div class="w">
+    <div class="eyebrow">Built for AI agents</div>
+    <h2>Your agent asks.<br>You answer, silently.</h2>
+    <p class="lede" style="margin-top:20px">Agents need short, frequent replies: yes, run it, fix that test. SilentBand connects to Claude Code, so every reply starts from what the agent just said.</p>
+    <div class="tiles">
+      <div class="tile"><div class="big">−39<em>%</em></div><h4>It knows what was asked</h4><p>The agent's last message becomes the AI's context. In our benchmark, that cuts the syllables per word by 39%.</p></div>
+      <div class="tile"><div class="big">1</div><h4>Syllable to approve</h4><p>When the agent asks permission, <b>ya</b> allows and <b>sha</b> denies. You don't need to look at the screen.</p></div>
+      <div class="tile"><div class="big">0</div><h4>Screens to look at</h4><p>When the agent finishes, the earbud reads its first sentence: “Fixed. 24 tests pass.”</p></div>
     </div>
-
-    <div class="grid">
-      <div class="left">
-        <div class="card">
-          <div class="lbl">Wearer · <b>lips closed</b></div>
-          <div id="ear"><span class="w"><i></i><i></i><i></i><i></i><i></i></span><span>earbud <b id="et"></b></span></div>
-          <div id="thought"><small>silently says</small><span id="tw"></span></div>
-          <svg id="person" viewBox="40 20 360 330" preserveAspectRatio="xMidYMid meet">
-            <defs>
-              <linearGradient id="skin" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#2a2c31"/><stop offset="1" stop-color="#18191c"/></linearGradient>
-              <radialGradient id="hal"><stop offset="0" stop-color="rgba(255,90,31,.85)"/><stop offset=".5" stop-color="rgba(255,90,31,.25)"/><stop offset="1" stop-color="rgba(255,90,31,0)"/></radialGradient>
-            </defs>
-            <path d="M152 46 C 232 22 304 66 310 146 C 312 166 322 182 332 204 C 336 212 334 218 324 220
-                     C 326 230 324 236 320 240 C 324 246 322 254 316 258 C 320 272 314 290 294 298
-                     C 272 304 256 302 248 320 L 246 360 L 118 360 L 126 344 C 94 318 78 272 80 202
-                     C 82 112 100 64 152 46 Z" fill="url(#skin)" stroke="rgba(255,255,255,.10)"/>
-            <path d="M301 249 Q 310 251 319 249" stroke="#b98d86" stroke-width="2.2" fill="none" stroke-linecap="round"/>
-            <path d="M270 150 q 9 -5 18 0" stroke="#77787c" stroke-width="2" fill="none" stroke-linecap="round"/>
-            <path d="M172 176 C 156 168 148 196 160 214 C 166 222 178 222 180 210" fill="none" stroke="#33353b" stroke-width="7" stroke-linecap="round"/>
-            <circle id="budglow" cx="168" cy="196" r="16" fill="rgba(159,216,207,.35)" opacity="0"/>
-            <circle cx="168" cy="196" r="7" fill="#e9e7e1"/>
-            <g id="leads" stroke="rgba(255,255,255,.16)" stroke-width=".9" fill="none"></g>
-            <path d="M120 342 C 150 364 214 364 248 340" fill="none" stroke="#2c2e33" stroke-width="10" stroke-linecap="round"/>
-            <path d="M120 342 C 150 364 214 364 248 340" fill="none" stroke="#4a4d54" stroke-width="2" stroke-linecap="round"/>
-            <rect x="168" y="346" width="38" height="14" rx="4" fill="#0d0e10" stroke="#5a5d64"/>
-            <circle id="led" cx="199" cy="353" r="1.8" fill="#9fd8cf"/>
-            <g id="elecs"></g>
-          </svg>
-          <div class="chips"><span class="chip">sound <b>none</b></span><span class="chip">hands <b>free</b></span></div>
-        </div>
-        <div class="vlink" id="la"><div class="pdot"></div></div>
-        <div class="card sig">
-          <div class="lbl">Muscle signal · <b>8 of 16 ch</b> → recognizer</div>
-          <canvas id="scope"></canvas>
-          <div class="rec">
-            <div><small>Recognized</small><div id="rw">–</div><div id="ra"></div></div>
-            <div id="bars"></div>
-          </div>
-        </div>
-      </div>
-
-      <div class="hlink" id="lb"><div class="pdot"></div></div>
-
-      <div class="surface">
-        <div class="scene" id="sc0">
-          <div class="phone"><div class="screen">
-            <div class="island"></div>
-            <div class="sb"><span>9:41</span><span>5G ▮</span></div>
-            <div class="ch"><div class="av">M</div><b>Marta</b></div>
-            <div class="msgs" id="msgs"></div>
-            <div class="cands" id="cands"></div>
-            <div class="compose"><div class="field" id="field"></div><div class="send" id="send">↑</div></div>
-          </div></div>
-        </div>
-        <div class="scene" id="sc1">
-          <div class="term">
-            <div class="tt"><i style="background:#ff5f57"></i><i style="background:#febc2e"></i><i style="background:#28c840"></i><span>agent · ~/code/shop-api</span></div>
-            <div class="tb" id="tb"></div>
-            <div class="tin" id="tin"></div>
-            <div class="tsug" id="tsug"></div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div class="pad" id="pad"></div>
-    <div class="caption"><div id="cap"></div><div class="clock" id="clock"></div></div>
   </div>
+</section>
 
-  <!-- ===================== alphabet ===================== -->
-  <section id="alphabet">
-    <div class="sh">
-      <div class="n">01<b>Why eight syllables</b></div>
-      <div>
-        <h2>Few keys the sensor can tell apart. <i>An AI does the rest.</i></h2>
-        <p>Reading whole words from a closed mouth isn't reliable yet: the best published result still gets 42% of words wrong, and that is with the mouth moving and 19 hours of training data. A few very different tongue and jaw shapes are much easier: research reaches 88–97% on small sets like this one.</p>
-        <p>Each syllable uses a different part of the mouth, so each produces a different muscle pattern: <b>k</b> the back of the tongue, <b>t</b> the tip, <b>l</b> the sides, <b>sh</b> the whole tongue spread, <b>ee</b> the cheeks. The names themselves don't matter; we keep whichever eight the sensor separates best.</p>
-        <p>The AI turns those few keys into words. It reads the chat or the codebase and predicts what comes next, so most words need just one <em>ya</em>. The four-word reply in the demo takes seven syllables.</p>
-      </div>
+<section class="gray">
+  <div class="w hood">
+    <div>
+      <div class="eyebrow">Under the hood</div>
+      <h2>It listens to muscles, not to sound.</h2>
+      <p class="lede" style="margin-top:20px">Each syllable moves a different part of the tongue and jaw, so each leaves a different pattern across the sensors. A small model, trained on your own signals in a few minutes, tells them apart.</p>
+      <ul><li><span>Channels</span>16 skin sensors</li><li><span>Sampling</span>2,000 times a second</li><li><span>Signal size</span>5 to 50 millionths of a volt</li><li><span>Where it runs</span>On your own computer</li></ul>
     </div>
-  </section>
+    <div class="lab">
+      <div class="lbl"><span>Muscle signal, 8 of 16 channels</span><span id="rtxt">–</span></div>
+      <canvas id="scope"></canvas>
+      <div class="rk" id="rk"></div>
+    </div>
+  </div>
+</section>
 
-  <!-- ===================== hardware ===================== -->
-  <section id="hardware">
-    <div class="sh">
-      <div class="n">02<b>The hardware</b></div>
-      <div>
-        <h2>A 16-channel biosignal lab, <i>the size of a matchbox.</i></h2>
-        <p>Designed from the requirements up, not adapted from an EEG kit: the noise floor, sample rate and channel count all come from what silent-articulation EMG needs.</p>
-      </div>
-    </div>
+<section id="hardware">
+  <div class="w">
+    <div class="eyebrow">The hardware</div>
+    <h2>A 16-channel biosignal lab,<br>the size of a matchbox.</h2>
     <div class="hw">
-      <figure><img src="assets/board.png" alt="SilentBand v1 circuit board render"><figcaption>SilentBand v1 · 68 × 46 mm · 4 layers · design-rule clean · machine-assembled</figcaption></figure>
-      <dl class="spec">
-        <dt>Front-end</dt><dd>2 × TI ADS1298, 24-bit, 16 channels</dd>
-        <dt>Sampling</dt><dd>2,000 samples/s per channel</dd>
-        <dt>Noise target</dt><dd>&lt; 1 µVrms, 20–500 Hz (the signals are 5–50 µV)</dd>
-        <dt>Montage</dt><dd>Each electrode is recorded on its own. Pairs are formed in software, and the model picks the best sites.</dd>
-        <dt>Link</dt><dd>ESP32-S3 over Wi-Fi to your computer; recognition runs locally</dd>
-        <dt>Safety</dt><dd>Battery only: recording is blocked while USB is plugged in</dd>
-        <dt>Cost</dt><dd>≈ €100 per assembled board at prototype quantity</dd>
+      <div><img src="assets/board.png" alt="SilentBand v1 circuit board"><small>SilentBand v1 prototype board · 68 × 46 mm · machine-assembled</small></div>
+      <dl>
+        <dt>Sensing</dt><dd>2 × TI ADS1298 · 24-bit · 16 channels</dd>
+        <dt>Noise</dt><dd>Below 1 µV, 20–500 Hz</dd>
+        <dt>Link</dt><dd>ESP32-S3 over Wi-Fi to your computer</dd>
+        <dt>Safety</dt><dd>Battery only: recording is blocked while charging</dd>
+        <dt>Privacy</dt><dd>Recognition and the language model run locally</dd>
+        <dt>Cost</dt><dd>≈ €100 per prototype board</dd>
       </dl>
     </div>
-  </section>
+  </div>
+</section>
 
-  <!-- ===================== status ===================== -->
-  <section id="status">
-    <div class="sh">
-      <div class="n">03<b>Status</b></div>
-      <div>
-        <h2>Every stage has a pass/fail gate. <i>Here is where we are.</i></h2>
-        <p>We move to the next stage only after the current gate passes.</p>
-      </div>
+<section class="gray">
+  <div class="w">
+    <div class="eyebrow">Where we are</div>
+    <h2>Built in the open,<br>one tested step at a time.</h2>
+    <div class="road">
+      <div class="st done"><div class="dot"></div><span class="tag">Done</span><h5>The software</h5><p>Typing, predictions and the earbud voice, tested end to end on simulated signals.</p></div>
+      <div class="st now"><div class="dot"></div><span class="tag">Now · Oct 2026</span><h5>The hardware</h5><p>Boards designed and reviewed, being ordered. Target: noise below 1 µV.</p></div>
+      <div class="st"><div class="dot"></div><span class="tag">Next</span><h5>Lips closed</h5><p>Above 80% accuracy on the 8 syllables, with lips closed.</p></div>
+      <div class="st"><div class="dot"></div><span class="tag">Then</span><h5>Daily use</h5><p>Live typing into chats and agents, in any app.</p></div>
+      <div class="st"><div class="dot"></div><span class="tag">Later</span><h5>Discreet</h5><p>Sensors move toward the ear. Calibration takes 3 minutes a day.</p></div>
     </div>
-    <div class="gates">
-      <div class="gate"><span class="s">0</span><h4>Software, simulated sensor</h4><p>Typing app, language model and earbud voice, working end to end on a simulated sensor.</p><span class="st done">passed</span></div>
-      <div class="gate"><span class="s">1</span><h4>Own hardware</h4><p>Shorted-input noise below 1 µV and a clear jaw-clench signal.</p><span class="st now">boards ordering</span></div>
-      <div class="gate"><span class="s">2</span><h4>Lips-closed recognition</h4><p>Above 80% on the 8 syllables plus a rest class, with lips closed.</p><span class="st">next</span></div>
-      <div class="gate"><span class="s">3</span><h4>Live silent typing</h4><p>Neckband to app: chats and agent prompts, in any app.</p><span class="st">planned</span></div>
-      <div class="gate"><span class="s">4</span><h4>Discreet</h4><p>Electrodes move toward the ear, with a 3-minute daily calibration, and accuracy stays above 80%.</p><span class="st">planned</span></div>
-    </div>
-    <p class="note">Published silent-speech EMG reaches 88–97% on small vocabularies, with the mouth moving. Whether lips-closed articulation carries enough signal is the open question, and stage 2 answers it. The demo above is an animation: its signals and predictions are illustrative, while the syllables, decoder and flow are the product's real ones.</p>
-  </section>
+  </div>
+</section>
 
-  <footer><span>SilentBand · prototype</span><span>Not a medical device.</span></footer>
-</div>
+<section id="faq">
+  <div class="w">
+    <h2 style="text-align:center">Questions.</h2>
+    <div class="faq">
+      <details open><summary>Does it read my thoughts?</summary><p>No. It only picks up deliberate muscle activity when you silently shape one of the eight syllables. Thinking a word without moving does nothing.</p></details>
+      <details><summary>Can people tell I'm using it?</summary><p>Your lips stay closed and there is no sound; your tongue and jaw move slightly. Proving that this works with lips closed is exactly the next milestone.</p></details>
+      <details><summary>How fast is it?</summary><p>In simulation, about 10 words a minute with a local language model. Most predicted words need just one syllable. That suits replies and agent prompts more than essays.</p></details>
+      <details><summary>Which apps does it work with?</summary><p>Anything you can type in: it types like a keyboard. With Claude Code it goes further, using the agent's messages as context and answering permission prompts.</p></details>
+      <details><summary>Where does my data go?</summary><p>From the band to your own computer over your Wi-Fi. Recognition and the language model run there, not in the cloud.</p></details>
+      <details><summary>Is it a medical device?</summary><p>No. It's a prototype input device, and it isn't designed or tested for medical use.</p></details>
+    </div>
+  </div>
+</section>
+
+<section class="dark final" id="join">
+  <div class="w">
+    <h2>Be the first to type<br>without a sound.</h2>
+    <p class="lede">We're building the first bands now. Join the waitlist to follow the tests and get early access.</p>
+    <!-- TODO: point this at a real waitlist form (e.g. Tally, Formspree). Until then it only links here. -->
+    <a class="btn" href="#join">Join the waitlist</a>
+  </div>
+</section>
+
+<footer><div class="w"><span>SilentBand · prototype, 2026</span><span>The scenes above are animations; the syllables, decoder and flow are the product's real ones. Not a medical device.</span></div></footer>
 
 <script>
-/* One clock drives everything: events and tweens run on simulated time,
-   so pause and speed change every animation together. */
-const $ = id => document.getElementById(id);
+/* Each scene has its own clock. It runs only while the scene is on screen, and every
+   caption, word and tween in it is scheduled on that clock, so everything stays in step. */
 const E = {
   out: x => 1 - Math.pow(1 - x, 3),
   inOut: x => x < .5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2,
-  back: x => { const c = 1.5; return 1 + (c + 1) * Math.pow(x - 1, 3) + c * Math.pow(x - 1, 2); },
   lin: x => x,
 };
-let sim = 0, playing = true, speed = 1, lastNow = performance.now();
-let events = [], tweens = [];
-const at = (t, fn) => { events.push({t, fn}); events.sort((a, b) => a.t - b.t); };
-const tween = (t0, d, fn, ease = E.out) => tweens.push({t0, d, fn, ease});
-function runClock() {
-  while (events.length && events[0].t <= sim) events.shift().fn();
-  tweens = tweens.filter(w => {
-    if (sim < w.t0) return true;
-    const p = Math.min(1, (sim - w.t0) / w.d); w.fn(w.ease(p)); return p < 1;
-  });
+class Clock {
+  constructor() { this.t = 0; this.ev = []; this.tw = []; this.on = false; }
+  at(t, fn) { this.ev.push({t, fn}); this.ev.sort((a, b) => a.t - b.t); }
+  tween(t0, d, fn, ease = E.out) { this.tw.push({t0, d, fn, ease}); }
+  step(dt) {
+    this.t += dt;
+    while (this.ev.length && this.ev[0].t <= this.t) this.ev.shift().fn();
+    this.tw = this.tw.filter(w => {
+      if (this.t < w.t0) return true;
+      const p = Math.min(1, (this.t - w.t0) / w.d); w.fn(w.ease(p)); return p < 1;
+    });
+  }
 }
 const lerp = (a, b, p) => a + (b - a) * p;
-function fadeIn(el, t, d = 320, dy = 8) {
-  el.style.opacity = 0;
-  tween(t, d, p => { el.style.opacity = p; el.style.transform = `translateY(${(1 - p) * dy}px) scale(${lerp(.97, 1, p)})`; });
-}
-
-/* ---------------- product model ---------------- */
-const TOKENS = ["ka", "ta", "la", "ga", "na", "ya", "sha", "ree"];
-const ACT = {ka: "letters a–f", ta: "letters g–m", la: "letters n–s", ga: "letters t–z", na: "next suggestion", ya: "accept", sha: "back", ree: "wake"};
-const SITES = [[302, 282], [284, 294], [262, 304], [240, 300], [236, 326], [214, 334], [176, 232], [192, 252]];
-const SITE = ["chin L", "chin R", "under jaw", "jaw angle", "throat L", "throat R", "behind ear", "mastoid"];
-const PAT = {ka: [2, 3, 4], ta: [0, 1, 2], la: [1, 2, 5], ga: [3, 4, 5], na: [0, 2, 6], ya: [1, 4, 7], sha: [0, 1, 3], ree: [5, 6, 7]};
-
-const CHAT = {
-  intro: "Marta asks if you're still coming. You are in a meeting. Watch which key each silent syllable presses.",
-  first: () => addMsg("in", "still coming tonight?", sim + 500),
-  steps: [
-    {t: "ree", ear: "listening", cap: "<q>ree</q> wakes SilentBand."},
-    {t: "ya", type: "yes ", c: ["yes", "sure", "sorry"], ear: "yes", cap: "<q>ya</q> means accept. The AI guessed the reply starts with <b>yes</b>, so no letters were needed."},
-    {t: "la", code: "n–s", c: ["really", "running", "right"], ear: "really", cap: "<q>la</q> means the next word starts with one of <b>n o p q r s</b>. Top guesses: really, running, right."},
-    {t: "ga", code: "n–s t–z", c: ["running", "run", "rush"], ear: "running", cap: "<q>ga</q> means the second letter is one of <b>t u v w x y z</b>. Now <b>running</b> leads, and the earbud whispers it."},
-    {t: "ya", type: "running ", c: ["late", "behind", "now"], ear: "late", cap: "<q>ya</q> accepts it. The model already predicts <b>late</b>."},
-    {t: "ya", type: "late", c: ["send", ".", "!"], ear: "send?", cap: "Each predicted word costs one more <q>ya</q>."},
-    {t: "ya", send: true, ear: "sent", cap: "Sent. Seven silent syllables, and nobody in the meeting heard a thing."},
-  ],
-};
-const AGENT = {
-  intro: "The same eight syllables drive a coding agent. Predictions come from the repo and the session.",
-  first: () => { addLn("hint", "✻ Welcome back. 1 failing test in tests/test_login.py", sim + 500); },
-  steps: [
-    {t: "ree", ear: "listening", cap: "<q>ree</q> wakes SilentBand in the agent's prompt."},
-    {t: "ya", type: "fix ", c: ["fix", "add", "explain"], ear: "fix", cap: "With a failing test in the session, the model ranks <b>fix</b> first, and <q>ya</q> accepts it."},
-    {t: "ya", type: "the ", c: ["the", "this", "a"], ear: "the", cap: "<q>ya</q> again: <b>the</b>."},
-    {t: "ta", code: "g–m", c: ["login", "lint", "last"], ear: "login", cap: "<q>ta</q> means the word starts with one of <b>g h i j k l m</b>. <b>login</b> leads, because that is the failing test."},
-    {t: "ya", type: "login ", c: ["test", "page", "flow"], ear: "test", cap: "<q>ya</q> accepts <b>login</b>, and <b>test</b> is predicted next."},
-    {t: "ya", type: "test", c: ["⏎ send", "tests", "flow"], ear: "send?", cap: "<q>ya</q> accepts <b>test</b>."},
-    {t: "ya", send: true, ear: "sent", cap: "Prompt sent."},
-  ],
-};
-
-/* ---------------- DOM setup ---------------- */
-SITES.forEach(([x, y], k) => {
-  $("leads").insertAdjacentHTML("beforeend", `<path d="M${x} ${y} Q ${(x + 187) / 2} ${(y + 352) / 2 + 10} 187 352"/>`);
-  $("elecs").insertAdjacentHTML("beforeend", `<circle id="h${k}" cx="${x}" cy="${y}" r="15" fill="url(#hal)" opacity="0"/>` +
-    `<circle cx="${x}" cy="${y}" r="4.6" fill="#e9e7e1" stroke="#0d0e10" stroke-width="2"/>`);
-});
-$("bars").innerHTML = TOKENS.map(t => `<div class="b" id="b-${t}"><i></i><span>${t}</span></div>`).join("");
-const barH = Object.fromEntries(TOKENS.map(t => [t, 3]));
-$("pad").innerHTML = TOKENS.map(t => `<div class="pk" id="k-${t}"><b>${t}</b><span>${ACT[t]}</span></div>`).join("");
 const grp = c => c ? c.split(" ").map(s => `<span class="grp">${s}</span>`).join("") : "";
 
-/* ---------------- signal: generated on sim time ---------------- */
-const cv = $("scope"), g = cv.getContext("2d");
-let W = 0, H = 0;
-const GUT = 74, PXMS = 0.105, DT = 4;  // px per ms, ms per sample
-let samples = [], genT = 0, bursts = [], ar = new Array(8).fill(0);
-function resize() {
-  const d = window.devicePixelRatio || 1; W = cv.clientWidth; H = cv.clientHeight;
-  cv.width = W * d; cv.height = H * d; g.setTransform(d, 0, 0, d, 0, 0);
-  const hl = $("lb"), rw = $("rw").getBoundingClientRect(), hb = hl.getBoundingClientRect();
-  hl.style.setProperty("--y", (rw.top - hb.top + 12) + "px");
+/* ---------------- moments ---------------- */
+const STEP = 1700;
+const SCRIPTS = [
+  { kind: "phone", who: "Marta", incoming: "still coming tonight?", reply: "no worries, see you 🙂",
+    steps: [
+      {you: "ree", ear: "yes?", c: ["yes", "sure", "sorry"]},
+      {you: "ya", type: "yes ", ear: "I'm?", c: ["i'm", "see", "will"]},
+      {you: "la", code: "n–s", ear: "really?", c: ["really", "running", "right"]},
+      {you: "ga", code: "n–s t–z", ear: "running?", c: ["running", "run", "rush"]},
+      {you: "ya", type: "running ", ear: "late?", c: ["late", "behind", "now"]},
+      {you: "ya", type: "late", ear: "send?", c: ["send", ".", "!"]},
+      {you: "ya", send: true, ear: "sent"},
+    ]},
+  { kind: "term",
+    steps: [
+      {you: "ree", ear: "fix?", c: ["fix", "run", "show"]},
+      {you: "ya", type: "fix ", ear: "the?", c: ["the", "it", "this"]},
+      {you: "ya", type: "the ", ear: "test?", c: ["test", "login", "bug"]},
+      {you: "ta", code: "g–m", ear: "login?", c: ["login", "lint", "last"]},
+      {you: "ya", type: "login ", ear: "test?", c: ["test", "page", "flow"]},
+      {you: "ya", type: "test", ear: "send?", c: ["⏎ send", "tests", "flow"]},
+      {you: "ya", send: true, ear: "sent"},
+    ]},
+  { kind: "phone", who: "Mum", incoming: "did you land? ✈️", reply: "great! call me when you're home ❤️",
+    steps: [
+      {you: "ree", ear: "yes?", c: ["yes", "just", "not"]},
+      {you: "ya", type: "yes ", ear: "just?", c: ["just", "we", "all"]},
+      {you: "ya", type: "just ", ear: "landed?", c: ["landed", "got", "arrived"]},
+      {you: "ya", type: "landed", ear: "send?", c: ["send", ".", "!"]},
+      {you: "ya", send: true, ear: "sent"},
+    ]},
+];
+const plain = s => s.replace(/[^\w\s?'!.,]/g, "").trim();
+
+function makeMoment(el, S) {
+  const C = new Clock(), q = s => el.querySelector(s);
+  const you = q(".you"), ear = q(".ear");
+  let typed = "", code = "";
+  function swap(node, html, t) {
+    C.tween(t, 140, p => node.style.opacity = 1 - p, E.lin);
+    C.at(t + 140, () => node.innerHTML = html);
+    C.tween(t + 140, 320, p => { node.style.opacity = p; node.style.transform = `translateY(${(1 - p) * 6}px)`; });
+  }
+  function fadeIn(node, t, dy = 8) {
+    node.style.opacity = 0;
+    C.tween(t, 340, p => { node.style.opacity = p; node.style.transform = `translateY(${(1 - p) * dy}px)`; });
+  }
+  function render(c) {
+    if (S.kind === "phone") {
+      q(".field").innerHTML = (typed || code ? "" : '<span class="ph">iMessage</span>') + typed + grp(code) + '<span class="caret"></span>';
+      q(".cands").innerHTML = (c || []).map((w, k) => `<span class="cand ${k ? "" : "sel"}">${w}</span>`).join("");
+      q(".send").style.opacity = typed ? 1 : .3;
+    } else {
+      q(".tin").innerHTML = typed + grp(code) + '<span class="caret"></span>';
+      q(".tsug").innerHTML = (c || []).map((w, k) => `<span class="s ${k ? "" : "sel"}">${w}</span>`).join("");
+    }
+  }
+  const bubble = (cls, html, t) => { const d = document.createElement("div"); d.className = "bub " + cls; d.innerHTML = html; q(".msgs").appendChild(d); fadeIn(d, t, 10); return d; };
+  const line = (cls, html, t) => { const d = document.createElement("div"); d.className = "ln " + cls; d.innerHTML = html; q(".tb").appendChild(d); fadeIn(d, t, 4); return d; };
+
+  function build() {
+    C.t = 0; C.ev = []; C.tw = []; typed = ""; code = "";
+    you.textContent = "–"; ear.textContent = "–";
+    let t = 400;
+    if (S.kind === "phone") {
+      q(".msgs").innerHTML = ""; render();
+      C.at(t, () => bubble("in", S.incoming, C.t));
+      swap(ear, `“${S.who}: ${plain(S.incoming)}”`, t + 200);
+    } else {
+      q(".tb").innerHTML = ""; render();
+      C.at(t, () => line("hint", "1 test failing: tests/test_login.py. Want me to fix it?", C.t));
+      swap(ear, "“One login test is failing. Fix it?”", t + 200);
+    }
+    t += 2200;
+    for (const st of S.steps) {
+      swap(you, st.you, t);
+      if (st.send) {
+        C.at(t + 650, () => { const m = typed; typed = ""; code = ""; render();
+          S.kind === "phone" ? bubble("out", m, C.t) : line("u", m, C.t); });
+        swap(ear, `“${st.ear}”`, t + 650);
+        t += 1200;
+      } else {
+        C.at(t + 650, () => { code = st.code || ""; if (st.type) typed += st.type; render(st.c); });
+        swap(ear, `“${st.ear}”`, t + 650);
+        t += STEP;
+      }
+    }
+    if (S.kind === "phone") {
+      const t1 = t;
+      C.at(t1, () => { const d = bubble("in", '<span class="dots"><i></i><i></i><i></i></span>', t1);
+        C.tween(t1, 1400, p => [...d.querySelectorAll("i")].forEach((e, k) => e.style.opacity = .35 + .65 * Math.abs(Math.sin((p * 3 - k * .2) * Math.PI))), E.lin);
+        C.at(t1 + 1400, () => { d.remove(); bubble("in", S.reply, C.t); }); });
+      swap(you, "–", t);
+      swap(ear, `“${S.who}: ${plain(S.reply)}”`, t + 1500);
+      t += 5200;
+    } else {
+      const L = [[300, "think", "✻ Thinking…"], [1000, "tool", "Read(tests/test_login.py)"], [1500, "tool", "Update(auth/session.py)"],
+                 [1800, "del", "-  if token.expires_at &lt; datetime.now():"], [2050, "add", "+  if token.expires_at &lt; datetime.now(timezone.utc):"]];
+      swap(you, "–", t);
+      L.forEach(([dt, cls, txt]) => C.at(t + dt, () => { const th = q(".think"); if (cls !== "think" && th) th.remove(); line(cls, txt, C.t); }));
+      t += 2700;
+      C.at(t, () => line("perm", 'Allow <em>Bash(pytest -q)</em>?<span class="o s">❯ 1. Yes</span><span class="o">2. No</span>', C.t));
+      swap(ear, "“Run pytest? Say ya to allow.”", t + 200);
+      swap(you, "ya", t + 1900);
+      C.at(t + 2550, () => { q(".perm").remove(); line("tool", "Bash(pytest -q)", C.t); });
+      swap(ear, "“allowed”", t + 2550);
+      C.at(t + 3300, () => line("sub2", "24 passed in 1.84s", C.t));
+      C.at(t + 3900, () => line("ok", "Fixed: the expiry check compared a naive time with a UTC time.", C.t));
+      swap(you, "–", t + 3300);
+      swap(ear, "“Fixed. 24 tests pass.”", t + 4000);
+      t += 7500;
+    }
+    C.at(t, build);  // loop
+  }
+  build();
+  return C;
 }
+
+const moments = SCRIPTS.map((S, i) => makeMoment(document.getElementById("s" + i), S));
+
+/* train window streaks */
+const streaks = document.querySelector("#s2 .streaks");
+streaks.innerHTML = Array.from({length: 9}, (_, k) =>
+  `<i style="position:absolute;left:0;top:${8 + k * 9}%;height:${2 + (k % 3)}px;width:${18 + (k * 37) % 30}%;border-radius:2px;filter:blur(1.5px);background:rgba(255,${200 - k * 8},${140 + k * 6},${.25 + (k % 3) * .12})"></i>`).join("");
+const streakEls = [...streaks.children];
+
+/* ---------------- hero band: contacts + signal pulses ---------------- */
+const arc = document.getElementById("arc"), AL = arc.getTotalLength();
+const pads = document.getElementById("pads"), pulses = document.getElementById("pulses");
+[.2, .28, .36, .44, .56, .64, .72, .8].forEach(f => { const p = arc.getPointAtLength(f * AL);
+  pads.insertAdjacentHTML("beforeend", `<circle cx="${p.x}" cy="${p.y - 14}" r="4.2" fill="#9a9aa0" stroke="#0d0d0f" stroke-width="1.5"/>`); });
+for (let k = 0; k < 2; k++) pulses.insertAdjacentHTML("beforeend", `<circle r="26" fill="url(#gGlow)" opacity="0"/>`);
+const hero = new Clock();
+function heroLoop(t0) {
+  [...pulses.children].forEach((c, k) => {
+    const from = k ? .8 : .2;
+    hero.tween(t0 + k * 180, 1500, p => {
+      const pt = arc.getPointAtLength(lerp(from, .5, p) * AL);
+      c.setAttribute("cx", pt.x); c.setAttribute("cy", pt.y - 6); c.setAttribute("opacity", Math.sin(p * Math.PI));
+    }, E.inOut);
+  });
+  hero.tween(t0 + 1500, 600, p => document.getElementById("led").setAttribute("r", 3.2 + 3 * Math.sin(p * Math.PI)), E.lin);
+  hero.at(t0 + 3200, () => heroLoop(hero.t));
+}
+heroLoop(300);
+
+/* ---------------- under the hood: live scope ---------------- */
+const TOK = ["ka", "ta", "la", "ga", "ya", "na", "sha", "ree"];
+const PAT = {ka: [2, 3, 4], ta: [0, 1, 2], la: [1, 2, 5], ga: [3, 4, 5], na: [0, 2, 6], ya: [1, 4, 7], sha: [0, 1, 3], ree: [5, 6, 7]};
+document.getElementById("rk").innerHTML = TOK.map(t => `<div id="rk-${t}">${t}</div>`).join("");
+const cv = document.getElementById("scope"), g = cv.getContext("2d");
+let W = 0, H = 0;
+function resize() { const d = devicePixelRatio || 1; W = cv.clientWidth; H = cv.clientHeight; cv.width = W * d; cv.height = H * d; g.setTransform(d, 0, 0, d, 0, 0); }
+resize(); addEventListener("resize", resize);
+const lab = new Clock(), DT = 4, PX = .1;
+let samples = [], genT = 0, bursts = [], ar = new Array(8).fill(0);
+function labLoop(t0) {
+  const tk = TOK[Math.floor(Math.random() * TOK.length)];
+  lab.at(t0, () => { bursts.push({t0, ch: PAT[tk]}); if (bursts.length > 4) bursts.shift(); });
+  lab.at(t0 + 820, () => { document.getElementById("rtxt").textContent = `recognized: ${tk}`; TOK.forEach(t => document.getElementById("rk-" + t).classList.toggle("on", t === tk)); });
+  lab.tween(t0 + 820, 140, p => document.getElementById("rk-" + tk).style.setProperty("--h", p));
+  lab.tween(t0 + 1300, 600, p => document.getElementById("rk-" + tk).style.setProperty("--h", 1 - p), E.inOut);
+  lab.at(t0 + 1800, () => labLoop(lab.t));
+}
+labLoop(200);
 function env(ts, c) {
   let e = 0;
-  for (const b of bursts) {
-    const k = b.chans.indexOf(c); if (k < 0) continue;
-    const x = (ts - b.t0) / 720; if (x <= 0 || x >= 1) continue;
-    e = Math.max(e, Math.pow(Math.sin(Math.PI * x), 1.6) * (k === 1 ? 1 : 0.72));
-  }
+  for (const b of bursts) { const k = b.ch.indexOf(c); if (k < 0) continue; const x = (ts - b.t0) / 720;
+    if (x > 0 && x < 1) e = Math.max(e, Math.pow(Math.sin(Math.PI * x), 1.6) * (k === 1 ? 1 : .72)); }
   return e;
 }
-function genSignal() {
-  const keep = (W - GUT) / PXMS + 200;
-  while (genT <= sim) {
-    const row = new Float32Array(16);
-    for (let c = 0; c < 8; c++) {
-      const e = env(genT, c);
-      ar[c] = 0.5 * ar[c] + (Math.random() * 2 - 1);
-      row[c] = ar[c] * (0.11 + 0.85 * e) * (0.75 + 0.5 * Math.random());
-      row[8 + c] = e;
-    }
-    samples.push([genT, row]); genT += DT;
+function scope() {
+  while (genT <= lab.t) {
+    const r = new Float32Array(16);
+    for (let c = 0; c < 8; c++) { const e = env(genT, c); ar[c] = .5 * ar[c] + (Math.random() * 2 - 1); r[c] = ar[c] * (.11 + .85 * e) * (.75 + .5 * Math.random()); r[8 + c] = e; }
+    samples.push([genT, r]); genT += DT;
   }
-  while (samples.length && sim - samples[0][0] > keep) samples.shift();
-}
-function drawSignal() {
+  while (samples.length && lab.t - samples[0][0] > W / PX + 100) samples.shift();
   g.clearRect(0, 0, W, H);
-  const lane = H / 8, right = W - 4;
-  g.font = "10.5px ui-monospace, Menlo, monospace";
+  const lane = H / 8, right = W - 2;
   for (let c = 0; c < 8; c++) {
     const y0 = lane * (c + .5);
-    const hot = samples.length && samples[samples.length - 1][1][8 + c] > .05;
-    g.fillStyle = hot ? "#ff8a5b" : "#5d5d5a"; g.fillText(SITE[c], 2, y0 + 3.5);
-    g.strokeStyle = "rgba(255,255,255,.035)"; g.lineWidth = 1; g.beginPath(); g.moveTo(GUT, y0); g.lineTo(right, y0); g.stroke();
     for (const pass of [0, 1]) {
-      g.strokeStyle = pass ? "#ff5a1f" : "rgba(159,216,207,.62)"; g.lineWidth = pass ? 1.3 : 1;
-      g.beginPath(); let pen = false;
+      g.strokeStyle = pass ? "#ff5a1f" : "rgba(127,214,198,.6)"; g.lineWidth = pass ? 1.3 : 1; g.beginPath(); let pen = false;
       for (const [ts, r] of samples) {
-        const x = right - (sim - ts) * PXMS; if (x < GUT) continue;
+        const x = right - (lab.t - ts) * PX; if (x < 0) continue;
         if (pass && r[8 + c] <= .04) { pen = false; continue; }
-        const y = y0 + r[c] * lane * .5;
-        pen ? g.lineTo(x, y) : g.moveTo(x, y); pen = true;
+        const y = y0 + r[c] * lane * .5; pen ? g.lineTo(x, y) : g.moveTo(x, y); pen = true;
       }
       g.stroke();
     }
   }
-  g.fillStyle = "rgba(255,255,255,.5)"; g.fillRect(right, 4, 1, H - 8);
 }
 
-/* ---------------- pulses along the links ---------------- */
-function pulse(id, t, d, vertical) {
-  const el = $(id), dot = el.querySelector(".pdot");
-  tween(t, d, p => {
-    const len = vertical ? el.clientHeight - 7 : el.clientWidth - 7;
-    dot.style.opacity = p < .9 ? 1 : (1 - p) * 10;
-    dot.style.transform = vertical ? `translateY(${p * len}px)` : `translateX(${p * len}px)`;
-  }, E.inOut);
-}
+/* ---------------- visibility + one frame loop ---------------- */
+const clocks = [...moments, lab, hero];
+const watched = [...moments.map((_, i) => document.getElementById("s" + i)), cv, document.getElementById("band")];
+const io = new IntersectionObserver(es => es.forEach(e => clocks[e.target.dataset.k].on = e.isIntersecting), {threshold: .3});
+watched.forEach((el, i) => { el.dataset.k = i; io.observe(el); });
 
-/* ---------------- surfaces ---------------- */
-let typed = "", code = "";
-function chatRender(st) {
-  $("field").innerHTML = (typed || code ? "" : '<span class="ph">iMessage</span>') + typed + (code ? `${grp(code)}` : "") + '<span class="caret"></span>';
-  $("cands").innerHTML = (st.c || []).map((w, k) => `<span class="cand ${k === 0 ? "sel" : ""}">${w}</span>`).join("");
-  $("send").style.opacity = typed ? 1 : .3;
-}
-function termRender(st) {
-  $("tin").innerHTML = `<span class="p">›</span>${typed}${code ? `${grp(code)}` : ""}<span class="caret"></span>`;
-  $("tsug").innerHTML = (st.c || []).map((w, k) => `<span class="s ${k === 0 ? "sel" : ""}">${w}</span>`).join("") +
-    (st.c ? '<span class="k">ya accept · na next · sha back</span>' : "");
-}
-function addMsg(cls, html, t) { const d = document.createElement("div"); d.className = "bub " + cls; d.innerHTML = html; $("msgs").appendChild(d); fadeIn(d, t, 340, 10); return d; }
-function addLn(cls, html, t) { const d = document.createElement("div"); d.className = "ln " + cls; d.innerHTML = html; $("tb").appendChild(d); fadeIn(d, t, 260, 4); return d; }
+const seek = location.hash.match(/t=(\d+)/);  // demo.html#t=9000 jumps every scene to that moment (for stills)
+if (seek) for (let t = 0; t < +seek[1]; t += 16) clocks.forEach(c => c.step(16));
 
-function speak(text, t, d = 650) {
-  const ear = $("ear"), bars = [...ear.querySelectorAll(".w i")];
-  at(t, () => $("et").textContent = `“${text}”`);
-  tween(t, 180, p => ear.style.opacity = p);
-  tween(t, d, p => {
-    bars.forEach((b, k) => b.style.height = (4 + 10 * Math.abs(Math.sin((p * 9 + k * .7) * Math.PI)) * (1 - p * .6)) + "px");
-    $("budglow").setAttribute("opacity", Math.sin(p * Math.PI));
-  }, E.lin);
-  tween(t + d + 400, 260, p => ear.style.opacity = 1 - p, E.lin);
-}
-function caption(html, t) {
-  const c = $("cap");
-  tween(t, 160, p => c.style.opacity = 1 - p, E.lin);
-  at(t + 160, () => c.innerHTML = html);
-  tween(t + 160, 320, p => { c.style.opacity = p; c.style.transform = `translateY(${(1 - p) * 4}px)`; });
-}
-
-/* ---------------- choreography ----------------
-   Each step lasts 2 s:  0 articulate → 740 signal travels → 1040 recognized
-   → 1180 result travels → 1500 the app updates and the earbud confirms. */
-const STEP = 2000;
-let sceneSpan = [[0, 1], [0, 1]];
-function showScene(n, S, t) {
-  at(t, () => {
-    typed = ""; code = "";
-    [0, 1].forEach(k => $("tab" + k).classList.toggle("on", k === n));
-    if (n === 0) { $("msgs").innerHTML = ""; chatRender({}); } else { $("tb").innerHTML = ""; termRender({}); }
-    S.first();
-  });
-  const a = $("sc" + n), b = $("sc" + (1 - n));
-  let b0 = 0;
-  at(t, () => b0 = +b.style.opacity || 0);
-  tween(t, 400, p => b.style.opacity = b0 * (1 - p), E.lin);
-  tween(t + 200, 600, p => { a.style.opacity = p; a.style.transform = `scale(${lerp(.985, 1, p)})`; });
-}
-function step(st, T, isChat) {
-  at(T, () => { $("tw").textContent = st.t; bursts.push({chans: PAT[st.t], t0: T}); if (bursts.length > 6) bursts.shift(); });
-  tween(T, 260, p => { const e = $("thought"); e.style.opacity = p; e.style.transform = `translateY(${(1 - p) * 8}px)`; });
-  tween(T, 300, p => PAT[st.t].forEach(k => $("h" + k).setAttribute("opacity", p)));
-  caption(st.cap, T + 60);
-  tween(T + 760, 240, p => $("thought").style.opacity = 1 - p, E.lin);
-  tween(T + 760, 420, p => PAT[st.t].forEach(k => $("h" + k).setAttribute("opacity", 1 - p)), E.lin);
-  pulse("la", T + 740, 300, true);
-  at(T + 1040, () => {
-    const pw = .9 + Math.random() * .08; let rest = 1 - pw;
-    const target = {}, from = {...barH};
-    TOKENS.forEach(t => { const v = t === st.t ? pw : Math.min(rest, Math.random() * .05); if (t !== st.t) rest -= v; target[t] = 3 + v * 68; });
-    TOKENS.forEach(t => $("b-" + t).classList.toggle("win", t === st.t));
-    tween(T + 1040, 460, p => TOKENS.forEach(t => { barH[t] = lerp(from[t], target[t], p); $("b-" + t).firstChild.style.height = barH[t] + "px"; }), E.back);
-    $("rw").textContent = `“${st.t}”`; $("ra").textContent = `${ACT[st.t]} · ${(pw * 100).toFixed(0)}%`;
-  });
-  tween(T + 1040, 300, p => { $("rw").style.opacity = p; $("rw").style.transform = `translateY(${(1 - p) * 6}px)`; });
-  tween(T + 1040, 140, p => $("k-" + st.t).style.setProperty("--h", p));
-  tween(T + 1700, 700, p => $("k-" + st.t).style.setProperty("--h", 1 - p), E.inOut);
-  pulse("lb", T + 1180, 320, false);
-  at(T + 1500, () => {
-    code = st.code || ""; if (st.type) typed += st.type;
-    if (!st.send) isChat ? chatRender(st) : termRender(st);
-  });
-  speak(st.ear, T + 1500);
-}
-function chatSend(T) {
-  at(T + 1500, () => { const msg = typed; typed = ""; code = ""; chatRender({}); addMsg("out", msg, T + 1500); });
-  at(T + 2600, () => {
-    const d = addMsg("in", '<span class="dots"><i></i><i></i><i></i></span>', T + 2600); d.id = "typing";
-    tween(T + 2600, 1400, p => [...d.querySelectorAll("i")].forEach((e, k) => e.style.opacity = .35 + .65 * Math.abs(Math.sin((p * 3 - k * .2) * Math.PI))), E.lin);
-  });
-  at(T + 4000, () => { $("typing").remove(); addMsg("in", "no worries, see you 🙂", T + 4000); });
-  return T + 6000;
-}
-function agentSend(T) {
-  const t0 = T + 1500;
-  at(t0, () => { addLn("u", `› <b>${typed}</b>`, t0); typed = ""; code = ""; termRender({}); });
-  const L = [
-    [500, "think", "✻ Thinking…"],
-    [1300, "tool", "Read(tests/test_login.py)"],
-    [1600, "sub", "Read 48 lines"],
-    [2000, "tool", "Read(auth/session.py)"],
-    [2800, "tool", "Update(auth/session.py)"],
-    [3100, "del", "-  if token.expires_at < datetime.now():"],
-    [3350, "add", "+  if token.expires_at < datetime.now(timezone.utc):"],
-    [4200, "tool", "Bash(pytest -q)"],
-    [4900, "sub", "24 passed in 1.84s"],
-    [5600, "ok", "Fixed: the expiry check compared a naive time with a UTC time."],
-  ];
-  L.forEach(([dt, cls, txt]) => at(t0 + dt, () => {
-    const th = $("think"); if (cls !== "think" && th) th.remove();
-    const d = addLn(cls, txt.replace(/</g, "&lt;"), t0 + dt); if (cls === "think") d.id = "think";
-  }));
-  caption("The agent works. Your hands and your voice stay free.", t0 + 1300);
-  speak("fixed, 24 tests pass", t0 + 5700, 1100);
-  caption("The result comes back in your earbud: <b>fixed, 24 tests pass</b>. You never touched the keyboard.", t0 + 5700);
-  return t0 + 9000;
-}
-function program() {
-  let t = 300;
-  const run = (S, n, send) => {
-    const s0 = t; showScene(n, S, t); caption(S.intro, t + 200); t += 2800;
-    S.steps.forEach(st => { step(st, t, n === 0); t = st.send ? send(t) : t + STEP; });
-    sceneSpan[n] = [s0, t];
-  };
-  run(CHAT, 0, chatSend);
-  run(AGENT, 1, agentSend);
-  at(t, () => restart());
-}
-function resetDOM() {
-  typed = ""; code = ""; bursts = []; samples = []; genT = 0;
-  $("msgs").innerHTML = ""; $("tb").innerHTML = ""; chatRender({}); termRender({});
-  $("sc0").style.opacity = 0; $("sc1").style.opacity = 0; $("cap").innerHTML = ""; $("rw").textContent = "–"; $("ra").textContent = "";
-  TOKENS.forEach(t => { barH[t] = 3; const b = $("b-" + t); b.classList.remove("win"); b.firstChild.style.height = "3px"; });
-  $("thought").style.opacity = 0; $("ear").style.opacity = 0;
-  TOKENS.forEach(t => $("k-" + t).style.setProperty("--h", 0));
-}
-function restart() { sim = 0; events = []; tweens = []; resetDOM(); program(); }
-function seekScene(n) {
-  restart(); if (n !== 1) return;
-  const target = sceneSpan[1][0];
-  while (events.length && events[0].t < target) events.shift().fn();
-  tweens = tweens.filter(w => w.t0 >= target);
-  $("sc0").style.opacity = 0; sim = genT = target;
-}
-
-/* ---------------- controls + loop ---------------- */
-$("play").onclick = () => { playing = !playing; $("play").textContent = playing ? "Pause" : "Play"; };
-$("restart").onclick = () => restart();
-$("spd").onclick = () => { speed = speed === 1 ? 1.5 : speed === 1.5 ? .75 : 1; $("spd").textContent = speed + "×"; };
-document.querySelectorAll(".tab").forEach(el => el.onclick = () => seekScene(+el.dataset.s));
-document.addEventListener("keydown", e => { if (e.code === "Space" && e.target === document.body) { e.preventDefault(); $("play").click(); } });
-window.addEventListener("resize", resize);
-
+let last = performance.now();
 function frame(now) {
-  const dt = Math.min(50, now - lastNow); lastNow = now;
-  if (playing && !document.hidden) sim += dt * speed;
-  runClock(); genSignal(); drawSignal();
-  [0, 1].forEach(n => { const [a, b] = sceneSpan[n]; $("tab" + n).querySelector(".fill").style.width = Math.max(0, Math.min(1, (sim - a) / (b - a))) * 100 + "%"; });
-  $("led").setAttribute("opacity", Math.sin(sim / 260) > 0 ? 1 : .35);
-  const s = Math.floor(sim / 1000); $("clock").textContent = `${String(Math.floor(s / 60)).padStart(2, "0")}:${String(s % 60).padStart(2, "0")}`;
+  const dt = Math.min(50, now - last); last = now;
+  if (!document.hidden && !seek) clocks.forEach(c => c.on && c.step(dt));
+  if (moments[2].on || seek) streakEls.forEach((s, k) => { const x = ((moments[2].t * (.35 + (k % 4) * .12) + k * 400) % 1400) / 1400; s.style.transform = `translateX(${lerp(130, -60, x)}vw)`; });
+  if (lab.on || seek) scope();
   requestAnimationFrame(frame);
 }
-resize(); restart();
-const seek = location.hash.match(/t=(\d+)/);  // demo.html#t=12000 opens paused at that moment
-if (seek) { while (sim < +seek[1]) { sim += 16; runClock(); genSignal(); } playing = false; $("play").textContent = "Play"; }
 requestAnimationFrame(frame);
 </script>
 </body>
