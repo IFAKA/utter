@@ -1,0 +1,13 @@
+# Sources
+- Original EEG build: https://www.hackster.io/news/building-a-brain-computer-interface-from-scratch-823eb2a344b0 ; repo https://github.com/carlos-lorenzo/neurodaq
+- ADS1299 datasheet: https://www.ti.com/lit/ds/symlink/ads1299.pdf ; LCSC C476817 (~$55)
+- Meltzner 2008 (vocalized 92.1% / mouthed 86.7% / imagined not recognizable): https://www.researchgate.net/publication/221478374
+- AlterEgo 2018: https://dl.acm.org/doi/10.1145/3172944.3172977 ; startup (demo only): https://www.axios.com/2025/09/08/startup-query-ai-silent-speech-neural-interface
+- ETH dry EMG neckband: https://arxiv.org/html/2509.21964v1 ; SilentWear: https://arxiv.org/html/2603.02847v1
+- MONA LISA (LLM rescoring, 12.2% WER silent EMG): https://arxiv.org/pdf/2403.05583
+- SpeakFaster (LLM abbreviation expansion): https://www.nature.com/articles/s41467-024-53873-3
+- Brain2Qwerty (EEG ~65% CER): https://arxiv.org/pdf/2502.17480
+- Meta sEMG wristband (Nature 2025, 20.9 wpm handwriting): https://www.nature.com/articles/s41586-025-09255-w
+- Gaddy dataset (CC BY 4.0, 3.9 GB): https://zenodo.org/records/4064409 ; code https://github.com/dgaddy/silent_speech
+- Calibration: https://arxiv.org/abs/2609.21288 (3 min enough) ; AESSI around-ear, cross-day: https://arxiv.org/abs/2609.21436
+- iOS keyboard limits: https://www.fleksy.com/blog/limitations-of-custom-keyboards-on-ios/
