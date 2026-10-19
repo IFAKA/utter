@@ -10,7 +10,7 @@ User priority: prove it works before optimizing; speed is secondary. Follow gate
 
 ## Next step
 1. Done 2026-10-19: Fable review, no blockers, fixes applied (ORDER.md "Fable review").
-2. User approves and places the order (ORDER.md) and buys the Amazon.es items.
+2. Approved 2026-10-19. User places the JLC order (ORDER.md) and buys the Amazon.es items.
 3. After delivery: USAGE.md steps 2-6, then the Stage 1 gate.
 
 Model guidance: Sonnet for software; Fable for schematic/PCB review before ordering, safety, and Stage 2 failure analysis.

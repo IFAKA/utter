@@ -1,6 +1,6 @@
-# Order card: SilentBand v1 (NOT ORDERED)
+# Order card: SilentBand v1 (APPROVED 2026-10-19, user places the order)
 
-Status 2026-10-19: design generated and machine-checked. **Before ordering: (1) independent review (Fable, checklist below), (2) user approval.** Nobody places this order except the user.
+Status 2026-10-19: machine-checked, Fable-reviewed (no blockers), approved by the user. Nobody places this order except the user.
 
 Regenerate everything with `hardware/gen/build.sh` (~1.5 min). It fails unless DRC is 0 errors with 0 unconnected, ERC is clean apart from the waivers listed below, and circuit.py, the schematic and the PCB have identical nets.
 
