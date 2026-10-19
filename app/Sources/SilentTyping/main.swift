@@ -1,6 +1,9 @@
 // SilentTyping menu-bar app: receives silent-token events (UDP 127.0.0.1:47800, from
 // `sb engine` or `sb keysim`), decodes them to words, types into the focused app via
 // Accessibility (CGEvent), and speaks the current candidate in the earbuds.
+// Agent integration (app/hooks/silentband_hook.py, a Claude Code hook) sends two more events:
+//   {"type":"agent","text":...}       the agent's last reply: spoken briefly, and used as LLM context
+//   {"type":"permission","text":...}  a permission prompt: ACCEPT presses Return (allow), BACK Escape (deny)
 import AppKit
 import AVFoundation
 import Network
@@ -62,6 +65,8 @@ final class Voice {
 final class AppDelegate: NSObject, NSApplicationDelegate {
     var status: NSStatusItem!
     var decoder: Decoder!
+    var llm: OllamaPredictor?
+    var permission: String?  // pending agent permission prompt
     var voice: Voice!
     var listener: NWListener?
     var lastStatus = "waiting for tokens (sb keysim / sb engine)"
@@ -79,7 +84,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     func rebuild() {
-        let predictor: Predictor = OllamaPredictor.available() ? OllamaPredictor(language: language) : NoPredictor()
+        llm = OllamaPredictor.available() ? OllamaPredictor(language: language) : nil
+        let predictor: Predictor = llm ?? NoPredictor()
         let lex = Lexicon(language: language)
         decoder = Decoder(lexicon: lex, predictor: predictor)
         voice = Voice(language: language)
@@ -90,7 +96,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     func refreshUI() {
         guard let d = decoder else { return }
         let codeStr = d.code.map { String($0 + 1) }.joined()
-        status.button?.title = d.armed ? "◉ \(codeStr.isEmpty ? "" : codeStr + " ")\(d.current ?? "")" : "○"
+        status.button?.title = permission != nil ? "◉ allow? ya / sha"
+            : d.armed ? "◉ \(codeStr.isEmpty ? "" : codeStr + " ")\(d.current ?? "")" : "○"
         let menu = NSMenu()
         menu.addItem(withTitle: d.armed ? "Armed: say WAKE to pause" : "Paused: say WAKE to start", action: nil, keyEquivalent: "")
         menu.addItem(withTitle: lastStatus, action: nil, keyEquivalent: "")
@@ -140,6 +147,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             if let data, let obj = try? JSONSerialization.jsonObject(with: data) as? [String: Any] {
                 if obj["type"] as? String == "token", let a = (obj["action"] as? String).flatMap(Action.init(rawValue:)) {
                     self?.handle(a)
+                } else if obj["type"] as? String == "agent", let t = obj["text"] as? String {
+                    self?.agentSaid(t)
+                } else if obj["type"] as? String == "permission", let t = obj["text"] as? String {
+                    self?.permissionAsked(t)
                 } else if obj["type"] as? String == "status", let t = obj["text"] as? String {
                     self?.lastStatus = t
                     self?.refreshUI()
@@ -149,7 +160,49 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         }
     }
 
+    func say(_ s: String) {
+        if dryRun { print("SAY \(s.debugDescription)") }
+        voice.say(s)
+    }
+
+    func press(_ code: CGKeyCode, _ name: String) {
+        dryRun ? print("KEY \(name)") : Typer.key(code, CGEventSource(stateID: .combinedSessionState))
+    }
+
+    /// The agent finished a reply: read its first sentence aloud, and predict the user's answer from it.
+    func agentSaid(_ text: String) {
+        permission = nil
+        let flat = text.replacingOccurrences(of: "\n", with: " ")
+        let first = flat.split(whereSeparator: { ".?!".contains($0) }).first.map(String.init) ?? flat
+        let brief = first.split(separator: " ").prefix(25).joined(separator: " ")
+        work.async { [self] in
+            llm?.history = "Assistant: \(String(flat.suffix(800)))\nUser:"
+            decoder.newMessage()
+            DispatchQueue.main.async { [self] in
+                lastStatus = "agent: \(brief.prefix(60))"
+                if decoder.armed, !brief.isEmpty { say(brief + (decoder.current.map { ". Suggest: \($0)" } ?? "")) }
+                refreshUI()
+            }
+        }
+    }
+
+    func permissionAsked(_ text: String) {
+        permission = text
+        lastStatus = "permission: \(text.prefix(60))"
+        say("\(text). Ya to allow, sha to deny.")
+        refreshUI()
+    }
+
     func handle(_ a: Action) {
+        if let p = permission, a != .wake, decoder.armed {
+            switch a {
+            case .accept: permission = nil; voice.earcon(a); press(36, "return"); say("allowed")
+            case .back: permission = nil; voice.earcon(a); press(53, "escape"); say("denied")
+            default: say("\(p). Ya to allow, sha to deny.")
+            }
+            refreshUI()
+            return
+        }
         work.async { [self] in
             let outs = decoder.handle(a)  // LM call happens off the main thread
             DispatchQueue.main.async { [self] in
@@ -157,7 +210,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                     switch o {
                     case .type(let s): dryRun ? print("TYPE \(s.debugDescription)") : Typer.type(s)
                     case .backspace(let n): dryRun ? print("BACKSPACE \(n)") : Typer.backspace(n)
-                    case .speak(let s): voice.say(s)
+                    case .speak(let s): say(s)
                     case .earcon(let a): voice.earcon(a)
                     }
                 }

@@ -36,6 +36,14 @@ public final class Decoder {
         refresh()
     }
 
+    /// Start a fresh message (e.g. the agent replied): forget the typed text so predictions restart.
+    public func newMessage() {
+        text = ""
+        typedWords = []
+        code = []
+        refresh()
+    }
+
     public var current: String? { candidates.isEmpty ? nil : candidates[index % candidates.count] }
 
     /// Current sentence (text after the last sentence end), the LLM context.

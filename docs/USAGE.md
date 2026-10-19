@@ -29,3 +29,12 @@ See the whole product run live on the board emulator (synthetic EMG; a plumbing 
 4. Recognizer: `uv run sb engine --fake`. Type a token name (e.g. `kee`) + Enter to "articulate" it; the engine recognizes it and the app turns it into suggestions/text.
 With the real board, drop `--fake` (`sb scope` is also the live view for electrode checks).
 
+
+## Silent typing with Claude Code
+Two hooks connect Claude Code to SilentTyping. They are already on in this repo (`.claude/settings.json`).
+- When the agent finishes, the earbud reads the first sentence of its reply plus the top suggestion, and predictions use the reply as context. In the benchmark this cuts gestures per word by 39%.
+- When the agent asks permission, say **ya** to allow (Return) or **sha** to deny (Escape). The menu bar shows `allow? ya / sha`.
+
+To use it in every project, add the same `hooks` block to `~/.claude/settings.json`, with the script's absolute path:
+`python3 /Users/faka/code/projects/hardware/health/silent-typing/app/hooks/silentband_hook.py`.
+If SilentTyping isn't running, the hook silently does nothing.
