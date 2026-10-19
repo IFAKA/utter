@@ -1,0 +1,243 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>SilentBand: what using it looks like</title>
+<style>
+  :root { --bg:#0f1115; --panel:#171a21; --line:#2a2f3a; --txt:#e6e8ee; --dim:#8b93a7; --acc:#4fd1c5; --hot:#ff7a59; }
+  * { box-sizing: border-box; }
+  body { margin:0; background:var(--bg); color:var(--txt); font:14px/1.4 -apple-system, system-ui, sans-serif; }
+  header { padding:14px 22px; display:flex; align-items:center; gap:16px; border-bottom:1px solid var(--line); }
+  header h1 { font-size:17px; margin:0; font-weight:600; }
+  header .note { color:var(--dim); font-size:12px; }
+  button { background:#232835; color:var(--txt); border:1px solid var(--line); border-radius:6px; padding:6px 12px; cursor:pointer; }
+  button:hover { border-color:var(--acc); }
+  main { display:grid; grid-template-columns: 1.05fr 1.2fr 0.95fr; gap:14px; padding:14px 22px; }
+  .panel { background:var(--panel); border:1px solid var(--line); border-radius:10px; padding:12px; position:relative; }
+  .panel h2 { margin:0 0 8px; font-size:12px; text-transform:uppercase; letter-spacing:.08em; color:var(--dim); font-weight:600; }
+  #thought { position:absolute; top:44px; right:14px; background:#222838; border:1px solid var(--line); border-radius:14px;
+             padding:6px 12px; font-size:15px; opacity:0; transition:opacity .25s; }
+  #thought small { display:block; color:var(--dim); font-size:11px; }
+  .elec { transition: fill .15s, r .15s; }
+  #scope { width:100%; height:300px; display:block; background:#11141a; border-radius:6px; }
+  #det { margin-top:10px; display:flex; gap:10px; align-items:center; min-height:46px; }
+  .chip { border:1px solid var(--line); border-radius:8px; padding:6px 10px; background:#11141a; }
+  .chip b { color:var(--acc); }
+  #conf { flex:1; height:8px; background:#11141a; border-radius:4px; overflow:hidden; }
+  #conf div { height:100%; width:0; background:var(--acc); transition:width .3s; }
+  .legend { margin-top:10px; display:grid; grid-template-columns:repeat(4, 1fr); gap:6px; font-size:11px; color:var(--dim); }
+  .legend span { border:1px solid var(--line); border-radius:6px; padding:4px 6px; }
+  .legend span.on { border-color:var(--acc); color:var(--txt); }
+  /* phone */
+  .phone { width:270px; margin:0 auto; background:#000; border-radius:34px; padding:14px 12px; border:2px solid #333; }
+  .screen { background:#fff; color:#111; border-radius:22px; height:470px; display:flex; flex-direction:column; overflow:hidden; }
+  .top { padding:12px; text-align:center; font-weight:600; border-bottom:1px solid #eee; font-size:13px; }
+  .msgs { flex:1; padding:10px; display:flex; flex-direction:column; gap:6px; justify-content:flex-end; }
+  .b { max-width:75%; padding:7px 11px; border-radius:16px; font-size:13px; }
+  .in { background:#e9e9eb; align-self:flex-start; }
+  .out { background:#0b84ff; color:#fff; align-self:flex-end; }
+  .cands { display:flex; gap:4px; padding:6px; background:#f2f2f6; border-top:1px solid #e3e3e8; min-height:36px; flex-wrap:wrap; }
+  .cand { padding:4px 9px; border-radius:6px; font-size:12px; background:#fff; border:1px solid #ddd; }
+  .cand.sel { background:#0b84ff; color:#fff; border-color:#0b84ff; }
+  .compose { padding:8px 10px 14px; display:flex; gap:6px; align-items:center; }
+  .field { flex:1; border:1px solid #ccc; border-radius:16px; padding:7px 11px; font-size:13px; min-height:32px; }
+  .caret { display:inline-block; width:1px; height:14px; background:#0b84ff; vertical-align:middle; animation:blink 1s steps(1) infinite; }
+  .code { color:#0b84ff; font-weight:600; }
+  @keyframes blink { 50% { opacity:0; } }
+  #ear { margin-top:12px; text-align:center; color:var(--dim); min-height:40px; }
+  #ear b { color:var(--txt); }
+  footer { padding:0 22px 18px; display:grid; grid-template-columns: 2fr 1fr; gap:14px; }
+  #log { font:12px/1.5 ui-monospace, Menlo, monospace; color:var(--dim); max-height:140px; overflow:auto; }
+  #log .cur { color:var(--txt); }
+  .how { color:var(--dim); font-size:12px; }
+  .how b { color:var(--txt); }
+</style>
+</head>
+<body>
+<header>
+  <h1>SilentBand: what using it looks like</h1>
+  <button id="play">Pause</button><button id="restart">Restart</button>
+  <label class="note">speed <input id="speed" type="range" min="0.5" max="2" step="0.25" value="1"></label>
+  <span class="note">Concept animation of the real interaction (tokens and decoder from config/tokens.json and the app). EMG traces are synthetic.</span>
+</header>
+
+<main>
+  <section class="panel">
+    <h2>1. You: lips closed, no sound</h2>
+    <div id="thought">"la"<small>silently articulated</small></div>
+    <svg viewBox="0 0 360 380" width="100%">
+      <!-- head, side view, facing right -->
+      <path d="M120 40 C 190 10, 270 40, 280 120 C 284 150, 300 170, 306 190 C 310 200, 300 204, 292 206
+               C 294 220, 290 228, 286 232 C 290 240, 288 250, 280 256 C 282 270, 276 286, 256 290
+               C 236 293, 220 296, 214 316 L 214 380 L 110 380 L 116 310 C 90 290, 70 250, 70 190
+               C 70 110, 90 55, 120 40 Z" fill="#2b3140" stroke="#3b4256"/>
+      <path d="M262 236 L 288 233" stroke="#c9a0a0" stroke-width="3" stroke-linecap="round"/> <!-- closed lips -->
+      <ellipse cx="236" cy="132" rx="7" ry="4" fill="#cfd5e3"/> <!-- eye -->
+      <path d="M150 140 C 136 130, 128 152, 140 166 C 146 174, 158 170, 158 160" fill="none" stroke="#4a5266" stroke-width="5"/> <!-- ear -->
+      <circle cx="146" cy="152" r="7" fill="#e6e8ee"/> <!-- earbud -->
+      <!-- neckband -->
+      <path d="M118 300 C 150 318, 200 318, 222 300" fill="none" stroke="#4fd1c5" stroke-width="7" stroke-linecap="round" opacity=".75"/>
+      <rect x="148" y="304" width="36" height="16" rx="4" fill="#1f6f69" stroke="#4fd1c5"/>
+      <text x="166" y="316" font-size="8" fill="#e6e8ee" text-anchor="middle">board</text>
+      <!-- leads + electrodes (8 of 16 shown) -->
+      <g id="leads" stroke="#5a6278" stroke-width="1" fill="none"></g>
+      <g id="elecs"></g>
+      <text x="292" y="226" font-size="10" fill="#8b93a7">lips closed</text>
+      <text x="96" y="132" font-size="10" fill="#8b93a7">earbud voice</text>
+    </svg>
+    <div class="how"><b>Electrodes:</b> chin, under the jaw, throat and behind the ear. They pick up the tiny muscle signals (5-50 µV) of articulating a syllable without moving your lips or making a sound.</div>
+  </section>
+
+  <section class="panel">
+    <h2>2. SilentBand → recognizer (on your Mac)</h2>
+    <canvas id="scope" width="640" height="300"></canvas>
+    <div id="det"><div class="chip" id="tok">waiting…</div><div id="conf"><div></div></div><div class="chip" id="act">action</div></div>
+    <div class="legend" id="legend"></div>
+  </section>
+
+  <section class="panel">
+    <h2>3. Text appears in any app</h2>
+    <div class="phone"><div class="screen">
+      <div class="top">Ana</div>
+      <div class="msgs" id="msgs"><div class="b in">Where are you? 🙂</div></div>
+      <div class="cands" id="cands"></div>
+      <div class="compose"><div class="field" id="field"></div></div>
+    </div></div>
+    <div id="ear"></div>
+  </section>
+</main>
+
+<footer>
+  <div class="panel"><h2>Step by step</h2><div id="log"></div></div>
+  <div class="panel how">
+    <h2>How typing works</h2>
+    <b>4 tokens</b> pick letter groups (abcdef · ghijklm · nopqrs · tuvwxyz), like T9.
+    <b>na</b> = next suggestion, <b>ya</b> = accept, <b>sha</b> = back, <b>ree</b> = wake/pause.
+    With no letters, the <b>local LLM</b> suggests the next word, so most words are a single "ya".
+    The earbud quietly says the current suggestion, so you never need to look.
+  </div>
+</footer>
+
+<script>
+const GROUPS = {G1:"abcdef", G2:"ghijklm", G3:"nopqrs", G4:"tuvwxyz"};
+const MAP = {ka:"G1", ta:"G2", la:"G3", ga:"G4", na:"NEXT", ya:"ACCEPT", sha:"BACK", ree:"WAKE"};
+// Electrode sites (x, y) on the drawing, 8 of the 16 channels.
+const SITES = [[262,262],[246,276],[226,284],[206,276],[214,300],[196,302],[164,176],[176,196]];
+const SITE_NAME = ["chin L","chin R","under jaw","jaw angle","throat L","throat R","behind ear","mastoid"];
+// Each token excites its own set of muscles -> electrodes (illustrative).
+const PATTERN = {ka:[2,3,4], ta:[0,1,2], la:[1,2,5], ga:[3,4,5], na:[0,2,6], ya:[1,4,7], sha:[0,1,3], ree:[5,6,7]};
+
+// Scenario: reply "running late, be there soon" + send.  c = candidates, i = selected index
+const STEPS = [
+  {t:"ree", say:"listening",                 note:"wake: arms typing"},
+  {t:"la",  code:"r",  c:["run","running","rush","so"], i:0, say:"run", note:"G3 = n o p q r s"},
+  {t:"ga",  code:"ru", c:["running","run","rush"], i:0, say:"running", note:"G4 = t u v w x y z → 'ru…'"},
+  {t:"ya",  type:"running ", c:["late","behind","to","now"], i:0, say:"late", note:"accept → types 'running'; LLM predicts next word"},
+  {t:"ya",  type:"late ", c:["be","sorry","so","."], i:0, say:"be", note:"accept 'late'"},
+  {t:"ya",  type:"be ", c:["there","right","back","home"], i:0, say:"there", note:"accept 'be'"},
+  {t:"ya",  type:"there ", c:["in","at","soon","by"], i:0, say:"in", note:"accept 'there'"},
+  {t:"na",  c:["in","at","soon","by"], i:1, say:"at", note:"next suggestion"},
+  {t:"na",  c:["in","at","soon","by"], i:2, say:"soon", note:"next suggestion"},
+  {t:"ya",  type:"soon ", c:[".","!","⏎"], i:0, say:"period", note:"accept 'soon'"},
+  {t:"na",  c:[".","!","⏎"], i:2, say:"send", note:"next → newline/send"},
+  {t:"ya",  send:true, say:"sent", note:"message sent; nobody saw or heard you type"},
+];
+
+const $ = id => document.getElementById(id);
+const leads = $("leads"), elecs = $("elecs");
+SITES.forEach(([x, y], k) => {
+  leads.insertAdjacentHTML("beforeend", `<path d="M${x} ${y} Q ${(x + 166) / 2} ${(y + 330) / 2 + 10} 166 312"/>`);
+  elecs.insertAdjacentHTML("beforeend", `<circle class="elec" id="e${k}" cx="${x}" cy="${y}" r="5" fill="#8b93a7" stroke="#0f1115"/>`);
+});
+$("legend").innerHTML = Object.entries(MAP).map(([t, a]) => `<span id="lg-${t}"><b>${t}</b> → ${a}${GROUPS[a] ? " " + GROUPS[a] : ""}</span>`).join("");
+
+// --- scope -------------------------------------------------------------------------------
+const cv = $("scope"), g = cv.getContext("2d");
+const NCH = 8, W = cv.width, H = cv.height, N = 640;
+const traces = Array.from({length: NCH}, () => new Float32Array(N));
+let burst = null;  // {chans, t0}
+function gauss() { return (Math.random() + Math.random() + Math.random() - 1.5) * 1.15; }
+function scopeTick(now) {
+  for (let c = 0; c < NCH; c++) {
+    const tr = traces[c];
+    tr.copyWithin(0, 6);
+    for (let k = N - 6; k < N; k++) {
+      let a = 1;
+      if (burst && burst.chans.includes(c)) {
+        const dt = (now - burst.t0) / 1000;
+        if (dt > 0 && dt < 0.9) a += 3 * Math.sin(Math.PI * dt / 0.9) ** 2;
+      }
+      tr[k] = gauss() * a;
+    }
+  }
+  g.fillStyle = "#11141a"; g.fillRect(0, 0, W, H);
+  const lane = H / NCH;
+  for (let c = 0; c < NCH; c++) {
+    const y0 = lane * (c + 0.5), hot = burst && burst.chans.includes(c) && now - burst.t0 < 900;
+    g.strokeStyle = hot ? "#ff7a59" : "#4fd1c5"; g.globalAlpha = hot ? 1 : 0.6; g.lineWidth = 1;
+    g.beginPath();
+    for (let k = 0; k < N; k++) { const y = y0 + traces[c][k] * lane * 0.16; k ? g.lineTo(k * W / N, y) : g.moveTo(0, y); }
+    g.stroke(); g.globalAlpha = 1;
+    g.fillStyle = "#8b93a7"; g.font = "11px -apple-system"; g.fillText(SITE_NAME[c], 6, y0 - lane * 0.3);
+  }
+}
+
+// --- phone -------------------------------------------------------------------------------
+let typed = "", code = "";
+function renderPhone(st) {
+  $("field").innerHTML = typed + (code ? `<span class="code">${code}</span>` : "") + '<span class="caret"></span>';
+  $("cands").innerHTML = (st.c || []).map((w, k) => `<span class="cand ${k === st.i ? "sel" : ""}">${w}</span>`).join("");
+}
+
+// --- player ------------------------------------------------------------------------------
+let step = 0, playing = true, speed = 1, timer = null;
+const log = $("log");
+function reset() {
+  step = 0; typed = ""; code = ""; burst = null;
+  $("msgs").innerHTML = '<div class="b in">Where are you? 🙂</div>';
+  $("cands").innerHTML = ""; $("ear").innerHTML = ""; log.innerHTML = "";
+  $("tok").textContent = "waiting…"; $("act").textContent = "action"; $("conf").firstChild.style.width = "0";
+  renderPhone({});
+}
+function doStep() {
+  if (step >= STEPS.length) { timer = setTimeout(() => { reset(); schedule(); }, 3500 / speed); return; }
+  const n = step, st = STEPS[step], act = MAP[st.t];
+  // 1. articulate
+  $("thought").innerHTML = `"${st.t}"<small>silently articulated</small>`; $("thought").style.opacity = 1;
+  document.querySelectorAll(".elec").forEach(e => { e.setAttribute("fill", "#8b93a7"); e.setAttribute("r", 5); });
+  PATTERN[st.t].forEach(k => { const e = $("e" + k); e.setAttribute("fill", "#ff7a59"); e.setAttribute("r", 7); });
+  burst = {chans: PATTERN[st.t], t0: performance.now()};
+  document.querySelectorAll(".legend span").forEach(s => s.classList.remove("on"));
+  // 2. recognize (after the burst)
+  setTimeout(() => {
+    const p = (0.86 + Math.random() * 0.12);
+    $("tok").innerHTML = `heard <b>${st.t}</b>`; $("act").innerHTML = `→ <b>${act}</b>`;
+    $("conf").firstChild.style.width = (p * 100).toFixed(0) + "%";
+    $("lg-" + st.t).classList.add("on");
+    // 3. app reacts
+    if (st.code !== undefined) code = st.code; else code = "";
+    if (st.type) typed += st.type;
+    if (st.send) {
+      $("msgs").insertAdjacentHTML("beforeend", `<div class="b out">${typed.trim()}.</div>`);
+      typed = ""; code = "";
+      setTimeout(() => $("msgs").insertAdjacentHTML("beforeend", '<div class="b in">ok no rush!</div>'), 1200 / speed);
+    }
+    renderPhone(st);
+    $("ear").innerHTML = st.say ? `🎧 earbud: <b>“${st.say}”</b>` : "";
+    log.querySelectorAll(".cur").forEach(d => d.classList.remove("cur"));
+    log.insertAdjacentHTML("beforeend", `<div class="cur">${String(n + 1).padStart(2)}. ${st.t.padEnd(3)} → ${act.padEnd(6)} ${st.note}</div>`);
+    log.scrollTop = log.scrollHeight;
+    $("thought").style.opacity = 0;
+  }, 900 / speed);
+  step++;
+  schedule();
+}
+function schedule() { clearTimeout(timer); if (playing) timer = setTimeout(doStep, 2000 / speed); }
+$("play").onclick = () => { playing = !playing; $("play").textContent = playing ? "Pause" : "Play"; if (playing) schedule(); else clearTimeout(timer); };
+$("restart").onclick = () => { clearTimeout(timer); reset(); playing = true; $("play").textContent = "Pause"; schedule(); };
+$("speed").oninput = e => { speed = +e.target.value; };
+function loop(now) { scopeTick(now); requestAnimationFrame(loop); }
+reset(); requestAnimationFrame(loop); schedule();
+</script>
+</body>
+</html>
