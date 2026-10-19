@@ -11,6 +11,7 @@ dependencies = [
   "rich>=13",
   "pyserial>=3.5",
   "zeroconf>=0.130",
+  "matplotlib>=3.11.2",
 ]
 
 [project.optional-dependencies]

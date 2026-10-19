@@ -49,6 +49,11 @@ def cmd_electrodes(args):
     wizard.electrodes(_board(args))
 
 
+def cmd_scope(args):
+    from . import scope
+    scope.run(_board(args), fake=args.fake)
+
+
 def cmd_record(args):
     from . import record
     record.run(_board(args), minutes=args.minutes, fake=args.fake)
@@ -101,7 +106,7 @@ def cmd_train(args):
 def cmd_engine(args):
     from . import engine
     from .train import MODELS
-    engine.run(_board(args), MODELS / f"{args.name}.joblib")
+    engine.run(_board(args), MODELS / f"{args.name}.joblib", fake=args.fake)
 
 
 def cmd_keysim(args):
@@ -139,6 +144,7 @@ def main(argv=None):
     p.add_argument("--no-flash", action="store_true")
     add("test", cmd_test, "acceptance test only")
     add("electrodes", cmd_electrodes, "live electrode contact check")
+    add("scope", cmd_scope, "live 16-channel signal view")
     p = add("record", cmd_record, "guided recording session")
     p.add_argument("--minutes", type=float, default=12)
     p = add("synth", cmd_synth, "write synthetic sessions (pipeline test)")

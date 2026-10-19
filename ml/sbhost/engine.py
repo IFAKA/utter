@@ -59,7 +59,7 @@ class Recognizer:
         return out
 
 
-def run(board: Board, model_path: Path, fs: int = 2000, gain: int = 12) -> None:
+def run(board: Board, model_path: Path, fs: int = 2000, gain: int = 12, fake: bool = False) -> None:
     rec = Recognizer(model_path, fs, 16)
 
     def on_chunk(uv, _first):
@@ -72,7 +72,16 @@ def run(board: Board, model_path: Path, fs: int = 2000, gain: int = 12) -> None:
     appbus.status("engine streaming")
     print(f"engine: streaming from {board.host}, model {model_path.name}. Ctrl-C to stop.")
     try:
+        if fake:  # emulator: you "articulate" by typing a token name; it injects that token's synthetic EMG
+            names = sorted(rec.mapping)
+            print("fake board: type a token and Enter to articulate it:", " ".join(names))
+            while True:
+                w = input().strip()
+                if w in names:
+                    board.cmd(cmd="sim_cue", label=w)
+                elif w:
+                    print("unknown token; choose from:", " ".join(names))
         while True:
             time.sleep(1)
-    except KeyboardInterrupt:
+    except (KeyboardInterrupt, EOFError):
         board.stop()

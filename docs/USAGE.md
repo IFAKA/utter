@@ -20,3 +20,12 @@ cd app && swift build -c release
 - Live input: `uv run sb engine` sends recognised tokens to the app over UDP 127.0.0.1:47800.
 - Without hardware: `uv run sb keysim --accuracy 0.8` uses the keyboard as a fake sensor with injected errors. `uv run sb fakeboard`, or `--fake` on any command, emulates the board.
 - Gates: `swift run st-gate` (Stage 0 typing gate) and `uv run sb gaddy` (real-EMG benchmark, see ml/README.md).
+
+## Simulation (no hardware)
+See the whole product run live on the board emulator (synthetic EMG; a plumbing demo, not evidence real EMG works):
+1. Signals: `uv run sb scope --fake` opens a live 16-channel view; the emulator articulates a random token every 2.5 s.
+2. Train on synthetic sessions: `uv run sb synth`, then `uv run sb train`.
+3. App: `app/.build/release/SilentTyping --dry-run` (menu-bar; shows text without typing).
+4. Recognizer: `uv run sb engine --fake`. Type a token name (e.g. `kee`) + Enter to "articulate" it; the engine recognizes it and the app turns it into suggestions/text.
+With the real board, drop `--fake` (`sb scope` is also the live view for electrode checks).
+
