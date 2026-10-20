@@ -365,6 +365,7 @@
   .play .cand { font-size:14px; white-space:nowrap; }
   .pstats { display:grid; grid-template-columns:auto 1fr; gap:6px 16px; margin-top:22px; font-size:14px; color:var(--mute); }
   .pstats span:nth-child(odd) { font-weight:600; color:var(--ink); }
+  .pacc { font-size:14px; color:var(--mute); display:flex; gap:8px; align-items:center; cursor:pointer; }
   .pstats b { color:var(--ink); font-weight:600; font-variant-numeric:tabular-nums; }
   .play .more { font-size:12px; color:#86868b; white-space:nowrap; align-self:center; margin-left:2px; }
   .pfield { margin:12px 14px 6px; border:1px solid #d5d5da; border-radius:20px; padding:9px 14px; min-height:42px; font-size:16px; transition:border-color .3s; }
@@ -491,11 +492,11 @@
 <section class="moments gray" id="day">
   <div class="w">
     <h2>A day with Utter.</h2>
-    <p class="lede">What you do, what you hear in your earbud, and what appears on screen.</p>
+    <p class="lede">What you do, what you hear in your earbud, and what appears on screen. Each syllable takes 1.7 s here, a real pace, but the guesses are luckier than today's: measured, Utter types about 4.5 words a minute in everyday chat and 7.5 replying to a coding agent.</p>
 
     <div class="moment">
       <div class="copy"><div class="when">09:40 · In a meeting</div><h3>Reply to Marta.<br>Nobody notices.</h3>
-        <p>Your phone stays face down in your lap. You silently say a few syllables, and the earbud whispers each word before it's typed. Seven syllables, then sent.</p></div>
+        <p>Your phone stays face down in your lap. You silently say a few syllables, and the earbud whispers each word before it's typed. Nine syllables, one misheard and undone, then sent.</p></div>
       <div class="scene" id="s0">
         <div class="env" style="background:linear-gradient(180deg,#6b5a48 0%,#3a3129 45%,#1d1915 100%)">
           <i style="left:8%;top:6%;width:22%;height:36%;background:#2a221b"></i><i style="left:38%;top:2%;width:20%;height:34%;background:#241d17"></i>
@@ -562,7 +563,7 @@
     <div>
       <div class="eyebrow">Try it</div>
       <h2>Your keyboard<br>is the band.</h2>
-      <p class="lede" style="margin-top:20px">Each key stands in for one silent syllable. It's the product's real decoder and word list, running in your browser.</p>
+      <p class="lede" style="margin-top:20px">Each key stands in for one silent syllable. It's the product's real decoder and word list, running in your browser. A key never misses, so the speed below counts each syllable at the band's pace instead of your typing pace.</p>
       <ol class="howto">
         <li><kbd>Space</kbd> <b>ree</b> starts listening.</li>
         <li><kbd>A</kbd> <kbd>S</kbd> <kbd>D</kbd> <kbd>F</kbd> pick the group of each letter: <b>ka</b> abcdef, <b>ta</b> ghijklm, <b>la</b> nopqrs, <b>ga</b> tuvwxyz.</li>
@@ -571,6 +572,7 @@
       <div class="aibox">
         <small>Word guesses come from Utter's own 1.4 MB word model, the same one the app runs offline. It loads with this page and runs on your device.</small>
         <small id="memTxt"></small>
+        <label class="pacc"><input type="checkbox" id="pAcc"> Mishear 1 syllable in 4, like the band does today</label>
         <div class="pstats" id="pStats"></div>
       </div>
     </div>
@@ -746,6 +748,8 @@ const SCRIPTS = [
     steps: [
       {you: "ree", ear: "ready", c: ["yes", "sure", "sorry"]},
       {you: "ya", type: "yes ", ear: "I'm?", c: ["i'm", "see", "will"]},
+      {you: "ta", miss: "la", code: "g–m", ear: "good?", c: ["good", "got", "home"]},
+      {you: "sha", ear: "I'm?", c: ["i'm", "see", "will"]},
       {you: "la", code: "n–s", ear: "really?", c: ["really", "running", "right"]},
       {you: "ga", code: "n–s t–z", ear: "running?", c: ["running", "run", "rush"]},
       {you: "ya", type: "running ", ear: "late?", c: ["late", "behind", "now"]},
@@ -757,7 +761,8 @@ const SCRIPTS = [
       {you: "ree", ear: "ready", c: ["fix", "run", "show"]},
       {you: "ya", type: "fix ", ear: "the?", c: ["the", "it", "this"]},
       {you: "ya", type: "the ", ear: "test?", c: ["test", "login", "bug"]},
-      {you: "ta", code: "g–m", ear: "login?", c: ["login", "lint", "last"]},
+      {you: "ta", code: "g–m", ear: "last?", c: ["last", "login", "lint"]},
+      {you: "na", code: "g–m", sel: 1, ear: "login?", c: ["last", "login", "lint"]},
       {you: "ya", type: "login ", ear: "test?", c: ["test", "page", "flow"]},
       {you: "ya", type: "test", ear: "send?", c: ["⏎ send", "tests", "flow"]},
       {you: "ya", send: true, ear: "sent"},
@@ -774,6 +779,7 @@ const SCRIPTS = [
 const plain = s => s.replace(/[^\w\s?'!.,]/g, "").trim();
 // What each silent syllable did, shown under it in the "You, silently" caption.
 const act = st => st.you === "ree" ? "start listening" : st.send ? "send" : st.type ? `accept “${st.type.trim()}”`
+  : st.miss ? `meant ${st.miss}, the band heard ${st.you}` : st.you === "sha" ? "undo" : st.you === "na" ? `next guess “${st.c[st.sel]}”`
   : st.code ? `one of ${LET[st.you]} → best guess “${st.c[0].slice(0, st.code.split(" ").length)}”` : "";
 const LET = {ka: "abcdef", ta: "ghijklm", la: "nopqrs", ga: "tuvwxyz"};
 // Action suggestions (send) are drawn as actions, not as words.
@@ -803,16 +809,16 @@ function makeMoment(el, S) {
     node.style.opacity = 0;
     C.tween(t, 340, p => { node.style.opacity = p; node.style.transform = `translateY(${(1 - p) * dy}px)`; });
   }
-  function render(c) {
+  function render(c, sel = 0) {
     if (S.kind === "phone") {
       q(".field").innerHTML = typed || comp ? typed + comp + '<span class="caret"></span>'   // like iOS: an empty field shows the caret before the placeholder
         : '<span class="caret" style="margin:0 1px 0 0"></span><span class="ph">iMessage</span>';
-      q(".cands").innerHTML = (c || []).map((w, k) => `<span class="cand ${k ? "" : "sel"}${isAct(w) ? " act" : ""}">${isAct(w) ? "<i>↑</i>Send" : w}</span>`).join("");
+      q(".cands").innerHTML = (c || []).map((w, k) => `<span class="cand ${k === sel ? "sel" : ""}${isAct(w) ? " act" : ""}">${isAct(w) ? "<i>↑</i>Send" : w}</span>`).join("");
       q(".send").style.opacity = typed ? 1 : .3;
       q(".send").classList.toggle("ready", !!c && isAct(c[0]));
     } else {
       q(".tin").innerHTML = typed + comp + '<span class="caret"></span>';
-      q(".tsug").innerHTML = (c || []).map((w, k) => `<span class="s ${k ? "" : "sel"}${isAct(w) ? " act" : ""}">${w}</span>`).join("");
+      q(".tsug").innerHTML = (c || []).map((w, k) => `<span class="s ${k === sel ? "sel" : ""}${isAct(w) ? " act" : ""}">${w}</span>`).join("");
     }
   }
   const bubble = (cls, html, t) => { const d = document.createElement("div"); d.className = "bub " + cls; d.innerHTML = html; q(".msgs").appendChild(d); fadeIn(d, t, 10); return d; };
@@ -843,7 +849,7 @@ function makeMoment(el, S) {
         swap(ear, `“${st.ear}”`, t + 650);
         t += 1200;
       } else {
-        C.at(t + 650, () => { code = st.code || ""; if (st.type) typed += st.type; comp = code ? `<u class="comp">${st.c[0].slice(0, code.split(" ").length)}</u>` : ""; render(st.c); });
+        C.at(t + 650, () => { code = st.code || ""; if (st.type) typed += st.type; comp = code ? `<u class="comp">${st.c[st.sel || 0].slice(0, code.split(" ").length)}</u>` : ""; render(st.c, st.sel); });
         swap(ear, `“${st.ear}”`, t + 650);
         t += STEP;
       }
@@ -1105,6 +1111,9 @@ requestAnimationFrame(frame);
     st.text += s; st.typed.push({s, attach}); st.code = []; refresh(); say(current());
   }
   function act(s) {
+    if (s !== "ree" && st.armed && $("pAcc").checked && Math.random() < .25) {   // the band mishears: another of the 7 syllables
+      const o = PAD.map(p => p[0]).filter(x => x !== s && x !== "ree"); s = o[Math.random() * o.length | 0];
+    }
     const k = play.querySelector(`.pk[data-s="${s}"]`); k.classList.add("hit"); setTimeout(() => k.classList.remove("hit"), 180);
     if (s === "ree") { st.armed = !st.armed; if (st.armed) refresh(); else render(); say(st.armed ? "ready" : "paused"); return; }
     if (!st.armed) return;
@@ -1120,14 +1129,12 @@ requestAnimationFrame(frame);
   }
 
   // Speed: every press costs one syllable on the band; words count when a word (not . or Send) is accepted.
-  const stats = {w: 0, k: 0, ms: 0}; let last = 0;
-  function tally(words) {
-    const m = stats, now = performance.now();
-    if (last) m.ms += Math.min(now - last, 2500); last = now;   // idle pauses don't count
-    m.k++; m.w += words; showStats();
-  }
+  // A syllable takes 1.5 s on a fresh morning (1.4 s window) and 0.9 s once online learning has caught up (0.8 s), as in docs/PLAN.md.
+  const stats = {w: 0, k: 0};
+  function tally(words) { stats.k++; stats.w += words; showStats(); }
   function showStats() {
-    const row = m => m.w ? `<b>${(m.k / m.w).toFixed(1)}</b> syllables per word · <b>${Math.round(m.w / Math.max(m.ms, 1) * 60000)}</b> wpm` : "type a few words";
+    const wpm = (m, s) => Math.round(m.w / (m.k * s) * 60);
+    const row = m => m.w ? `<b>${(m.k / m.w).toFixed(1)}</b> syllables per word · on the band <b>${wpm(m, 1.5)}</b> wpm at first, <b>${wpm(m, .9)}</b> after an hour` : "type a few words";
     $("pStats").innerHTML = `<span>Your speed</span><span>${row(stats)}</span>`;
   }
   showStats(); showMem();
