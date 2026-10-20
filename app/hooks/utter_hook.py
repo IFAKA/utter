@@ -3,7 +3,7 @@
 
 Stop          sends the agent's last reply: the earbud reads its first sentence, and the
               language model predicts your answer from it.
-Notification  sends permission prompts: say "ya" to allow (Return) or "sha" to deny (Escape).
+Notification  sends permission prompts: ACCEPT (ka) allows (Return), BACK (jaw drop) denies (Escape).
 
 Install: see docs/USAGE.md ("Utter with Claude Code")."""
 import json
