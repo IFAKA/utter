@@ -71,6 +71,35 @@ let sentencesES = [
 ]
 
 // (what the agent said, what the user replies)
+// --memory with --reword: later passes ask the same things in other words (written blind to the matcher),
+// so a remembered reply must be found from a differently worded agent message.
+let reworded: [String: String] = [
+    "I found the bug in the session check. Should I fix it?": "Found the cause: the session check skips expired tokens. Want me to patch it?",
+    "The tests are failing in the login module.": "Two login tests broke after the merge.",
+    "I updated three files. Do you want me to run the tests?": "Changes are in. Shall I run the test suite?",
+    "All 24 tests pass.": "Everything is green, 31 of 31 passing.",
+    "Committed. Anything else?": "The commit is done. What next?",
+    "I can refactor this function or add a cache. Which one do you prefer?": "Two options: cache the results or rewrite the loop. Which way?",
+    "The build failed with a type error in the user model.": "Compilation stopped: type mismatch in models/user.ts.",
+    "Here is the plan: add a new endpoint, write tests, then update the docs.": "My plan is to write the migration first, then the API. Sound good?",
+    "Should I also update the documentation?": "Do you want the README changed as well?",
+    "I added logging to the payment service.": "I put print statements in the checkout flow to trace it.",
+    "The query is slow because the email column has no index.": "The users lookup does a full table scan on email.",
+    "Done. The page loads in 200 ms now.": "Fixed, the dashboard renders twice as fast.",
+    "I am not sure what the expected behavior is for an empty list.": "What should happen when the list is empty?",
+    "Do you want me to delete the old migration files?": "Can I remove the unused migrations?",
+    "I renamed the variable in all files.": "The variable now has the new name everywhere.",
+    "What should I work on next?": "I'm done with that task. What's next?",
+    "I wrote a summary of the changes. It is about two pages long.": "Here's a detailed write-up of everything I changed.",
+    "This function has no comments and the logic is hard to follow.": "I don't understand what parse_rows is doing.",
+    "There are two warnings in the console about deprecated options.": "The linter shows some deprecation warnings.",
+    "I created a new branch for the login feature.": "The feature branch is pushed.",
+    "The server returns an error when the input is empty.": "Empty requests crash the handler with a 500.",
+    "Should I add type hints to the whole file?": "Want me to annotate every function with types?",
+    "I can't find the config file.": "Where is the settings file?",
+    "The tests pass but the code coverage dropped to sixty percent.": "Coverage went down after this change.",
+    "Should I continue with the next step of the plan?": "Step two is finished. Move on to step three?",
+]
 let agentPairs: [(String, String)] = [
     ("I found the bug in the session check. Should I fix it?", "yes fix it"),
     ("The tests are failing in the login module.", "fix the login test"),
@@ -99,7 +128,7 @@ let agentPairs: [(String, String)] = [
     ("Should I continue with the next step of the plan?", "yes continue"),
 ]
 
-var lang = "en", useLLM = false, corpus = "chat", useContext = false, usePhrases = false, browse = 0, quick = false, secPerToken = 1.5, nSent = 40, seed: UInt64 = 1, ngramDir = "", keep = 100, learn = false, neuralDir = "", probe: String?, confPath = "", confSet = "adabn", mapping: [String] = [], pMin = 0.0, pAccept = 0.0
+var lang = "en", useLLM = false, corpus = "chat", useContext = false, usePhrases = false, browse = 0, quick = false, secPerToken = 1.5, nSent = 40, seed: UInt64 = 1, ngramDir = "", keep = 100, learn = false, neuralDir = "", probe: String?, confPath = "", confSet = "adabn", mapping: [String] = [], pMin = 0.0, pAccept = 0.0, memPasses = 0, reword = false, pass = 0, noOffers = false, embedOn = false
 var it = CommandLine.arguments.dropFirst().makeIterator()
 while let a = it.next() {
     switch a {
@@ -116,6 +145,10 @@ while let a = it.next() {
     case "--ngram": ngramDir = it.next() ?? ""
     case "--learn": learn = true
     case "--neural": neuralDir = it.next() ?? ""
+    case "--reword": reword = true
+    case "--no-offers": noOffers = true
+    case "--embed": embedOn = true
+    case "--memory": memPasses = Int(it.next() ?? "2") ?? 2
     case "--probe": probe = it.next() ?? ""  // print the predictor's top words for this context and exit
     case "--keep": keep = Int(it.next() ?? "100") ?? 100
     case "--confusions": confPath = it.next() ?? ""  // real recognizer outputs (ml: utter.crossday --dump)
@@ -130,13 +163,14 @@ let items: [(said: String, reply: String)] = corpus == "agent" ? agentPairs.map 
     : (corpus == "fresh" ? sentencesFresh : lang == "es" ? sentencesES : sentencesEN).map { ("", $0) }
 let sentences = Array(items.prefix(nSent))
 let lexicon = Lexicon(language: lang)
-let predictor: Predictor
+var predictor: Predictor
 var ollama: OllamaPredictor?
 var ngram: NgramPredictor?
 if useLLM {
     guard OllamaPredictor.available() else { print("Ollama not running (ollama serve)"); exit(2) }
     ollama = OllamaPredictor(language: lang)
     ollama!.suggestPhrases = usePhrases
+    guard ollama!.warmUp() else { print("Ollama could not load the model"); exit(2) }
     predictor = ollama!
 } else if !neuralDir.isEmpty {
     guard let nn = NeuralPredictor(dir: neuralDir) else { print("no lm.bin / vocab.txt in \(neuralDir)"); exit(2) }
@@ -151,6 +185,11 @@ if useLLM {
 } else {
     predictor = NoPredictor()
 }
+
+// --memory N: wrap the predictor in a reply memory and type the corpus N times; pass 1 measures the cost of
+// wrong offers (only earlier, different replies are remembered), later passes the gain when situations recur.
+var memory: ReplyMemory?
+if memPasses > 0 { memory = ReplyMemory(base: predictor); if noOffers { memory!.maxOffers = 0 }; if embedOn { memory!.embed = { OllamaPredictor.embed($0) } }; predictor = memory! }
 
 if let ctx = probe {
     for (w, lp) in predictor.predict(context: ctx).prefix(5) { print(String(format: "%@ %.4f", w, lp)) }
@@ -246,8 +285,10 @@ func run(p: Double) -> Result {
     var rng = RNG(s: seed)
     var r = Result()
     ngram?.forget()
-    for (said, s) in sentences {
+    for (said0, s) in sentences {
+        let said = reword && pass > 0 ? reworded[said0] ?? said0 : said0
         ollama?.history = useContext && !said.isEmpty ? "Assistant: \(said)\nUser:" : ""
+        memory?.context = said
         let d = Decoder(lexicon: lexicon, predictor: predictor)
         d.quickPick = quick
         var ideal = 0
@@ -269,6 +310,7 @@ func run(p: Double) -> Result {
         }
         if !ok && p == 0.8 { print("  failed at \(conf != nil ? "real" : "80%") (\(n >= budget ? "budget \(budget)" : "stuck")): \(s) | typed \"\(d.text)\" spelling=\(d.spelling ?? "-")") }
         if learn { ngram?.learn(s) }  // the device learns each sentence after it is typed
+        if ok { memory?.remember(s, to: said) }
         if ok { r.done += 1; r.tokens += n; r.words += s.split(separator: " ").count; r.chars += s.count + 1 }
     }
     return r
@@ -281,7 +323,9 @@ var gate = false
 if let c = conf {
     print(String(format: "  real recognizer (%@, %@ set): %.1f%% token accuracy", confPath, confSet, c.accuracy * 100))
 }
-for p in conf != nil ? [0.8] : [1.0, 0.9, 0.8, 0.7, 0.6] {
+for (passIndex, p) in (memPasses > 0 ? Array(repeating: 0.8, count: memPasses) : conf != nil ? [0.8] : [1.0, 0.9, 0.8, 0.7, 0.6]).enumerated() {
+    pass = passIndex
+    if memPasses > 0 { print("  memory pass \(passIndex + 1) (\(memory!.count) replies remembered)") }
     let r = run(p: p)
     let tpw = Double(r.tokens) / Double(max(1, r.words))
     let wpm = 60.0 / (tpw * secPerToken)

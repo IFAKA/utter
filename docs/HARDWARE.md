@@ -7,9 +7,21 @@ User constraints: DIY, Spain (21% IVA, EUR 150 IOSS threshold), cheapest that ke
 - 1-2 kSPS (EMG energy 20-450 Hz).
 - More channels -> cross-day robustness (SilentWear: 77.5% silent, 14 ch, 8 cmds).
 - Software-selectable pairing: record monopolar vs common REF, build bipolar pairs digitally; ML ranks channels -> user wears only best sites later.
-- Electrode layout: SilentWear's neckband (14 ch, dry textile, 77.5% silent within a day). Ours is in ml/utter/neckband.py: 3 x 4 front grid over the infrahyoid strap muscles + 2 per sternocleidomastoid, REF/RLD at C7, 13 bipolar pairs derived in software. First with gel electrodes at those sites (signal ceiling), then a velcro textile band with dry snap electrodes. Gate for the band: within ~5 points of gel.
+- Electrode layout: SilentWear's neckband (14 ch, dry textile, 77.5% silent within a day). Ours is in ml/utter/neckband.py: 3 x 4 front grid over the infrahyoid strap muscles + 2 per sternocleidomastoid, REF/RLD at C7, 13 bipolar pairs derived in software. Everyday wear is the dry fabric band below; gel electrodes are used only once, to measure the signal ceiling. Gate for the band: within ~5 points of gel.
 - Rest-class artefacts (chew/swallow): cheap external IMU near jaw (ExG+IMU 94%/12 cmds, Whispering Wearables 2024).
 - Safety: battery only; firmware blocks acquisition while USB VBUS present.
+
+## Everyday band: dry fabric neckband (decided 2026-10-20)
+Goal: worn all day for coding and chat, put on in under a minute, no gel, no skin prep. Copied from SilentWear's band (the only dry neck band with multi-day silent-speech results), adapted to our layout.
+- Base: a soft, adjustable fabric neckband with a velcro closure (SilentWear modifies a commercial one). Elastic enough to press every electrode on lightly; dry-electrode impedance depends on contact force.
+- Electrodes: Datwyler SoftPulse dry reusable electrodes on snap fasteners sewn into the band, at the 16 sites from ml/utter/neckband.py (3 x 4 front grid + 2 per SCM). Snaps let you replace worn electrodes and wash the band.
+- REF and RLD: 2 shorted electrodes each, side by side at C7 (SilentWear uses 4 shorted grounds), for lower contact impedance on the two most important contacts.
+- Leads: short snap leads from the band to the board in a pod at the back of the neck, next to REF/RLD.
+- Putting it on in the same place every day: a mark that sits under the Adam's apple, and fixed velcro positions. Small shifts are what hurt SilentWear most; our per-day channel normalization, AdaBN and online learning (PLAN.md) absorb part of them, and `utter electrodes` checks every contact when the band goes on.
+- Expectations: dry contacts are noisier for the first minutes and improve as the skin moistens under the band (e-textile impedance falls with sweat). The first sentences of the day go through the stricter 1.4 s window anyway (PLAN.md, 0.8 s window).
+- Care: wipe the electrodes daily, wash the band, take it off for skin breaks.
+- Not yet proven: all-day comfort, and dry vs gel accuracy on our band. Both need the user wearing it (Stage 1 gate above).
+- Sources: SilentWear https://arxiv.org/html/2603.02847 ; dry neckband https://arxiv.org/html/2509.21964 ; e-textile impedance vs force and sweat https://www.ncbi.nlm.nih.gov/pmc/articles/PMC10377293/ ; textile vs gel EMG https://www.ncbi.nlm.nih.gov/pmc/articles/PMC9460933/ ; gold-plated dry necklace https://arxiv.org/pdf/2407.21345
 
 ## Design: "Utter" v1 (designed 2026-10-19, DRC/ERC clean, awaiting independent review + order approval)
 Source of truth: hardware/gen/circuit.py. `hardware/gen/build.sh` regenerates the PCB (scripted placement + FreeRouting), schematic, checks (check.py) and JLC files (out/fab/). Order card: docs/ORDER.md.

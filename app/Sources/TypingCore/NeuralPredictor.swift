@@ -13,6 +13,11 @@ public final class NeuralPredictor: Predictor {
     private var states: [String: (h: [Float], c: [Float])] = [:]
     private var cache: [String: [(word: String, logp: Double)]] = [:]
 
+    /// The chat + coding model shipped with the app (ml/data/lm-code, English only).
+    public static func bundled() -> NeuralPredictor? {
+        Bundle.module.url(forResource: "Resources/lm", withExtension: nil).flatMap { NeuralPredictor(dir: $0.path) }
+    }
+
     public init?(dir: String) {
         guard let d = FileManager.default.contents(atPath: dir + "/lm.bin"),
               let vt = try? String(contentsOfFile: dir + "/vocab.txt", encoding: .utf8),

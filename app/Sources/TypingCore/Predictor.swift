@@ -5,10 +5,13 @@ public protocol Predictor: AnyObject {
     func predict(context: String) -> [(word: String, logp: Double)]
     /// Whole replies to offer before the first word (e.g. answers to an agent's question).
     func phrases() -> [String]
+    /// Rest-of-reply completions for the words typed so far in this sentence (e.g. "yes" -> "run the tests").
+    func completions(of typed: String) -> [String]
 }
 
 public extension Predictor {
     func phrases() -> [String] { [] }
+    func completions(of typed: String) -> [String] { [] }
 }
 
 /// No language model: the lexicon frequency alone ranks candidates.
@@ -35,6 +38,24 @@ public final class OllamaPredictor: Predictor {
         self.timeout = timeout
     }
 
+    /// Keep the model in memory all session: Ollama unloads it after 5 idle minutes, and reloading
+    /// (~6 s) outlasts every 1 s request, which cancels the load, so the LLM silently never answered.
+    let keepAlive = "2h"
+
+    /// Load the model before the first prediction (blocking; the app calls it off the main thread).
+    @discardableResult
+    public func warmUp(timeout: TimeInterval = 60) -> Bool {
+        let body: [String: Any] = ["model": model, "prompt": "", "keep_alive": keepAlive]
+        guard let url = URL(string: "http://127.0.0.1:11434/api/generate"),
+              let data = try? JSONSerialization.data(withJSONObject: body) else { return false }
+        var req = URLRequest(url: url)
+        req.httpMethod = "POST"
+        req.httpBody = data
+        req.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        req.timeoutInterval = timeout
+        return Self.syncRequest(req, timeout: timeout) != nil
+    }
+
     public static func available() -> Bool {
         guard let url = URL(string: "http://127.0.0.1:11434/api/tags") else { return false }
         var req = URLRequest(url: url)
@@ -49,7 +70,7 @@ public final class OllamaPredictor: Predictor {
         let prompt = history.isEmpty ? "Message: " + ctx : history + (ctx.isEmpty ? "" : " " + ctx)
         let body: [String: Any] = ["model": model, "prompt": prompt, "raw": true, "stream": false,
                                    "logprobs": true, "top_logprobs": 20,
-                                   "options": ["temperature": 0, "num_predict": 1]]
+                                   "keep_alive": keepAlive, "options": ["temperature": 0, "num_predict": 1]]
         guard let url = URL(string: "http://127.0.0.1:11434/api/generate"),
               let data = try? JSONSerialization.data(withJSONObject: body) else { return [] }
         var req = URLRequest(url: url)
@@ -78,9 +99,14 @@ public final class OllamaPredictor: Predictor {
     public func phrases() -> [String] {
         guard suggestPhrases, !history.isEmpty else { return [] }
         lock.lock(); if let c = phraseCache[history] { lock.unlock(); return c }; lock.unlock()
-        let ask = "Conversation so far:\n\(history)\n\nWrite 4 different short replies the user is likely to send next " +
-                  "(2 to 7 words each, lowercase, no punctuation), one per line, nothing else."
-        let body: [String: Any] = ["model": model, "prompt": ask, "stream": false, "options": ["temperature": 0, "num_predict": 60]]
+        // A 1B model asked for "short replies" answers "yes / okay / sure"; one worked example makes it
+        // write multi-word replies (~0.2 s). The example is not from the st-gate benchmark.
+        let ask = "Suggest 4 short replies a user might send to their coding assistant.\n\n" +
+                  "Assistant: I added the cache. Want me to benchmark it?\nReplies:\nyes run the benchmark\n" +
+                  "no ship it as is\nshow me the diff first\nbenchmark it against main\n\n" +
+                  history.replacingOccurrences(of: "\nUser:", with: "") + "\nReplies:\n"
+        let body: [String: Any] = ["model": model, "prompt": ask, "raw": true, "stream": false, "keep_alive": keepAlive,
+                                   "options": ["temperature": 0, "num_predict": 40, "stop": ["\n\n"]]]
         guard let url = URL(string: "http://127.0.0.1:11434/api/generate"),
               let data = try? JSONSerialization.data(withJSONObject: body) else { return [] }
         var req = URLRequest(url: url)
@@ -101,6 +127,22 @@ public final class OllamaPredictor: Predictor {
         list = Array(list.prefix(4))
         lock.lock(); phraseCache[history] = list; lock.unlock()
         return list
+    }
+
+    /// Sentence embeddings from a small Ollama embedding model (all-minilm, 46 MB); nil if it is not pulled.
+    public static func embed(_ texts: [String], model: String = "all-minilm", timeout: TimeInterval = 2) -> [[Float]]? {
+        let body: [String: Any] = ["model": model, "input": texts, "keep_alive": "2h"]
+        guard let url = URL(string: "http://127.0.0.1:11434/api/embed"),
+              let data = try? JSONSerialization.data(withJSONObject: body) else { return nil }
+        var req = URLRequest(url: url)
+        req.httpMethod = "POST"
+        req.httpBody = data
+        req.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        req.timeoutInterval = timeout
+        guard let out = syncRequest(req, timeout: timeout),
+              let obj = try? JSONSerialization.jsonObject(with: out) as? [String: Any],
+              let e = obj["embeddings"] as? [[Double]], e.count == texts.count else { return nil }
+        return e.map { $0.map(Float.init) }
     }
 
     static func syncRequest(_ req: URLRequest, timeout: TimeInterval) -> Data? {

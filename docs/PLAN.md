@@ -187,6 +187,79 @@ Leave-one-day-out, mean of 4 subjects. "AdaBN" re-estimates BatchNorm statistics
 - The price is speed: ~16.6 gestures/word on day 1 morning, ~11.6 after an hour of use (≈2.4-3.4 wpm at 1.5 s/gesture). The next speed levers are the 0.8 s window, online learning, and LM quality.
 - Caveats: SilentWear's 8 words are not our tokens (we pick our 8 from ~16 candidates, so confusions should be lower); sampling ignores within-session temporal correlation; rest false-alarms during idle time are not simulated.
 
+### 0.8 s window (2026-10-20, `crossday --window 0.8`)
+Same pipeline (norm + augmentation), 0.8 s windows instead of 1.4 s. Mean of 4 subjects, next day:
+
+| Window | Zero-shot | Top-2 | AdaBN | Online after 4 batches |
+|---|---|---|---|---|
+| 1.4 s | 70.5 | 86.7 | 74.8 | 82.4 |
+| 0.8 s | 66.3 | 84.4 | 69.2 | 75.1 |
+
+st-gate, fresh corpus, 48 sentences x 4 seeds, p-min 0.7, own confusion-aware mapping, 1.5 s/token (1.4 s) vs 0.9 s/token (0.8 s):
+
+| Condition | Window | Sentences typed | Gestures/word | wpm |
+|---|---|---|---|---|
+| Next day + AdaBN | 1.4 s | 192/192 | 16.8 | 2.4 |
+| Next day + AdaBN | 0.8 s | 180/192 (fails gate) | 23.7 | 2.8 |
+| After online learning | 1.4 s | 191/192 | 11.6 | 3.4 |
+| After online learning | 0.8 s | **192/192** | 14.8 | **4.5** |
+
+- Shorter windows are less accurate (-4 to -7 points), so each word needs more gestures, but each gesture is ~40% faster, so the net is faster.
+- On a fresh morning, 0.8 s fails the gate (180/192); raising p-min to 0.75/0.8 makes it worse (175/138 of 192).
+- After online learning, 0.8 s passes and is ~1/3 faster (4.5 vs 3.4 wpm).
+- **Decision: adaptive window.** Start each session at 1.4 s; switch to 0.8 s once online learning has caught up (about an hour of use / when confirmed-token accuracy is above ~75%). Untested assumption: 0.1 s overhead per token on top of the window.
+
+### Word prediction for chat + coding (2026-10-20, `ml/data/lm-code`)
+Same LSTM (1.44 MB int8), retrained on 463k plain-English sentences from coding requests (m-a-p/CodeFeedback-Filtered-Instruction user queries, Apache-2.0; code lines dropped) + SODA chat up to 2M sentences. Val ppl 22 (mixed text; the chat-only model's 17 is on easier text). st-gate with real next-day errors (1.4 s, AdaBN, p-min 0.7), 4 seeds, gestures/word:
+
+| Corpus | No prediction | Chat LSTM (`data/lm`) | Chat + coding LSTM (`data/lm-code`) |
+|---|---|---|---|
+| Fresh everyday sentences (40) | 15.6 | 14.1 | **13.6** |
+| Replies to a coding agent (25) | 19.0 | 18.3 (2 sentences failed) | **15.4** (all typed) |
+
+- Coding replies need 16% fewer gestures with the new model, and everyday chat does not get worse. Use `data/lm-code` as the on-device model.
+- Bug found and fixed: Ollama unloads the model after 5 idle minutes; reloading (~6 s) outlasted every 1 s request and was cancelled with it, so the LLM silently returned nothing. `OllamaPredictor.warmUp()` + `keep_alive` 2h (app and st-gate).
+
+### Replying to a coding agent with real errors (2026-10-20, `st-gate --corpus agent`)
+25 replies to agent messages, 4 seeds, real recognizer outputs. "Morning" = next day + AdaBN, 1.4 s window, 1.5 s/token. "Learned" = after online learning, 0.8 s window, 0.9 s/token.
+
+| Predictor | Morning: gestures/word, wpm | Learned: gestures/word, wpm |
+|---|---|---|
+| Dictionary only | 19.0, 2.1 | 17.1, 3.9 |
+| On-device chat+coding LSTM | 15.2, 2.6 | 14.0, 4.8 |
+| LLM (gemma3:1b), no context | 16.0, 2.5 | 13.6, 4.9 |
+| LLM reads the agent's message | **10.6, 3.8** | **8.9, 7.5** |
+| + whole-reply suggestions | 10.6, 3.8 | 8.8, 7.6 |
+
+- The biggest lever is letting the LLM read what the agent said: about 40% fewer gestures than without context. With the 0.8 s window after learning, this reaches ~7.5 wpm, inside the 5-9 wpm range of one-key scanning keyboards (MacKenzie 2009).
+- Whole-reply suggestions add almost nothing with gemma3:1b: they matched the exact reply only 2/25 times (often close: "create a pull request" for "open a pull request"). Before the fix below they never appeared at all: the 1B model answered "yes / okay / sure". `phrases()` now uses a one-example prompt that yields real multi-word replies in ~0.2 s.
+- Next levers for replies: (1) remember the user's own past replies as phrase candidates ("go ahead", "commit the changes" repeat in real use; Tanaka-Ishii 2002's user corpus); (2) a larger local model for phrases; (3) accept the shared start of a near-miss phrase. (1) needs real use to measure.
+
+### Reply memory and the offline word model (2026-10-20)
+- Offline: the app now ships the chat + coding LSTM (`TypingCore/Resources/lm`, `NeuralPredictor.bundled()`). Without Ollama it predicts with that instead of nothing (19.0 -> 15.2 gestures/word on agent replies, morning). English only; Spanish still falls back to no prediction.
+- Reply memory (`ReplyMemory.swift`) wraps any predictor and saves every sent reply with the agent message it answered (`~/Library/Application Support/Utter/replies.jsonl`, local only). It offers them two ways:
+  - whole, before the first word, when the agent's message shares enough content words (Jaccard >= 0.25) with one you answered before;
+  - as the rest of the reply once you've typed its first words ("yes" -> "run the tests"), placed second so a wrong one costs at most one NEXT.
+- Measured with `st-gate --corpus agent --memory 2 [--reword] [--no-offers]`, real recognizer errors, mean of seeds 1-2, gestures/word:
+
+| | New user (pass 1) | Same questions again | Same questions, other words | Other words, memory off |
+|---|---|---|---|---|
+| Offline LSTM, morning | 15.2 | 1.0 | **13.5** | 15.2 |
+| Offline LSTM, after learning | 14.0 | 1.0 | **12.0** | 14.0 |
+| LLM + context, morning | 10.3 | 1.1 | **11.6** | 11.9 |
+| LLM + context, after learning | 9.0 | 0.9 | **9.9** | 10.3 |
+
+- In simple words: memory never costs a new user anything (pass 1 is identical to no memory). An identical question makes a remembered reply almost free. When the agent asks the same thing in other words, the memory rarely matches the whole message (word overlap is weak for rewordings), but the completions after the first word still save 5-14%.
+- Rewordings, filled: like Smart Reply, the memory now also compares agent messages by meaning, with a small sentence-embedding model through Ollama (`all-minilm`, 46 MB, English; `ReplyMemory.embed`, `st-gate --embed`). Similarity is the larger of word overlap and cosine - 0.2, so one threshold serves both. On the 25 rewordings, the closest stored message by cosine is the right one 24 times (word overlap: almost never). At cosine >= 0.45, 20 of 25 are offered, with 1 wrong offer; when the reply was never remembered, 2 of 25 get a wrong offer (it costs one NEXT).
+
+| LLM + context, other words | Memory, word overlap | Memory + embeddings |
+|---|---|---|
+| Morning | 11.3 | **5.7** |
+| After learning | 10.1 | **4.7** (~15 wpm) |
+
+- In simple words: when the agent asks the same thing in other words, your old reply now usually shows up anyway, which halves the work. Caveats: the 0.45 threshold was picked on these same 25 rewordings, so the real gain will be somewhat lower; and with hundreds of remembered replies, wrong offers will be more common than here. Embeddings need Ollama (they are off with the offline model and in the demo). How often a real user repeats replies decides how much any of this is worth: only daily use can tell.
+- The demo site (`docs/demo.html`) now runs the same offline model in the browser (`assets/lm.js`, identical predictions to the Swift one) without the 137 MB download, and the same reply memory in `localStorage`, with a "Forget" link.
+
 ## What we took from pulp-bio (2026-10-20)
 Reviewed: SilentWear (dataset + code), BioGAP-Ultra hardware (the SilentWear system diagram), TinyProbe, BioFoundation.
 - **SilentWear dataset: used.** It is the only open silent-speech EMG set with several days per subject, so it lets us test cross-day recognition before ordering hardware (results above).
@@ -211,3 +284,7 @@ Open gaps (empirical, need the bench, not more reading):
 1. How much bigram or tiny-neural scoring closes the dictionary-vs-LLM gap in `st-gate` (target: within ~15% of LLM gestures/word).
 2. Whether a 1-2 MB int8 scorer meets the flash and latency budget on the S3 (target: under 100 ms per word).
 3. Multi-host bonding and iOS/Android/Windows behavior of the HID keyboard on real hardware.
+
+## Prior art on few-input text entry (2026-10-20)
+- Tanaka-Ishii, Inutsuka, Takeichi, "Entering Text with A Four-Button Device", COLING 2002 (C02-1149): 4 letter-group buttons, candidates ranked by a PPM language model, adapted with a small user corpus; one user reached 23 wpm. Supports our user-adaptive word list (train on the user's chat and coding text). PPM is a cheap alternative to the neural scorer if needed.
+- MacKenzie, "The One-Key Challenge", ASSETS 2009: scanning ambiguous keyboard with one switch, 5.11 wpm average (7.03 error-free), 9.28 wpm for one practiced user. A realistic 5-9 wpm target for very few inputs; also notes the unstable candidate display while typing and that ~95% of English words are unambiguous on a T9 keypad.

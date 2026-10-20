@@ -573,7 +573,8 @@
       </ol>
       <div class="aibox">
         <button id="aiBtn" type="button">Turn on AI predictions</button>
-        <small id="aiTxt">Guesses the next word from the conversation. Downloads a small model once (137 MB); it runs on your device.</small>
+        <small id="aiTxt">A 1.4 MB word model already guesses your next word. The AI also reads the message you're replying to. It downloads once (137 MB) and runs on your device.</small>
+        <small id="memTxt"></small>
         <div class="pstats" id="pStats"></div>
       </div>
     </div>
@@ -985,6 +986,7 @@ function frame(now) {
 requestAnimationFrame(frame);
 </script>
 <script src="assets/words_en.js"></script>
+<script src="assets/lm.js"></script>
 <script>
 /* ---------------- playground: the real decoder (app/Sources/TypingCore/Decoder.swift), ported ---------------- */
 (() => {
@@ -1005,6 +1007,43 @@ requestAnimationFrame(frame);
       if (exact.length >= limit) break;
     }
     return exact.concat(longer).slice(0, limit);
+  }
+
+  /* built-in word model (assets/lm.js, the app's offline model), loaded with the page */
+  let small = null;
+  UtterLM("assets/lm/").then(m => { small = m; refresh(); }).catch(() => {});
+
+  /* reply memory (app/Sources/TypingCore/ReplyMemory.swift), ported: replies you send are kept in this browser
+     and offered again, whole when the message resembles one you answered, or as the rest of the reply once
+     you've typed its first words */
+  const mem = (() => {
+    const KEY = "utter-replies"; let items = [];
+    try { items = JSON.parse(localStorage.getItem(KEY) || "[]"); } catch (_) {}
+    const STOP = new Set("the a an to of and or i you it is in on for this that with be me do should want can will would now".split(" "));
+    const words = s => new Set(s.toLowerCase().split(/[^\p{L}\p{N}]+/u).filter(w => w && !STOP.has(w)));
+    const sim = (a, b) => { if (!a.size || !b.size) return 0; let n = 0; for (const w of a) if (b.has(w)) n++; return n / (a.size + b.size - n); };
+    const norm = s => s.toLowerCase().split(/\s+/).filter(Boolean).join(" ");
+    const save = () => { try { localStorage.setItem(KEY, JSON.stringify(items)); } catch (_) {} };
+    const best = sc => [...sc].sort((a, b) => b[1] - a[1] || (a[0] < b[0] ? -1 : 1)).slice(0, 2).map(x => x[0]);
+    return {
+      get count() { return items.length; },
+      remember(reply, agent) { const r = norm(reply); if (r.includes(" ")) { items.push({agent, reply: r}); items = items.slice(-500); save(); } },
+      forget() { items = []; save(); },
+      offers(agent) {   // whole replies, only for a close enough match: a wrong offer costs a syllable
+        const now = words(agent), sc = new Map();
+        for (const it of items) { const v = sim(now, words(it.agent)), o = sc.get(it.reply) || {s: 0, n: 0}; sc.set(it.reply, {s: Math.max(o.s, v), n: o.n + 1}); }
+        return best(new Map([...sc].filter(([, v]) => v.s >= .25).map(([r, v]) => [r, v.s + .05 * Math.log(v.n)])));
+      },
+      completions(typed, agent) {   // the rest of remembered replies that start with the typed words
+        const t = norm(typed), now = words(agent), sc = new Map(); if (!t) return [];
+        for (const it of items) if (it.reply.startsWith(t + " ")) { const k = it.reply.slice(t.length + 1); sc.set(k, (sc.get(k) || 0) + .2 + sim(now, words(it.agent))); }
+        return best(sc);
+      }
+    };
+  })();
+  function showMem() {
+    $("memTxt").innerHTML = mem.count ? `Remembers ${mem.count} repl${mem.count === 1 ? "y" : "ies"} you sent, to offer again. Only in this browser. <a href="#" id="memClr">Forget</a>` : "Replies you send are remembered in this browser and offered again.";
+    const a = $("memClr"); if (a) a.onclick = e => { e.preventDefault(); mem.forget(); showMem(); refresh(); };
   }
 
   /* optional language model, Transformers.js + SmolLM2-135M, loaded only on request */
@@ -1044,8 +1083,13 @@ requestAnimationFrame(frame);
     if (!st.code.length) {
       let c = preds.map(p => p.word).filter(w => known.has(w));
       if (/[.?!]\s*$/.test(st.text)) c = ["⏎"].concat(c.slice(0, 4));   // sentence already ended: offer Send, never a second period
-      else if (st.text.trim()) c = c.slice(0, 3).concat([".", "⏎"]);    // Send always fits on the visible row
-      else c = c.slice(0, 12);
+      else if (st.text.trim()) {   // Send always fits on the visible row; remembered endings come second
+        const comp = mem.completions(sentence(), pIn.value).filter(x => !c.includes(x));
+        c = c.slice(0, 1).concat(comp, c.slice(1, 3), [".", "⏎"]);
+      } else {
+        const ph = mem.offers(pIn.value);
+        c = (ph.length ? ph.slice(0, 1).concat(c.slice(0, 1), ph.slice(1), c.slice(1)) : c).slice(0, 12);
+      }
       st.cands = c; return;
     }
     const backoff = z => (z - 9) * 2.302585 - 1.5, score = new Map();
@@ -1055,7 +1099,8 @@ requestAnimationFrame(frame);
   }
   let seq = 0;
   function refresh() {
-    st.index = 0; st.preds = lm ? (cache.get(prompt()) || []) : []; compute(); render();
+    const local = () => small ? small.predict(sentence()) : [];   // until the AI answers, and when it's off
+    st.index = 0; st.preds = lm ? (cache.get(prompt()) || local()) : local(); compute(); render();
     if (lm && !cache.has(prompt())) {
       const my = ++seq, p = prompt();
       predict(p, !sentence().trim()).then(() => { if (my === seq && p === prompt()) { st.preds = cache.get(p); compute(); render(); say(current()); } });
@@ -1085,7 +1130,7 @@ requestAnimationFrame(frame);
 
   function accept() {
     const w = current(); if (!w) return;
-    if (w === "⏎") { bubble("out", st.text.trim()); st.text = ""; st.typed = []; st.code = []; refresh(); say("sent"); return; }
+    if (w === "⏎") { bubble("out", st.text.trim()); mem.remember(st.text.trim(), pIn.value.trim()); showMem(); st.text = ""; st.typed = []; st.code = []; refresh(); say("sent"); return; }
     const s = w === "." ? ". " : w + " ", attach = w === "." && st.text.endsWith(" ");
     if (attach) st.text = st.text.slice(0, -1);
     st.text += s; st.typed.push({s, attach}); st.code = []; refresh(); say(current());
@@ -1094,7 +1139,7 @@ requestAnimationFrame(frame);
     const k = play.querySelector(`.pk[data-s="${s}"]`); k.classList.add("hit"); setTimeout(() => k.classList.remove("hit"), 180);
     if (s === "ree") { st.armed = !st.armed; if (st.armed) refresh(); else render(); say(st.armed ? "ready" : "paused"); return; }
     if (!st.armed) return;
-    const cw = current(); tally(s === "ya" && cw && cw !== "." && cw !== "⏎");
+    const cw = current(); tally(s === "ya" && cw && cw !== "." && cw !== "⏎" ? cw.split(" ").length : 0);
     if (GROUPS[["ka", "ta", "la", "ga"].indexOf(s)]) { st.code.push(["ka", "ta", "la", "ga"].indexOf(s)); refresh(); }
     else if (s === "na") { if (st.cands.length) st.index = (st.index + 1) % st.cands.length; render(); }
     else if (s === "ya") return accept();
@@ -1107,16 +1152,16 @@ requestAnimationFrame(frame);
 
   // Speed: every press costs one syllable on the band; words count when a word (not . or Send) is accepted.
   const stats = {off: {w: 0, k: 0, ms: 0}, on: {w: 0, k: 0, ms: 0}}; let last = 0;
-  function tally(word) {
+  function tally(words) {
     const m = stats[lm ? "on" : "off"], now = performance.now();
     if (last) m.ms += Math.min(now - last, 2500); last = now;   // idle pauses don't count
-    m.k++; if (word) m.w++; showStats();
+    m.k++; m.w += words; showStats();
   }
   function showStats() {
     const row = m => m.w ? `<b>${(m.k / m.w).toFixed(1)}</b> syllables per word · <b>${Math.round(m.w / Math.max(m.ms, 1) * 60000)}</b> wpm` : "type a few words";
-    $("pStats").innerHTML = `<span>AI off</span><span>${row(stats.off)}</span><span>AI on</span><span>${lm ? row(stats.on) : "turn it on to compare"}</span>`;
+    $("pStats").innerHTML = `<span>Built-in model</span><span>${row(stats.off)}</span><span>AI on</span><span>${lm ? row(stats.on) : "turn it on to compare"}</span>`;
   }
-  showStats();
+  showStats(); showMem();
 
   // Keep the whole phone inside the viewport, below the sticky nav.
   const fit = () => { play.style.zoom = matchMedia("(max-width: 900px)").matches ? "" : Math.min(.8, (innerHeight - document.querySelector("nav").offsetHeight - 140) / 844); };

@@ -78,7 +78,11 @@ public final class Decoder {
                     c = head + Array(ph.dropFirst()) + Array(c.dropFirst())
                 }
             }
-            if !context.trimmingCharacters(in: .whitespaces).isEmpty { c += [".", Self.newline] }
+            if !context.trimmingCharacters(in: .whitespaces).isEmpty {
+                // Remembered replies that start with what was typed: second, so a wrong one costs at most one NEXT.
+                let comp = predictor.completions(of: context).filter { !c.contains($0) }
+                c = Array(c.prefix(1)) + comp + Array(c.dropFirst()) + [".", Self.newline]
+            }
             candidates = Array(c.prefix(14))
             return
         }
