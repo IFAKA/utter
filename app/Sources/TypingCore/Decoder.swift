@@ -28,6 +28,15 @@ public final class Decoder {
     let predictor: Predictor
     public static let newline = "⏎"
     public var quickPick = false
+    /// Words typed through the speller, offered like lexicon words from then on (personal vocabulary).
+    public private(set) var learned: [String: [Int]] = [:]
+    lazy var speller = Speller(lexicon: lexicon)
+    /// Letter mode, entered by accepting `spellMarker` (the last candidate): the word so far, one letter per
+    /// group token; NEXT swaps the last letter for the next likeliest in its group, BACK deletes a letter
+    /// (or leaves the mode), ACCEPT types the word and learns it.
+    public private(set) var spelling: String?
+    private var letterRank = 0
+    public static let spellMarker = "✎"
 
     public init(lexicon: Lexicon, predictor: Predictor = NoPredictor(), armed: Bool = false) {
         self.lexicon = lexicon
@@ -44,7 +53,7 @@ public final class Decoder {
         refresh()
     }
 
-    public var current: String? { candidates.isEmpty ? nil : candidates[index % candidates.count] }
+    public var current: String? { spelling ?? (candidates.isEmpty ? nil : candidates[index % candidates.count]) }
 
     /// Current sentence (text after the last sentence end), the LLM context.
     var context: String {
@@ -77,13 +86,19 @@ public final class Decoder {
         for e in lexicon.matches(code) {
             score[e.word] = (lm[e.word] ?? backoff(e.zipf)) + (e.code.count == code.count ? 1.5 : 0)
         }
+        for (w, c) in learned where score[w] == nil && c.count >= code.count && Array(c.prefix(code.count)) == code {
+            score[w] = (lm[w] ?? backoff(4)) + (c.count == code.count ? 1.5 : 0)
+        }
         for (w, lp) in preds where score[w] == nil {
             let c = LetterGroups.code(w)
             if c.count >= code.count, Array(c.prefix(code.count)) == code {
                 score[w] = lp + (c.count == code.count ? 1.5 : 0)
             }
         }
-        candidates = score.sorted { $0.value != $1.value ? $0.value > $1.value : $0.key < $1.key }.prefix(20).map(\.key)
+        let ranked = score.sorted { $0.value != $1.value ? $0.value > $1.value : $0.key < $1.key }.map(\.key)
+        // Top 20, then every remaining exact-length match, so no lexicon word is unreachable.
+        let top = ranked.prefix(20)
+        candidates = Array(top) + ranked.dropFirst(20).filter { LetterGroups.code($0).count == code.count } + [Self.spellMarker]
     }
 
     @discardableResult
@@ -94,6 +109,7 @@ public final class Decoder {
             return [.earcon(a), .speak(armed ? "ready" : "paused")]
         }
         guard armed else { return [] }
+        if spelling != nil { return [.earcon(a)] + letter(a) }
         var out: [Output] = [.earcon(a)]
         switch a {
         case .g1, .g2, .g3, .g4:
@@ -124,12 +140,57 @@ public final class Decoder {
         case .wake:
             break
         }
-        if let c = current { out.append(.speak(c == Self.newline ? "new line" : (c == "." ? "period" : c))) }
+        if let c = current, spelling == nil { out.append(.speak(c == Self.newline ? "new line" : (c == "." ? "period" : (c == Self.spellMarker ? "spell" : c)))) }
         return out
+    }
+
+    private func letter(_ a: Action) -> [Output] {
+        guard var s = spelling else { return [] }
+        switch a {
+        case .g1, .g2, .g3, .g4:
+            s.append(speller.letters(a.group!, after: s)[0])
+            letterRank = 0
+        case .next:
+            if let l = s.last, let g = LetterGroups.group(of: l) {
+                s.removeLast()
+                let ls = speller.letters(g, after: s)
+                letterRank = (letterRank + 1) % ls.count
+                s.append(ls[letterRank])
+            }
+        case .back:
+            if s.isEmpty {
+                spelling = nil
+                refresh()
+                return [.speak("words")]
+            }
+            s.removeLast()
+            if let l = s.last, let g = LetterGroups.group(of: l) {
+                letterRank = speller.letters(g, after: String(s.dropLast())).firstIndex(of: l) ?? 0
+            }
+        case .accept:
+            spelling = nil
+            if s.isEmpty {
+                refresh()
+                return [.speak("words")]
+            }
+            candidates = [s]
+            index = 0
+            return accept()
+        case .wake:
+            break
+        }
+        spelling = s
+        return [.speak(s.last.map(String.init) ?? "spell")]
     }
 
     private func accept() -> [Output] {
         guard let w = current else { return [] }
+        if w == Self.spellMarker {
+            spelling = ""
+            code = []
+            candidates = []
+            return [.speak("spell")]
+        }
         var out: [Output] = []
         let s = w == Self.newline ? "\n" : (w == "." ? ". " : w + " ")
         let attach = w == "." && text.hasSuffix(" ")  // attach the period to the previous word
@@ -139,6 +200,7 @@ public final class Decoder {
         }
         text += s
         typedWords.append((s, attach))
+        if !w.contains(" ") && w != "." && w != Self.newline && !lexicon.contains(w) && learned[w] == nil { learned[w] = LetterGroups.code(w) }
         out.append(.type(s))
         code = []
         refresh()

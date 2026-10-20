@@ -76,9 +76,10 @@ def cmd_synth(args):
 
 
 def cmd_train(args):
-    from . import dataset, train
+    from . import dataset, neckband, train
     paths = _sessions(args.sessions)
-    t = dataset.load_trials(paths)
+    pairs = neckband.PAIRS if all(json.loads((p / "meta.json").read_text())["nch"] == 16 for p in paths) else None
+    t = dataset.load_trials(paths, pairs)
     tok = P.load_tokens()
     rep: dict = {"sessions": [str(p) for p in paths], "n_trials": int(len(t.y)),
                  "per_class": {str(k): int(v) for k, v in zip(*np.unique(t.y, return_counts=True))}}
@@ -88,15 +89,15 @@ def cmd_train(args):
         rep["cross_day_calibrated_3"] = train.cross_day_calibrated(t, 3, args.model)
     keep, acc = train.pick_tokens(t, 8, args.model)
     rep["kept_tokens"], rep["kept_accuracy"] = keep, acc
-    mapping = dict(zip(keep, tok["actions"]))
-    rep["mapping"] = mapping
     m = np.isin(t.y, keep + ["rest"])
     sub = dataset.Trials(t.X[m], t.y[m], t.group[m], t.day[m], t.raw_label[m])
     labels, cm = train.confusion(sub, args.model)
+    mapping = train.assign_actions(labels, cm, tok["actions"])
+    rep["mapping"] = mapping
     rep["confusion"] = {"labels": labels, "matrix": cm.tolist()}
     if args.rank:
-        rep["channel_rank"] = train.rank_channels(sub, 16, args.model, max_ch=args.rank)
-    path = train.fit_save(sub, args.name, {"mapping": mapping, "model": args.model, "fs": 2000}, args.model)
+        rep["channel_rank"] = train.rank_channels(sub, 16, args.model, max_ch=args.rank, pairs=pairs)
+    path = train.fit_save(sub, args.name, {"mapping": mapping, "model": args.model, "fs": 2000, "pairs": pairs or []}, args.model)
     print(json.dumps({k: v for k, v in rep.items() if k != "confusion"}, indent=1, default=float))
     gate = "PASS" if acc > 0.8 else "FAIL"
     print(f"\nStage 2 gate (>80% on kept tokens incl. rest): {acc:.1%} -> {gate}\nmodel: {path}")

@@ -62,7 +62,8 @@ public final class Lexicon: @unchecked Sendable {
         }
     }
 
-    public func contains(_ word: String) -> Bool { entries.contains { $0.word == word } }
+    private lazy var words = Set(entries.map(\.word))
+    public func contains(_ word: String) -> Bool { words.contains(word) }
 
     public func zipf(_ word: String) -> Double? { entries.first { $0.word == word }?.zipf }
 

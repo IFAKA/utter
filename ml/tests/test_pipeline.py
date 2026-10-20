@@ -62,3 +62,19 @@ def test_fakeboard_over_udp():
     assert b.lost == 0
     assert b.last(1.0).shape == (2000, 16)
 
+
+
+def test_neckband_pairs_rank():
+    from utter import dsp, neckband
+    assert len(neckband.SITES) == 16 and len(set(neckband.PAIRS)) == len(neckband.PAIRS)
+    assert all(0 <= i < 16 and 0 <= j < 16 for i, j in neckband.PAIRS)
+    seg = np.random.default_rng(0).standard_normal((2000, 16))
+    assert len(dsp.features(seg, 2000, neckband.PAIRS)) == len(dsp.feature_names(16, neckband.PAIRS))
+
+
+def test_assign_actions_keeps_confused_pair_off_accept():
+    labels = ["a", "b", "c", "d", "e", "f", "g", "h", "rest"]
+    cm = np.eye(9) * 90 + 1
+    cm[0, 1] = cm[1, 0] = 40  # a and b are often confused
+    m = train.assign_actions(labels, cm, ["G1", "G2", "G3", "G4", "NEXT", "ACCEPT", "BACK", "WAKE"])
+    assert "ACCEPT" not in (m["a"], m["b"]) and "NEXT" not in (m["a"], m["b"])

@@ -7,6 +7,7 @@ User constraints: DIY, Spain (21% IVA, EUR 150 IOSS threshold), cheapest that ke
 - 1-2 kSPS (EMG energy 20-450 Hz).
 - More channels -> cross-day robustness (SilentWear: 77.5% silent, 14 ch, 8 cmds).
 - Software-selectable pairing: record monopolar vs common REF, build bipolar pairs digitally; ML ranks channels -> user wears only best sites later.
+- Electrode layout: SilentWear's neckband (14 ch, dry textile, 77.5% silent within a day). Ours is in ml/utter/neckband.py: 3 x 4 front grid over the infrahyoid strap muscles + 2 per sternocleidomastoid, REF/RLD at C7, 13 bipolar pairs derived in software. First with gel electrodes at those sites (signal ceiling), then a velcro textile band with dry snap electrodes. Gate for the band: within ~5 points of gel.
 - Rest-class artefacts (chew/swallow): cheap external IMU near jaw (ExG+IMU 94%/12 cmds, Whispering Wearables 2024).
 - Safety: battery only; firmware blocks acquisition while USB VBUS present.
 

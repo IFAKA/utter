@@ -12,7 +12,7 @@ from .stream import Board
 
 
 class Recognizer:
-    def __init__(self, model_path: Path, fs: int, nch: int, p_min: float = 0.6, refractory_s: float = 0.5):
+    def __init__(self, model_path: Path, fs: int, nch: int, p_min: float = 0.7, refractory_s: float = 0.5):
         bundle = joblib.load(model_path)
         self.model, self.meta = bundle["model"], bundle["meta"]
         self.mapping = self.meta.get("mapping") or P.load_tokens()["mapping"]

@@ -13,7 +13,7 @@ from rich.console import Console
 from rich.live import Live
 from rich.table import Table
 
-from . import dsp
+from . import dsp, neckband
 from .stream import Board, discover
 
 REPO = Path(__file__).resolve().parents[2]
@@ -205,11 +205,11 @@ def electrodes(board: Board, channels: list[int] | None = None, fs: int = 2000) 
                     continue
                 q = quality(x, fs, *board.leadoff)
                 t = Table(title="Electrode contact")
-                for col in ("ch", "state", "EMG rms uV", "50 Hz uV"):
+                for col in ("ch", "site", "state", "EMG rms uV", "50 Hz uV"):
                     t.add_column(col)
                 for c in chans:
                     st, rms, hum = q[c]
-                    t.add_row(str(c + 1), f"[{color[st]}]{st}[/]", f"{rms:.1f}", f"{hum:.1f}")
+                    t.add_row(str(c + 1), neckband.SITES[c + 1][0], f"[{color[st]}]{st}[/]", f"{rms:.1f}", f"{hum:.1f}")
                 live.update(t)
                 if all(q[c][0] == "good" for c in chans):
                     good_since = good_since or time.time()

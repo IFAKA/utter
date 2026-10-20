@@ -88,6 +88,41 @@ def confusion(t: Trials, model="lda"):
     return labels, confusion_matrix(t.y, pred, labels=labels)
 
 
+# Cost (in extra gestures, roughly) of the decoder receiving action `got` when the user meant `want`:
+# a wrong group is undone with one BACK, a false ACCEPT types a wrong word (delete + retype), and so on.
+def _confusion_cost(want: str, got: str) -> float:
+    if want == got:
+        return 0.0
+    if want[0] == "G" and got[0] == "G":
+        return 1.5
+    return {"ACCEPT": 6.0, "NEXT": 2.5, "BACK": 2.0, "WAKE": 3.0}.get(got, 2.0)
+
+
+# Rough share of each action while typing (groups dominate), from the st-gate token mix.
+ACTION_USE = {"G1": .15, "G2": .15, "G3": .15, "G4": .15, "NEXT": .12, "ACCEPT": .18, "BACK": .06, "WAKE": .04}
+
+
+def assign_actions(labels: list[str], cm: np.ndarray, actions: list[str]) -> dict[str, str]:
+    """Token -> action with the lowest expected confusion cost. On SilentWear's real next-day errors the
+    alphabetical mapping put the most-confused pair (start/stop) on ACCEPT/BACK; the best mapping lifted
+    st-gate from 40-41 to 44/48 sentences."""
+    import itertools
+
+    toks = [l for l in labels if l != "rest"]
+    P = cm / np.maximum(1, cm.sum(1, keepdims=True))
+    ix = {l: i for i, l in enumerate(labels)}
+    miss = P[:, ix["rest"]] if "rest" in ix else np.zeros(len(labels))
+    C = np.array([[_confusion_cost(a, b) for b in actions] for a in actions])
+    use = np.array([ACTION_USE.get(a, 1 / len(actions)) for a in actions])
+    best = None
+    for perm in itertools.permutations(toks, len(actions)):
+        m = [ix[t] for t in perm]
+        e = float((use * ((P[np.ix_(m, m)] * C).sum(1) + miss[m])).sum())
+        if best is None or e < best[0]:
+            best = (e, perm)
+    return dict(zip(best[1], actions))
+
+
 def pick_tokens(t: Trials, n_keep: int = 8, model="lda") -> tuple[list[str], float]:
     """Greedily drop the most-confused candidate until n_keep remain (rest always kept)."""
     keep = [l for l in np.unique(t.y) if l != "rest"]
@@ -103,17 +138,18 @@ def pick_tokens(t: Trials, n_keep: int = 8, model="lda") -> tuple[list[str], flo
     return [str(k) for k in keep], float(np.trace(cm) / cm.sum())
 
 
-def rank_channels(t: Trials, nch: int, model="lda", max_ch: int | None = None) -> list[tuple[int, float]]:
-    """Greedy forward channel selection by cross-session (or CV) accuracy."""
-    names = dsp.feature_names(nch)
-    ch_of = np.array([int(dsp.channel_of(n)[2:]) - 1 for n in names])
+def rank_channels(t: Trials, nch: int, model="lda", max_ch: int | None = None,
+                  pairs: list[tuple[int, int]] | None = None) -> list[tuple[int, float]]:
+    """Greedy forward electrode selection by cross-session (or CV) accuracy; a pair's features count once
+    both of its electrodes are chosen."""
+    elec = [{int(c[2:]) - 1 for c in dsp.channel_of(n).split("-")} for n in dsp.feature_names(nch, pairs)]
     chosen, out = [], []
     for _ in range(max_ch or nch):
         best = None
         for c in range(nch):
             if c in chosen:
                 continue
-            cols = np.isin(ch_of, chosen + [c])
+            cols = np.array([e <= {*chosen, c} for e in elec])
             sub = Trials(t.X[:, cols], t.y, t.group, t.day, t.raw_label)
             labels, cm = confusion(sub, model)
             acc = np.trace(cm) / cm.sum()

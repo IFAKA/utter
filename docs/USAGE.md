@@ -11,7 +11,7 @@ cd app && swift build -c release
 1. **Order** the boards with the card in docs/ORDER.md, plus the Amazon.es items listed there.
 2. **Plug** the LiPo into J4 and the electrode leads into J1. J1 pins 1-16 are EL1-16, 17/18 are REF and 19/20 are RLD; pin 1 is marked on the silkscreen. Plug the optional IMU into J2.
 3. **Plug in USB-C** and run `uv run utter setup`. It flashes the firmware, checks that both ADS1298 chips answer, copies the Mac's Wi-Fi to the board, asks you to unplug USB, then runs the acceptance test (internal test signal and shorted-input noise). The board refuses to record while USB is plugged in.
-4. **Stick the electrodes** (chin, under the jaw, throat, behind the ear; REF and RLD on the mastoid or collarbone). Run `uv run utter electrodes` and press each one until it shows green.
+4. **Stick the electrodes** in the neckband layout (`ml/utter/neckband.py`, after SilentWear): a 3 x 4 grid on the front of the neck starting just below the larynx (columns 1 and 3 cm either side of the midline, rows 2 cm apart, EL1-12), two electrodes along each side muscle (EL13-16), REF and RLD side by side at the back of the neck. Run `uv run utter electrodes`; it names each site, so press each one until it shows green.
 5. **Record 4 sessions** of about 12 minutes with `uv run utter record`. A game prompts each silent token and the rest class. Then run `uv run utter train` (add `--rank 8` to find the best electrode sites).
 6. **Next day**, do a 3-minute check: `uv run utter record --minutes 3`, then `uv run utter train`. The cross-day accuracy is the Stage 2 gate (>80%).
 

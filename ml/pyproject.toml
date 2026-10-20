@@ -16,6 +16,10 @@ dependencies = [
 
 [project.optional-dependencies]
 dev = ["pytest>=8"]
+lm = [
+    "pyarrow>=26.0.0",
+    "torch>=2.14.1",
+]
 
 [project.scripts]
 utter = "utter.cli:main"

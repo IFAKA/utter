@@ -7,6 +7,8 @@
 //   --corpus agent  replies to a coding agent; --context gives the LLM the agent's message,
 //   --phrases offers whole replies, --browse N lets the user step N suggestions ahead before
 //   spelling, --quick-pick enables NEXT + G1..G4 = candidates 3..6.
+//   --confusions F [--set adabn|online] [--map w1,..,w8] [--p-min 0.7] replays real recognizer outputs
+//   (ml: utter.crossday --dump F) instead of the synthetic p, rejecting tokens below p-min confidence.
 import Foundation
 import TypingCore
 
@@ -20,6 +22,27 @@ struct RNG: RandomNumberGenerator {
         return z ^ (z >> 31)
     }
 }
+
+/// Written independently of every training set (2026-10-20): care needs, everyday messages, coding chat.
+let sentencesFresh = [
+    "please raise the head of the bed a little", "my left arm is getting cold", "can you move my hand back to the armrest",
+    "i would like some water with a straw", "turn me on my side in an hour", "the mask is leaking near my nose",
+    "please wipe my eyes", "i am tired of watching this show", "could you open the window for some fresh air",
+    "my back hurts after lunch", "ask the nurse to check the tube", "i want to sit outside for a while",
+    "put my glasses on please", "scratch my right ear", "it is too bright in here", "i slept badly last night",
+    "tell grandma i miss her", "send the photos from the beach to my brother", "the plumber comes at noon on tuesday",
+    "remind me to renew my passport", "did anyone feed the dog", "we should paint the hallway green",
+    "the package was left at the neighbor's door", "book a table for four on saturday", "my sister is moving to madrid",
+    "can we watch the match together", "the heating is broken again", "pick up some bread on your way home",
+    "happy birthday i hope you have a great day", "the bus was full so i walked", "save me a seat near the front",
+    "i lost the receipt for the jacket",
+    "rename the folder to utils", "the build fails on the second step", "split this function into two smaller ones",
+    "show me the full error message", "revert the last commit", "use a dictionary instead of a list here",
+    "check the logs from yesterday", "the button should be blue not red", "merge it after the review",
+    "write a short readme for this script", "why is the cache always empty", "move the constants to the top of the file",
+    "skip that test on windows", "the api key is in the environment", "add a retry when the request times out",
+    "stop and wait for my answer",
+]
 
 let sentencesEN = [
     "i will be there in ten minutes", "can you call me when you are free", "the meeting is moved to friday",
@@ -76,7 +99,7 @@ let agentPairs: [(String, String)] = [
     ("Should I continue with the next step of the plan?", "yes continue"),
 ]
 
-var lang = "en", useLLM = false, corpus = "chat", useContext = false, usePhrases = false, browse = 0, quick = false, secPerToken = 1.5, nSent = 40, seed: UInt64 = 1
+var lang = "en", useLLM = false, corpus = "chat", useContext = false, usePhrases = false, browse = 0, quick = false, secPerToken = 1.5, nSent = 40, seed: UInt64 = 1, ngramDir = "", keep = 100, learn = false, neuralDir = "", probe: String?, confPath = "", confSet = "adabn", mapping: [String] = [], pMin = 0.0, pAccept = 0.0
 var it = CommandLine.arguments.dropFirst().makeIterator()
 while let a = it.next() {
     switch a {
@@ -90,22 +113,73 @@ while let a = it.next() {
     case "--browse": browse = Int(it.next() ?? "0") ?? 0
     case "--quick-pick": quick = true
     case "--seed": seed = UInt64(it.next() ?? "1") ?? 1
+    case "--ngram": ngramDir = it.next() ?? ""
+    case "--learn": learn = true
+    case "--neural": neuralDir = it.next() ?? ""
+    case "--probe": probe = it.next() ?? ""  // print the predictor's top words for this context and exit
+    case "--keep": keep = Int(it.next() ?? "100") ?? 100
+    case "--confusions": confPath = it.next() ?? ""  // real recognizer outputs (ml: utter.crossday --dump)
+    case "--set": confSet = it.next() ?? "adabn"
+    case "--map": mapping = (it.next() ?? "").split(separator: ",").map(String.init)  // 8 classes in action order
+    case "--p-min": pMin = Double(it.next() ?? "0") ?? 0  // reject tokens below this confidence (engine.py p_min)
+    case "--p-accept": pAccept = Double(it.next() ?? "0") ?? 0  // stricter threshold for ACCEPT
     default: print("unknown arg \(a)"); exit(2)
     }
 }
 let items: [(said: String, reply: String)] = corpus == "agent" ? agentPairs.map { ($0.0, $0.1) }
-    : (lang == "es" ? sentencesES : sentencesEN).map { ("", $0) }
+    : (corpus == "fresh" ? sentencesFresh : lang == "es" ? sentencesES : sentencesEN).map { ("", $0) }
 let sentences = Array(items.prefix(nSent))
 let lexicon = Lexicon(language: lang)
 let predictor: Predictor
 var ollama: OllamaPredictor?
+var ngram: NgramPredictor?
 if useLLM {
     guard OllamaPredictor.available() else { print("Ollama not running (ollama serve)"); exit(2) }
     ollama = OllamaPredictor(language: lang)
     ollama!.suggestPhrases = usePhrases
     predictor = ollama!
+} else if !neuralDir.isEmpty {
+    guard let nn = NeuralPredictor(dir: neuralDir) else { print("no lm.bin / vocab.txt in \(neuralDir)"); exit(2) }
+    print("  neural: V=\(nn.V) E=\(nn.E) H=\(nn.H)")
+    predictor = nn
+} else if !ngramDir.isEmpty {
+    guard let ng = NgramPredictor(bigrams: ngramDir + "/count_2w.txt", unigrams: ngramDir + "/count_1w.txt",
+                                  lexicon: lexicon, keep: keep) else { print("no count_2w.txt / count_1w.txt in \(ngramDir)"); exit(2) }
+    print("  ngram: \(ng.pairs) bigrams kept (\(keep) per word)")
+    predictor = ng
+    ngram = ng
 } else {
     predictor = NoPredictor()
+}
+
+if let ctx = probe {
+    for (w, lp) in predictor.predict(context: ctx).prefix(5) { print(String(format: "%@ %.4f", w, lp)) }
+    exit(0)
+}
+
+/// Real recognizer outputs: per true class, softmax vectors from SpeechNet on SilentWear's held-out days.
+/// The 8 commands map to the 8 actions in alphabetical order (or --map); "rest" means the token was missed.
+struct Confusions {
+    var classes: [String] = [], byClass: [String: [[Double]]] = [:], accuracy = 0.0
+    init?(path: String, set: String) {
+        guard let d = FileManager.default.contents(atPath: path),
+              let j = try? JSONSerialization.jsonObject(with: d) as? [String: Any],
+              let cls = j["classes"] as? [String], let rows = j[set] as? [[String: Any]] else { return nil }
+        classes = cls
+        var hit = 0
+        for r in rows {
+            let l = r["label"] as! String, p = r["p"] as! [Double]
+            byClass[l, default: []].append(p)
+            if cls[p.indices.max { p[$0] < p[$1] }!] == l { hit += 1 }
+        }
+        accuracy = Double(hit) / Double(rows.count)
+    }
+    var words: [String] { mapping.isEmpty ? classes.filter { $0 != "rest" } : mapping }
+}
+var conf: Confusions?
+if !confPath.isEmpty {
+    guard let c = Confusions(path: confPath, set: confSet) else { print("cannot read \(confPath) set \(confSet)"); exit(2) }
+    conf = c
 }
 
 /// What the user does next, given what they hear.
@@ -117,6 +191,12 @@ func intent(_ d: Decoder, target: String) -> Action? {
     let rest = String(goal.dropFirst(typed.count))
     guard let word = rest.split(separator: " ").first.map(String.init) else { return nil }
     let want = LetterGroups.code(word)
+    if let s = d.spelling {  // letter mode
+        let w = Array(word), n = s.count
+        if n > w.count || !word.hasPrefix(String(s.dropLast())) { return .back }
+        if !word.hasPrefix(s) { return LetterGroups.group(of: s.last!) == LetterGroups.group(of: w[n - 1]) ? .next : .back }
+        return n == w.count ? .accept : LetterGroups.action(for: want[n])
+    }
     if d.code.count > want.count || Array(want.prefix(d.code.count)) != d.code { return .back }
     // A candidate is usable if it is a whole-word prefix of what is left (phrases cover several words).
     // Among those reachable within the browse budget, take the one covering most words, then the cheapest.
@@ -138,7 +218,10 @@ func intent(_ d: Decoder, target: String) -> Action? {
     }
     if let b = best { return b.act }
     if d.code.count < want.count { return LetterGroups.action(for: want[d.code.count]) }
-    return c.contains(word) ? .next : nil  // nil: unreachable word
+    if c.contains(word) { return .next }
+    // Not in the list: go to the spell marker and type it letter by letter.
+    if d.code == want && c.contains(Decoder.spellMarker) { return d.current == Decoder.spellMarker ? .accept : .next }
+    return nil  // unreachable word
 }
 
 func corrupt(_ a: Action, p: Double, rng: inout RNG) -> Action? {
@@ -147,11 +230,22 @@ func corrupt(_ a: Action, p: Double, rng: inout RNG) -> Action? {
     return Action.allCases.filter { $0 != a }.randomElement(using: &rng)
 }
 
+/// One recognized token: sample a real output for the intended action's class.
+func recognize(_ a: Action, rng: inout RNG, d: Decoder) {
+    let c = conf!, w = c.words
+    let p = c.byClass[w[Action.allCases.firstIndex(of: a)!]]!.randomElement(using: &rng)!
+    let top = c.classes[p.indices.max { p[$0] < p[$1] }!]
+    guard top != "rest", let got = w.firstIndex(of: top).map({ Action.allCases[$0] }),
+          p.max()! >= (got == .accept ? max(pMin, pAccept) : pMin) else { return }
+    d.handle(got)
+}
+
 struct Result { var done = 0, tokens = 0, words = 0, chars = 0, unreachable = 0 }
 
 func run(p: Double) -> Result {
     var rng = RNG(s: seed)
     var r = Result()
+    ngram?.forget()
     for (said, s) in sentences {
         ollama?.history = useContext && !said.isEmpty ? "Assistant: \(said)\nUser:" : ""
         let d = Decoder(lexicon: lexicon, predictor: predictor)
@@ -167,12 +261,14 @@ func run(p: Double) -> Result {
         while n < budget {
             guard let a = intent(d, target: s) else { ok = d.text == s + " "; break }
             n += 1
-            if let got = corrupt(a, p: p, rng: &rng) { d.handle(got) }
+            if conf != nil { recognize(a, rng: &rng, d: d) } else if let got = corrupt(a, p: p, rng: &rng) { d.handle(got) }
         }
         if !ok && intent(d, target: s) == nil && d.text != s + " " {
             r.unreachable += 1
             if p == 1.0 { print("  unreachable after \"\(d.text)\" code=\(d.code) candidates=\(d.candidates.prefix(8))") }
         }
+        if !ok && p == 0.8 { print("  failed at \(conf != nil ? "real" : "80%") (\(n >= budget ? "budget \(budget)" : "stuck")): \(s) | typed \"\(d.text)\" spelling=\(d.spelling ?? "-")") }
+        if learn { ngram?.learn(s) }  // the device learns each sentence after it is typed
         if ok { r.done += 1; r.tokens += n; r.words += s.split(separator: " ").count; r.chars += s.count + 1 }
     }
     return r
@@ -182,14 +278,17 @@ print("Stage 0 gate: corpus=\(corpus) context=\(useContext) phrases=\(usePhrases
 print("  lang=\(lang) llm=\(useLLM) sentences=\(sentences.count) lexicon=\(lexicon.entries.count) words")
 print("p(correct)  completed  tokens/word  tokens/char  est. wpm @\(secPerToken)s/token")
 var gate = false
-for p in [1.0, 0.9, 0.8, 0.7, 0.6] {
+if let c = conf {
+    print(String(format: "  real recognizer (%@, %@ set): %.1f%% token accuracy", confPath, confSet, c.accuracy * 100))
+}
+for p in conf != nil ? [0.8] : [1.0, 0.9, 0.8, 0.7, 0.6] {
     let r = run(p: p)
     let tpw = Double(r.tokens) / Double(max(1, r.words))
     let wpm = 60.0 / (tpw * secPerToken)
-    print(String(format: "  %.0f%%        %3d/%-3d    %6.2f       %5.2f        %4.1f%@", p * 100, r.done, sentences.count,
+    print(String(format: "  %@        %3d/%-3d    %6.2f       %5.2f        %4.1f%@", conf != nil ? "real" : String(format: "%.0f%%", p * 100), r.done, sentences.count,
                  tpw, Double(r.tokens) / Double(max(1, r.chars)), wpm, r.unreachable > 0 ? "  (\(r.unreachable) unreachable)" : ""))
     if p == 0.8 { gate = Double(r.done) >= 0.95 * Double(sentences.count) }
 }
-print(gate ? "GATE PASS: >=95% of sentences typed correctly at 80% token accuracy"
-           : "GATE FAIL: <95% of sentences typed at 80% token accuracy")
+let at = conf != nil ? "with the real recognizer" : "at 80% token accuracy"
+print(gate ? "GATE PASS: >=95% of sentences typed correctly \(at)" : "GATE FAIL: <95% of sentences typed \(at)")
 exit(gate ? 0 : 1)
