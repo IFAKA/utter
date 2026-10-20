@@ -126,7 +126,7 @@
   .pad .pk { transition-property:background, color, transform, box-shadow, opacity; }
   .pad:not(.armed) .pk:not([data-s="clench"]) { opacity:.4; }
   .pad.armed .pk[data-s="clench"] span::before { content:""; display:inline-block; width:5px; height:5px; border-radius:50%; background:#30d158; margin-right:4px; vertical-align:1px; }
-  /* phone: no keyboard and no focus while paused; ree focuses the field and slides the Utter keypad up */
+  /* phone: no keyboard and no focus while paused; clench focuses the field and slides the Utter keypad up */
   .kb { position:relative; height:0; overflow:hidden; background:#d3d5db; flex:none; transition:height .55s var(--ease); }
   .kb.silent { height:132px; }
   .kb > .pad { position:absolute; left:0; right:0; top:0; height:132px; grid-template-rows:1fr 1fr; transform:translateY(40%); transition:transform .55s var(--ease); }
@@ -807,7 +807,7 @@ function makeMoment(el, S) {
   } else q(".subs").insertAdjacentHTML("beforeend", padHTML());
   const press = (s, t) => { const k = q(`.pk[data-s="${s}"]`);
     C.at(t, () => k.classList.add("hit")); C.at(t + 520, () => k.classList.remove("hit")); };
-  // ree toggles listening; paused ignores every other syllable, so the other keys dim.
+  // clench toggles listening; paused ignores every other move, so the other keys dim.
   const arm = on => { q(".pad").classList.toggle("armed", on);
     if (S.kind === "phone") { q(".kb").classList.toggle("silent", on); q(".isl").classList.toggle("on", on); q(".scr").classList.toggle("focus", on); } };
   let typed = "", code = "", comp = "";

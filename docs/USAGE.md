@@ -26,7 +26,7 @@ See the whole product run live on the board emulator (synthetic EMG; a plumbing 
 1. Signals: `uv run utter scope --fake` opens a live 16-channel view; the emulator articulates a random token every 2.5 s.
 2. Train on synthetic sessions: `uv run utter synth`, then `uv run utter train`.
 3. App: `app/.build/release/Utter --dry-run` (menu-bar; shows text without typing).
-4. Recognizer: `uv run utter engine --fake`. Type a token name (e.g. `kee`) + Enter to "articulate" it; the engine recognizes it and the app turns it into suggestions/text.
+4. Recognizer: `uv run utter engine --fake`. Type a token name (e.g. `tongue_up` or `ka`) + Enter to "articulate" it; the engine recognizes it and the app turns it into suggestions/text.
 With the real board, drop `--fake` (`utter scope` is also the live view for electrode checks).
 
 

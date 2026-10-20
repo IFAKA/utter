@@ -32,7 +32,7 @@ Key facts (sources in docs/SOURCES.md):
 | Setup | 100% recognition | 90% | 80% |
 |---|---|---|---|
 | Chat, current decoder | 3.25 (12.3) | 4.10 (9.8) | 5.87 (6.8) |
-| Chat, user also takes the 2nd suggestion (na ya) | 3.17 | 4.14 | 5.28 |
+| Chat, user also takes the 2nd suggestion (push, ka) | 3.17 | 4.14 | 5.28 |
 | Chat, quick-pick (na + key = suggestion 3-6) | 3.11 | 3.98 | 5.40 |
 | Agent replies, LLM sees only the reply | 5.34 (7.5) | 7.64 | 11.34 |
 | Agent replies, LLM sees the agent's last message | **3.82 (10.5)** | **4.64** | **5.76** |
@@ -43,7 +43,7 @@ Conclusions:
 - Agent context is the one big win: −39% gestures at 90%. The app must receive the agent's last message, e.g. from a Claude Code Stop hook.
 - Quick-pick gains only 3-5% and adds a mode, so it stays off.
 - Whole-reply suggestions from a 1B model are generic ("yes please"), so there is no measurable gain. Revisit with a larger model or the agent's own suggested prompts. The benchmark only counts exact matches, which undervalues equivalent replies.
-- Permission prompts (approve / reject) should map directly to ya / sha: one gesture. Not built yet.
+- Permission prompts (approve / reject) map directly to ACCEPT / BACK (default ka / jaw drop): one move. Built: the PermissionRequest hook sends the decision back.
 
 ## Keyboard-first vs app (2026-10-20)
 Decision (updated): everything runs on the device. The wearable is a standalone BLE HID keyboard with no companion app on any host. The Mac app is kept only as a development simulator (`keysim`, `st-gate`, benchmarks), not a product component.
