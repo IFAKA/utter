@@ -50,7 +50,7 @@ Decision (updated): everything runs on the device. The wearable is a standalone 
 
 Consequences:
 - Lost without a host: LLM suggestions (-39% agent-context gain), spoken suggestions, and the Claude Code hook. Accepted for zero-setup use on any device.
-- "ya" / "sha" become plain tokens mapped to Return / Escape (or y / n) by the firmware, so approving prompts works in any agent or app without a hook.
+- ACCEPT / BACK (default ka / jaw drop) become plain tokens mapped to Return / Escape (or y / n) by the firmware, so approving prompts works in any agent or app without a hook.
 - Decoding quality now depends on the on-device scorer (dictionary + bigram, or a ~1 MB neural model). That is the main thing to build and measure.
 
 - Today the wearable is only a sensor and all decoding is in the Mac app, so it is not a drop-in keyboard. That was a software-phase shortcut.

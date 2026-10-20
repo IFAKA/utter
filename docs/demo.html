@@ -124,8 +124,8 @@
   .comp { text-decoration:underline 2px #0a84ff; text-underline-offset:3px; background:rgba(10,132,255,.1); border-radius:3px; padding:0 1px; }
   .tin .comp { text-decoration-color:#ff8a5b; background:rgba(255,138,91,.14); }
   .pad .pk { transition-property:background, color, transform, box-shadow, opacity; }
-  .pad:not(.armed) .pk:not([data-s="ree"]) { opacity:.4; }
-  .pad.armed .pk[data-s="ree"] span::before { content:""; display:inline-block; width:5px; height:5px; border-radius:50%; background:#30d158; margin-right:4px; vertical-align:1px; }
+  .pad:not(.armed) .pk:not([data-s="clench"]) { opacity:.4; }
+  .pad.armed .pk[data-s="clench"] span::before { content:""; display:inline-block; width:5px; height:5px; border-radius:50%; background:#30d158; margin-right:4px; vertical-align:1px; }
   /* phone: no keyboard and no focus while paused; ree focuses the field and slides the Utter keypad up */
   .kb { position:relative; height:0; overflow:hidden; background:#d3d5db; flex:none; transition:height .55s var(--ease); }
   .kb.silent { height:132px; }
@@ -755,49 +755,48 @@ const STEP = 1700, HEARD = 1200;
 const SCRIPTS = [
   { kind: "phone", who: "Marta", incoming: "still coming tonight?", reply: "no worries, see you 🙂",
     steps: [
-      {you: "ree", ear: "ready", c: ["yes", "sure", "sorry"]},
-      {you: "ya", type: "yes ", ear: "I'm?", c: ["i'm", "see", "will"]},
-      {you: "ta", miss: "la", code: "g–m", ear: "good?", c: ["good", "got", "home"]},
-      {you: "sha", ear: "I'm?", c: ["i'm", "see", "will"]},
-      {you: "la", unsure: true, ear: "again?"},
-      {you: "la", code: "n–s", ear: "really?", c: ["really", "running", "right"]},
-      {you: "ga", code: "n–s t–z", ear: "running?", c: ["running", "run", "rush"]},
-      {you: "ya", type: "running ", ear: "late?", c: ["late", "behind", "now"]},
-      {you: "ya", type: "late", ear: "send?", c: ["send", ".", "!"]},
-      {you: "ya", send: true, ear: "sent"},
+      {you: "clench", ear: "ready", c: ["yes", "sure", "sorry"]},
+      {you: "ka", type: "yes ", ear: "I'm?", c: ["i'm", "see", "will"]},
+      {you: "down", miss: "left", code: "g–m", ear: "good?", c: ["good", "got", "home"]},
+      {you: "jaw", ear: "I'm?", c: ["i'm", "see", "will"]},
+      {you: "left", unsure: true, ear: "again?"},
+      {you: "left", code: "n–s", ear: "really?", c: ["really", "running", "right"]},
+      {you: "right", code: "n–s t–z", ear: "running?", c: ["running", "run", "rush"]},
+      {you: "ka", type: "running ", ear: "late?", c: ["late", "behind", "now"]},
+      {you: "ka", type: "late", ear: "send?", c: ["send", ".", "!"]},
+      {you: "ka", send: true, ear: "sent"},
     ]},
   { kind: "term",
     steps: [
-      {you: "ree", ear: "ready", c: ["fix", "run", "show"]},
-      {you: "ya", type: "fix ", ear: "the?", c: ["the", "it", "this"]},
-      {you: "ya", type: "the ", ear: "test?", c: ["test", "login", "bug"]},
-      {you: "ta", code: "g–m", ear: "last?", c: ["last", "login", "lint"]},
-      {you: "na", code: "g–m", sel: 1, ear: "login?", c: ["last", "login", "lint"]},
-      {you: "ya", type: "login ", ear: "test?", c: ["test", "page", "flow"]},
-      {you: "ya", type: "test", ear: "send?", c: ["⏎ send", "tests", "flow"]},
-      {you: "ya", send: true, ear: "sent"},
+      {you: "clench", ear: "ready", c: ["fix", "run", "show"]},
+      {you: "ka", type: "fix ", ear: "the?", c: ["the", "it", "this"]},
+      {you: "ka", type: "the ", ear: "test?", c: ["test", "login", "bug"]},
+      {you: "down", code: "g–m", ear: "last?", c: ["last", "login", "lint"]},
+      {you: "push", code: "g–m", sel: 1, ear: "login?", c: ["last", "login", "lint"]},
+      {you: "ka", type: "login ", ear: "test?", c: ["test", "page", "flow"]},
+      {you: "ka", type: "test", ear: "send?", c: ["⏎ send", "tests", "flow"]},
+      {you: "ka", send: true, ear: "sent"},
     ]},
   { kind: "phone", who: "Mum", incoming: "did you land? ✈️", reply: "great! call me when you're home ❤️",
     steps: [
-      {you: "ree", ear: "ready", c: ["yes", "just", "not"]},
-      {you: "ya", type: "yes ", ear: "just?", c: ["just", "we", "all"]},
-      {you: "ya", type: "just ", ear: "landed?", c: ["landed", "got", "arrived"]},
-      {you: "ya", type: "landed", ear: "send?", c: ["send", ".", "!"]},
-      {you: "ya", send: true, ear: "sent"},
+      {you: "clench", ear: "ready", c: ["yes", "just", "not"]},
+      {you: "ka", type: "yes ", ear: "just?", c: ["just", "we", "all"]},
+      {you: "ka", type: "just ", ear: "landed?", c: ["landed", "got", "arrived"]},
+      {you: "ka", type: "landed", ear: "send?", c: ["send", ".", "!"]},
+      {you: "ka", send: true, ear: "sent"},
     ]},
 ];
 const plain = s => s.replace(/[^\w\s?'!.,]/g, "").trim();
 // What each silent syllable did, shown under it in the "You, silently" caption.
-const act = st => st.unsure ? "the band wasn't sure, so it asks again" : st.you === "ree" ? "start listening" : st.send ? "send" : st.type ? `accept “${st.type.trim()}”`
-  : st.miss ? `meant ${NAME[st.miss]}, the band heard ${NAME[st.you]}` : st.you === "sha" ? "undo" : st.you === "na" ? `next guess “${st.c[st.sel]}”`
+const act = st => st.unsure ? "the band wasn't sure, so it asks again" : st.you === "clench" ? "start listening" : st.send ? "send" : st.type ? `accept “${st.type.trim()}”`
+  : st.miss ? `meant ${st.miss}, the band heard ${st.you}` : st.you === "jaw" ? "undo" : st.you === "push" ? `next guess “${st.c[st.sel]}”`
   : st.code ? `one of ${LET[st.you]} → best guess “${st.c[0].slice(0, st.code.split(" ").length)}”` : "";
-const LET = {ka: "abcdef", ta: "ghijklm", la: "nopqrs", ga: "tuvwxyz"};
+const LET = {up: "abcdef", down: "ghijklm", left: "nopqrs", right: "tuvwxyz"};
 // Action suggestions (send) are drawn as actions, not as words.
 const isAct = w => /send/.test(w);
-const PAD = [["ka", "abcdef"], ["ta", "ghijklm"], ["la", "nopqrs"], ["ga", "tuvwxyz"], ["ree", "listen"], ["na", "next"], ["sha", "undo"], ["ya", "accept"]];
+const PAD = [["up", "abcdef"], ["down", "ghijklm"], ["left", "nopqrs"], ["right", "tuvwxyz"], ["clench", "listen"], ["push", "next"], ["jaw", "undo"], ["ka", "accept"]];
 // What the user does for each internal key id (config/tokens.json defaults; setup keeps the 8 the band reads best).
-const NAME = {ka: "up", ta: "down", la: "left", ga: "right", na: "push", ya: "ka", sha: "jaw", ree: "clench"};
-const padHTML = () => `<div class="pad">${PAD.map(([s, l], k) => `<div class="pk${k > 3 ? " c" : ""}${s === "ya" ? " p" : ""}" data-s="${s}"><b>${NAME[s]}</b><span>${l}</span></div>`).join("")}</div>`;
+const padHTML = () => `<div class="pad">${PAD.map(([s, l], k) => `<div class="pk${k > 3 ? " c" : ""}${s === "ka" ? " p" : ""}" data-s="${s}"><b>${s}</b><span>${l}</span></div>`).join("")}</div>`;
 
 function makeMoment(el, S) {
   const C = new Clock(), q = s => el.querySelector(s);
@@ -852,9 +851,9 @@ function makeMoment(el, S) {
     }
     t += 2200;
     for (const st of S.steps) {
-      swap(you, `${NAME[st.you]}<small>${act(st)}</small>`, t);
+      swap(you, `${st.you}<small>${act(st)}</small>`, t);
       press(st.you, t + 300);
-      if (st.you === "ree") C.at(t + HEARD, () => arm(true));
+      if (st.you === "clench") C.at(t + HEARD, () => arm(true));
       if (st.unsure) {
         swap(ear, `“${st.ear}”`, t + HEARD);
         t += STEP;
@@ -886,7 +885,7 @@ function makeMoment(el, S) {
       C.at(t, () => line("perm", 'Allow <em>Bash(pytest -q)</em>?<span class="o s">❯ 1. Yes</span><span class="o">2. No</span>', C.t));
       swap(ear, "“Run pytest? Ka to allow.”", t + 200);
       swap(you, "ka<small>allow</small>", t + 1900);
-      press("ya", t + 2200);
+      press("ka", t + 2200);
       C.at(t + 1900 + HEARD, () => { q(".perm").remove(); line("tool", "Bash(pytest -q)", C.t); });
       swap(ear, "“allowed”", t + 1900 + HEARD);
       C.at(t + 3700, () => line("sub2", "24 passed in 1.84s", C.t));
@@ -896,7 +895,7 @@ function makeMoment(el, S) {
       t += 7500;
     }
     swap(you, "clench<small>pause listening</small>", t);
-    press("ree", t + 300); C.at(t + HEARD, () => arm(false));
+    press("clench", t + 300); C.at(t + HEARD, () => arm(false));
     swap(ear, "“paused”", t + HEARD);
     t += 2200;
     C.at(t, build);  // loop
@@ -936,9 +935,9 @@ function heroLoop(t0) {
 heroLoop(300);
 
 /* ---------------- under the hood: live scope ---------------- */
-const TOK = ["ka", "ta", "la", "ga", "ya", "na", "sha", "ree"];
-const PAT = {ka: [2, 3, 4], ta: [0, 1, 2], la: [1, 2, 5], ga: [3, 4, 5], na: [0, 2, 6], ya: [1, 4, 7], sha: [0, 1, 3], ree: [5, 6, 7]};
-document.getElementById("rk").innerHTML = TOK.map(t => `<div id="rk-${t}">${NAME[t]}</div>`).join("");
+const TOK = ["up", "down", "left", "right", "ka", "push", "jaw", "clench"];
+const PAT = {up: [2, 3, 4], down: [0, 1, 2], left: [1, 2, 5], right: [3, 4, 5], push: [0, 2, 6], ka: [1, 4, 7], jaw: [0, 1, 3], clench: [5, 6, 7]};
+document.getElementById("rk").innerHTML = TOK.map(t => `<div id="rk-${t}">${t}</div>`).join("");
 const cv = document.getElementById("scope"), g = cv.getContext("2d");
 let W = 0, H = 0;
 function resize() { const d = devicePixelRatio || 1; W = cv.clientWidth; H = cv.clientHeight; cv.width = W * d; cv.height = H * d; g.setTransform(d, 0, 0, d, 0, 0); }
@@ -948,7 +947,7 @@ let samples = [], genT = 0, bursts = [], ar = new Array(8).fill(0);
 function labLoop(t0) {
   const tk = TOK[Math.floor(Math.random() * TOK.length)];
   lab.at(t0, () => { bursts.push({t0, ch: PAT[tk]}); if (bursts.length > 4) bursts.shift(); });
-  lab.at(t0 + 820, () => { document.getElementById("rtxt").textContent = `recognized: ${NAME[tk]}`; TOK.forEach(t => document.getElementById("rk-" + t).classList.toggle("on", t === tk)); });
+  lab.at(t0 + 820, () => { document.getElementById("rtxt").textContent = `recognized: ${tk}`; TOK.forEach(t => document.getElementById("rk-" + t).classList.toggle("on", t === tk)); });
   lab.tween(t0 + 820, 140, p => document.getElementById("rk-" + tk).style.setProperty("--h", p));
   lab.tween(t0 + 1300, 600, p => document.getElementById("rk-" + tk).style.setProperty("--h", 1 - p), E.inOut);
   lab.at(t0 + 1800, () => labLoop(lab.t));
@@ -1066,7 +1065,7 @@ requestAnimationFrame(frame);
   const $ = id => document.getElementById(id);
   const play = $("play"), pIn = $("pIn"), msgs = $("pMsgs"), C = $("pC"), F = $("pF"), ear = $("pEar");
   $("pPad").innerHTML = padHTML();
-  const KEYS = {a: "ka", s: "ta", d: "la", f: "ga", " ": "ree", j: "na", k: "sha", l: "ya", enter: "ya"};
+  const KEYS = {a: "up", s: "down", d: "left", f: "right", " ": "clench", j: "push", k: "jaw", l: "ka", enter: "ka"};
   for (const [k, s] of Object.entries(KEYS)) if (k !== "enter") { const e = play.querySelector(`.pk[data-s="${s}"]`); e.insertAdjacentHTML("beforeend", `<em>${k === " " ? "space" : k.toUpperCase()}</em>`); }
   const pad = play.querySelector(".pad");
 
@@ -1132,7 +1131,7 @@ requestAnimationFrame(frame);
   function act(s) {
     const now = performance.now();
     const k = play.querySelector(`.pk[data-s="${s}"]`); k.classList.add("hit"); setTimeout(() => k.classList.remove("hit"), 180);
-    if (!st.armed && s !== "ree") return;   // paused: the band ignores everything but ree
+    if (!st.armed && s !== "clench") return;   // paused: the band ignores everything but clench
     if (now < readEnd) { tally(0); say("too fast"); return; }
     if (now < restEnd) { if (queued === null) { queued = s; setTimeout(() => { const q = queued; queued = null; hear(q); }, restEnd - now); } return; }
     hear(s);
@@ -1145,20 +1144,20 @@ requestAnimationFrame(frame);
   }
   function heard(s) {
     let unsure = false;
-    if (s !== "ree" && st.armed && $("pAcc").checked && Math.random() < .25) {   // the band mishears
+    if (s !== "clench" && st.armed && $("pAcc").checked && Math.random() < .25) {   // the band mishears
       if (Math.random() < .5) { tally(0); say("again?"); return; }   // unsure: below the confidence gate, so it asks
-      const o = PAD.map(p => p[0]).filter(x => x !== s && x !== "ree"); s = o[Math.random() * o.length | 0]; unsure = true;
+      const o = PAD.map(p => p[0]).filter(x => x !== s && x !== "clench"); s = o[Math.random() * o.length | 0]; unsure = true;
     }
-    if (s !== "ya") confirming = false;
+    if (s !== "ka") confirming = false;
     else if (st.armed && current() === "⏎" && unsure && !confirming) { tally(0); confirming = true; say("send?"); return; }   // can't unsend: ask once
     else confirming = false;
-    if (s === "ree") { st.armed = !st.armed; if (st.armed) refresh(); else render(); say(st.armed ? "ready" : "paused"); return; }
+    if (s === "clench") { st.armed = !st.armed; if (st.armed) refresh(); else render(); say(st.armed ? "ready" : "paused"); return; }
     if (!st.armed) return;
-    const cw = current(); tally(s === "ya" && cw && cw !== "." && cw !== "⏎" ? cw.split(" ").length : 0);
-    if (GROUPS[["ka", "ta", "la", "ga"].indexOf(s)]) { st.code.push(["ka", "ta", "la", "ga"].indexOf(s)); refresh(); }
-    else if (s === "na") { if (st.cands.length) st.index = (st.index + 1) % st.cands.length; render(); }
-    else if (s === "ya") return accept();
-    else if (s === "sha") {
+    const cw = current(); tally(s === "ka" && cw && cw !== "." && cw !== "⏎" ? cw.split(" ").length : 0);
+    if (GROUPS[["up", "down", "left", "right"].indexOf(s)]) { st.code.push(["up", "down", "left", "right"].indexOf(s)); refresh(); }
+    else if (s === "push") { if (st.cands.length) st.index = (st.index + 1) % st.cands.length; render(); }
+    else if (s === "ka") return accept();
+    else if (s === "jaw") {
       if (st.code.length) { st.code.pop(); refresh(); }
       else if (st.typed.length) { const t = st.typed.pop(); st.text = st.text.slice(0, -t.s.length) + (t.attach ? " " : ""); refresh(); }
     }
