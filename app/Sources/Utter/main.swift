@@ -97,6 +97,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     var agentMessage = ""  // what the user is replying to, for the reply memory
     var permission: (text: String, id: String?, port: UInt16?)?  // pending agent permission prompt
     var draft: [String] = []  // dictated pieces (utter voice --mode speak), sent on ACCEPT
+    var typedInto: (app: pid_t?, field: AXUIElement?)?  // where Utter last typed; BACK only deletes there
     var confirming = false  // asked "send?"/"allow?" after an unsure irreversible ACCEPT
     let pAccept = UserDefaults.standard.object(forKey: "pAccept") as? Double ?? 0.85
     var voice: Voice!
@@ -258,6 +259,25 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         refreshUI()
     }
 
+    /// The frontmost app and its focused field (the field is nil when the app doesn't expose Accessibility, e.g. Electron).
+    func focus() -> (app: pid_t?, field: AXUIElement?) { (NSWorkspace.shared.frontmostApplication?.processIdentifier, focusedField()) }
+
+    /// The cursor left the place Utter typed: another app is in front, or (if both are known) another field has focus.
+    func focusMoved() -> Bool {
+        guard let was = typedInto else { return false }
+        let now = focus()
+        if was.app != now.app { return true }
+        if let a = was.field, let b = now.field { return !CFEqual(a, b) }
+        return false
+    }
+
+    func focusedField() -> AXUIElement? {
+        var v: CFTypeRef?
+        guard AXUIElementCopyAttributeValue(AXUIElementCreateSystemWide(), kAXFocusedUIElementAttribute as CFString, &v) == .success,
+              let v, CFGetTypeID(v) == AXUIElementGetTypeID() else { return nil }
+        return (v as! AXUIElement)
+    }
+
     /// The engine heard a command it couldn't use: say so, so the user repeats it instead of guessing.
     func notice(_ what: String) {
         guard decoder.armed else { return }
@@ -315,12 +335,20 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             voice.earcon(a)
             return
         }
+        // BACK on an empty code deletes the last typed word with backspaces: only if the cursor is still where Utter typed.
+        if a == .back, decoder.armed, decoder.code.isEmpty, !dryRun, focusMoved() {
+            voice.earcon(a)
+            say("cursor moved, nothing deleted")
+            return
+        }
         work.async { [self] in
             let outs = decoder.handle(a)  // LM call happens off the main thread
             DispatchQueue.main.async { [self] in
                 for o in outs {
                     switch o {
-                    case .type(let s): dryRun ? print("TYPE \(s.debugDescription)") : Typer.type(s)
+                    case .type(let s):
+                        dryRun ? print("TYPE \(s.debugDescription)") : Typer.type(s)
+                        if !dryRun { typedInto = focus() }
                     case .backspace(let n): dryRun ? print("BACKSPACE \(n)") : Typer.backspace(n)
                     case .speak(let s): say(s)
                     case .earcon(let a): voice.earcon(a)
