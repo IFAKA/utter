@@ -177,9 +177,11 @@
   .keys { display:grid; grid-template-columns:repeat(8, 1fr); gap:10px; }
   .key { background:var(--card); border-radius:16px; padding:18px 14px 16px; box-shadow:0 1px 2px rgba(0,0,0,.06); }
   .key b { display:block; font-size:28px; font-weight:600; letter-spacing:-.03em; }
-  .key span { display:block; font-size:13px; color:var(--mute); margin-top:6px; line-height:1.3; }
-  .key.c { background:var(--keyc); color:#fff; } .key.c span { color:#a1a1a6; }
+  .key span { display:block; font-size:14px; font-weight:600; margin-top:6px; line-height:1.3; }
+  .key i { display:block; font-style:normal; font-size:12px; line-height:1.3; margin-top:8px; color:var(--mute); }
+  .key.c { background:var(--keyc); color:#fff; } .key.c i { color:#a1a1a6; }
   .keys .gap { grid-column:span 4; font:600 12px/1 var(--sans); color:var(--mute); letter-spacing:.06em; text-transform:uppercase; padding:4px 2px; }
+  .keys .key { order:1; }   /* desktop: both labels on row 1, all keys under them */
 
   /* agents */
   .tiles { display:grid; grid-template-columns:repeat(3, 1fr); gap:20px; margin-top:64px; }
@@ -385,7 +387,7 @@
     .try { grid-template-columns:1fr; gap:40px; }
     .proof .w, .specs { grid-template-columns:1fr 1fr; }
     .moment, .moment.flip, .hood, .hw { grid-template-columns:1fr; gap:32px; } .moment.flip .copy { order:0; }
-    .steps, .tiles { grid-template-columns:1fr; } .keys { grid-template-columns:repeat(4, 1fr); } .road { grid-template-columns:1fr; gap:26px; } .road::before { display:none; }
+    .steps, .tiles { grid-template-columns:1fr; } .keys { grid-template-columns:repeat(4, 1fr); } .keys .key { order:0; } .road { grid-template-columns:1fr; gap:26px; } .road::before { display:none; }
     .subs { width:auto; right:24px; } .phone { right:50%; margin-right:-136px; }
     nav .w { flex-wrap:wrap; height:auto; padding-top:10px; gap:14px; }
     nav .links { order:9; flex-basis:100%; display:flex; gap:22px; overflow-x:auto; scrollbar-width:none; white-space:nowrap; margin:0 -28px; padding:2px 28px 10px;
@@ -549,15 +551,16 @@
       <h4>Your mouth becomes an 8-key keyboard.</h4>
       <p>Four tongue moves each pick a group of letters, like an old phone keypad: <b>left</b> means “one of n o p q r s”. The AI keeps the words that fit and shows its best guess. Four more moves steer. Most of the time the AI already knows the next word, so you just do <b>ka</b>.</p>
       <p>These are the defaults. At setup Utter records 16 moves on you and keeps the 8 it tells apart best.</p>
-      <p><b>Wrong guess? Keep going.</b> Do the group for your next letter and the guess updates. When your word is in the bar, <b>push</b> (tongue against your front teeth) moves to it and <b>ka</b> types it. <b>jaw</b> (drop it a little, lips still closed) undoes the last move.</p>
+      <p><b>Wrong guess? Keep going.</b> Do the group for your next letter and the guess updates. When your word is in the bar, <b>push</b> moves to it and <b>ka</b> types it. <b>jaw</b> undoes the last move.</p>
       <div class="keys">
-        <div class="gap">Pick letters</div><div class="gap">Control</div>
-        <div class="key"><b>up</b><span>a b c d e f</span></div><div class="key"><b>down</b><span>g h i j k l m</span></div>
-        <div class="key"><b>left</b><span>n o p q r s</span></div><div class="key"><b>right</b><span>t u v w x y z</span></div>
-        <div class="key c"><b>clench</b><span>listen on / off</span></div><div class="key c"><b>push</b><span>next suggestion</span></div>
-        <div class="key c"><b>jaw</b><span>undo</span></div><div class="key c"><b>ka</b><span>accept, send</span></div>
+        <div class="gap">Pick letters</div>
+        <div class="key"><b>up</b><span>a b c d e f</span><i>tongue tip to the roof of your mouth</i></div><div class="key"><b>down</b><span>g h i j k l m</span><i>tongue tip behind your lower teeth</i></div>
+        <div class="key"><b>left</b><span>n o p q r s</span><i>tongue into your left cheek</i></div><div class="key"><b>right</b><span>t u v w x y z</span><i>tongue into your right cheek</i></div>
+        <div class="gap">Control</div>
+        <div class="key c"><b>clench</b><span>listen on / off</span><i>bite your back teeth</i></div><div class="key c"><b>push</b><span>next suggestion</span><i>tongue against your front teeth</i></div>
+        <div class="key c"><b>jaw</b><span>undo</span><i>drop your jaw a little</i></div><div class="key c"><b>ka</b><span>accept, send</span><i>a silent “k”, back of the tongue</i></div>
       </div>
-      <p><b>How to do each move</b>, lips closed, no sound, about half a second each: <b>up</b> press your tongue tip to the roof of your mouth. <b>down</b> press it behind your lower front teeth. <b>left</b> / <b>right</b> push it into that cheek. <b>push</b> press it against the back of your upper front teeth. <b>clench</b> bite your back teeth together. <b>jaw</b> drop your jaw a little. <b>ka</b> lift the back of your tongue and release, like a silent “k”.</p>
+      <p style="margin-top:14px">Every move: lips closed, no sound, about half a second.</p>
       <p><b>Example: answer “still coming tonight?” with “yes”.</b> <b>y</b> is in the right group, <b>e</b> in up, <b>s</b> in left. So you do <b>right</b>, <b>up</b>, <b>left</b>: one move per letter, not hunting for the exact letter. “tar” fits those moves too, but after that question the AI guesses “yes”. Then <b>ka</b> sends it. <a href="#try">Try it with your keyboard below.</a></p>
     </div>
   </div>
