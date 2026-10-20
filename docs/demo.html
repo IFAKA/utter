@@ -2,15 +2,25 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Utter: type with your mouth closed</title>
 <style>
   :root {
     --ink:#1d1d1f; --ink2:#424245; --mute:#86868b; --line:#d2d2d7; --gray:#f5f5f7; --white:#fff;
+    --card:#fff; --keyc:#1d1d1f; --dot:#fff;
     --sig:#ff5a1f; --ear:#7fd6c6;
+    color-scheme:light;
     --sans: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Helvetica Neue", system-ui, sans-serif;
     --mono: ui-monospace, "SF Mono", Menlo, monospace;
   }
+  :root[data-theme="dark"] {
+    --ink:#f5f5f7; --ink2:#a1a1a6; --mute:#86868b; --line:#2c2c2e; --gray:#141416; --white:#0a0a0b;
+    --card:#1c1c1e; --keyc:#3a3a3c; --dot:#0a0a0b;
+    color-scheme:dark;
+  }
+  body, section, footer, .keyboard, .key { transition:background-color .35s, color .35s; }
+  #theme { background:none; border:1px solid rgba(255,255,255,.18); color:#f5f5f7; width:30px; height:30px; border-radius:50%; cursor:pointer; font-size:14px; line-height:1; display:grid; place-items:center; }
+  #theme:hover { border-color:#fff; }
   * { box-sizing:border-box; margin:0; padding:0; }
   html { scroll-behavior:smooth; }
   body { font:17px/1.47 var(--sans); color:var(--ink); background:var(--white); -webkit-font-smoothing:antialiased; letter-spacing:-.012em; }
@@ -165,10 +175,10 @@
   .keyboard h4 { font-size:28px; font-weight:600; letter-spacing:-.03em; margin-bottom:6px; }
   .keyboard > p { color:var(--ink2); margin-bottom:28px; max-width:720px; }
   .keys { display:grid; grid-template-columns:repeat(8, 1fr); gap:10px; }
-  .key { background:#fff; border-radius:16px; padding:18px 14px 16px; box-shadow:0 1px 2px rgba(0,0,0,.06); }
+  .key { background:var(--card); border-radius:16px; padding:18px 14px 16px; box-shadow:0 1px 2px rgba(0,0,0,.06); }
   .key b { display:block; font-size:28px; font-weight:600; letter-spacing:-.03em; }
   .key span { display:block; font-size:13px; color:var(--mute); margin-top:6px; line-height:1.3; }
-  .key.c { background:var(--ink); color:#fff; } .key.c span { color:#a1a1a6; }
+  .key.c { background:var(--keyc); color:#fff; } .key.c span { color:#a1a1a6; }
   .keys .gap { grid-column:span 4; font:600 12px/1 var(--sans); color:var(--mute); letter-spacing:.06em; text-transform:uppercase; padding:4px 2px; }
 
   /* agents */
@@ -203,7 +213,7 @@
   .road { display:grid; grid-template-columns:repeat(5, 1fr); margin-top:64px; position:relative; }
   .road::before { content:""; position:absolute; left:0; right:0; top:9px; height:2px; background:var(--line); }
   .road .st { position:relative; padding-right:20px; }
-  .road .dot { width:20px; height:20px; border-radius:50%; background:#fff; border:2px solid var(--line); margin-bottom:18px; position:relative; }
+  .road .dot { width:20px; height:20px; border-radius:50%; background:var(--dot); border:2px solid var(--line); margin-bottom:18px; position:relative; }
   .road .done .dot { background:var(--ink); border-color:var(--ink); }
   .road .now .dot { border-color:var(--sig); box-shadow:0 0 0 5px rgba(255,90,31,.15); }
   .road h5 { font-size:18px; font-weight:600; letter-spacing:-.02em; margin-bottom:6px; }
@@ -270,7 +280,8 @@
   .key:hover { transform:translateY(-3px); box-shadow:0 14px 30px -14px rgba(0,0,0,.25); }
   .tile { background:linear-gradient(180deg,#1c1c1e,#111113); border:1px solid rgba(255,255,255,.06); }
   .tile:hover { transform:translateY(-4px); }
-  .keyboard { background:linear-gradient(180deg,#f5f5f7,#ececf0); }
+  :root:not([data-theme="dark"]) .keyboard { background:linear-gradient(180deg,#f5f5f7,#ececf0); }
+  :root[data-theme="dark"] .keyboard { background:linear-gradient(180deg,#1a1a1c,#121214); }
 
   /* hardware on stage */
   #hardware { background:#000; color:#f5f5f7; overflow:hidden; }
@@ -339,10 +350,10 @@
   /* playground */
   .try { display:grid; grid-template-columns:1fr 1.05fr; gap:64px; align-items:center; }
   .howto { list-style:none; margin:30px 0 26px; display:grid; gap:14px; font-size:17px; color:var(--ink2); }
-  kbd { display:inline-block; min-width:24px; text-align:center; font:600 12px/1 var(--mono); background:#fff; border:1px solid var(--line); border-bottom-width:2px; border-radius:6px; padding:4px 6px; color:var(--ink); vertical-align:1px; }
+  kbd { display:inline-block; min-width:24px; text-align:center; font:600 12px/1 var(--mono); background:var(--card); border:1px solid var(--line); border-bottom-width:2px; border-radius:6px; padding:4px 6px; color:var(--ink); vertical-align:1px; }
   .aibox { display:flex; flex-direction:column; align-items:flex-start; gap:8px; }
   .aibox small { color:var(--mute); font-size:13px; max-width:420px; }
-  #aiBtn { font:500 15px/1 var(--sans); color:var(--ink); background:#fff; border:1px solid var(--line); border-radius:980px; padding:10px 16px; cursor:pointer; transition:border-color .3s, color .3s; }
+  #aiBtn { font:500 15px/1 var(--sans); color:var(--ink); background:var(--card); border:1px solid var(--line); border-radius:980px; padding:10px 16px; cursor:pointer; transition:border-color .3s, color .3s; }
   #aiBtn:hover { border-color:var(--ink); } #aiBtn:disabled { cursor:default; color:var(--mute); border-color:var(--line); }
   #aiBtn.on { color:#1f8a47; border-color:#30d15866; } #aiBtn.on::before { content:""; display:inline-block; width:6px; height:6px; border-radius:50%; background:#30d158; margin-right:8px; vertical-align:1px; }
   .play { position:relative; width:min(100%, 390px); aspect-ratio:390/844; justify-self:center; background:#fff; border:11px solid #1d1d1f; border-radius:60px; box-shadow:0 0 0 1.5px #3a3a3c, 0 50px 80px -40px rgba(0,0,0,.45); overflow:hidden; display:flex; flex-direction:column; padding-top:50px; }   /* iPhone 15/16 proportions */
@@ -374,13 +385,63 @@
     .moment, .moment.flip, .hood, .hw { grid-template-columns:1fr; gap:32px; } .moment.flip .copy { order:0; }
     .steps, .tiles { grid-template-columns:1fr; } .keys { grid-template-columns:repeat(4, 1fr); } .road { grid-template-columns:1fr; gap:26px; } .road::before { display:none; }
     .subs { width:auto; right:24px; } .phone { right:50%; margin-right:-136px; }
-    nav a:not(.btn) { display:none; }
+    nav .w { flex-wrap:wrap; height:auto; padding-top:10px; gap:14px; }
+    nav .links { order:9; flex-basis:100%; display:flex; gap:22px; overflow-x:auto; scrollbar-width:none; white-space:nowrap; margin:0 -28px; padding:2px 28px 10px;
+                 -webkit-mask-image:linear-gradient(90deg, transparent, #000 20px, #000 calc(100% - 28px), transparent); mask-image:linear-gradient(90deg, transparent, #000 20px, #000 calc(100% - 28px), transparent); }
+    nav .links::-webkit-scrollbar { display:none; }
+    /* the Try it phone: on a phone it becomes the screen. It's full-bleed and full-height and paints over the
+       sticky nav; scrolling down stops on it, and the script below lets you pull through it */
+    .play { position:relative; z-index:51; width:100vw; margin-inline:calc(50% - 50vw); height:100svh; aspect-ratio:auto; border:0; border-radius:0; box-shadow:none;
+            padding-top:env(safe-area-inset-top); }
+    .play .pad { padding-bottom:max(22px, env(safe-area-inset-bottom)); }
+    .play::before, .play::after { display:none; }
+    .play .pk { padding:14px 0 12px; }
+  }
+  .links { display:contents; }
+  .tc { display:none; }
+  @media (hover:none) { .tc { display:inline; } .hv, .howto kbd, .pk em { display:none; } }
+  @media (max-width: 600px) {
+    .w { padding:0 20px; } nav .links { margin:0 -20px; padding:2px 20px 10px; }
+    section { padding:88px 0; } .final { padding:120px 0; } .proof { padding:24px 0 80px; }
+    .hero { padding-top:56px; } .hero small { padding:0 20px 22px; }
+    .moments .lede { margin-bottom:48px; } .moment { margin-bottom:72px; }
+    .scene { height:580px; border-radius:22px; }
+    .subs, .scene.wide .subs { left:12px; right:12px; bottom:12px; gap:8px; }
+    .scene.wide .subs { grid-template-columns:1fr 1fr; } .scene.wide .subs .pad { grid-column:1 / -1; }
+    .sub { padding:10px 12px 11px; } .sub b { font-size:21px; } .sub i { font-size:16px; }
+    .steps { margin-top:48px; gap:36px; } .steps .n { font-size:48px; margin-bottom:12px; }
+    .keyboard { margin-top:56px; padding:24px 16px; border-radius:22px; }
+    .keys { grid-template-columns:repeat(4, minmax(0, 1fr)); gap:6px; } .key { padding:14px 8px 12px; border-radius:12px; }
+    .tiles { margin-top:40px; } .tile { padding:28px 22px 24px; }
+    .specs { margin-top:48px; } .kit { margin-top:36px; } .hw { margin-top:40px; } .road { margin-top:40px; }
+    dl { grid-template-columns:110px 1fr; }
   }
 </style>
+<script>
+  // theme: saved choice, else system preference; set before paint to avoid a flash
+  (function () {
+    var s; try { s = localStorage.getItem('theme'); } catch (e) {}
+    var mq = matchMedia('(prefers-color-scheme: dark)');
+    function apply(t) {
+      document.documentElement.dataset.theme = t;
+      var b = document.getElementById('theme'); if (b) b.textContent = t === 'dark' ? '☀' : '☾';
+    }
+    apply(s || (mq.matches ? 'dark' : 'light'));
+    mq.addEventListener('change', function (e) { var v; try { v = localStorage.getItem('theme'); } catch (_) {} if (!v) apply(e.matches ? 'dark' : 'light'); });
+    document.addEventListener('DOMContentLoaded', function () {
+      apply(document.documentElement.dataset.theme);
+      document.getElementById('theme').addEventListener('click', function () {
+        var t = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
+        try { localStorage.setItem('theme', t); } catch (e) {}
+        apply(t);
+      });
+    });
+  })();
+</script>
 </head>
 <body>
 
-<nav><div class="w"><b>Utter</b><a href="#day">A day with it</a><a href="#how">How it works</a><a href="#try">Try it</a><a href="#agents">For AI agents</a><a href="#hardware">Hardware</a><a href="#kit">In the box</a><a href="#faq">FAQ</a><a class="btn" href="#join">Join the waitlist</a></div></nav>
+<nav><div class="w"><b>Utter</b><span class="links"><a href="#day">A day with it</a><a href="#how">How it works</a><a href="#try">Try it</a><a href="#agents">For AI agents</a><a href="#hardware">Hardware</a><a href="#kit">In the box</a><a href="#faq">FAQ</a></span><button id="theme" type="button" aria-label="Toggle light/dark theme" title="Toggle light/dark theme">☾</button><a class="btn" href="#join">Join the waitlist</a></div></nav>
 
 <header class="hero">
   <div class="w">
@@ -414,7 +475,7 @@
     <g id="pulses"></g>
   </svg>
   </div>
-  <small>Drag to turn it; point at a part to see what it is. <b>Prototype v1</b> is the kit you can build today, to scale: the printed case on a strap at the back of the neck, 16 stick-on gel electrodes on the chin, jaw and throat, two behind the ears, a lead from each to the case. <b>Concept</b> is the most compact version this board allows: the same case and electrode spots, with the leads moulded into one band. Head scan: Lee Perry-Smith, CC BY 3.0.</small>
+  <small>Drag to turn it; <span class="hv">point at</span><span class="tc">tap</span> a part to see what it is. <b>Prototype v1</b> is the kit you can build today, to scale: the printed case on a strap at the back of the neck, 16 stick-on gel electrodes on the chin, jaw and throat, two behind the ears, a lead from each to the case. <b>Concept</b> is the most compact version this board allows: the same case and electrode spots, with the leads moulded into one band. Head scan: Lee Perry-Smith, CC BY 3.0.</small>
 </header>
 
 <section class="proof">
@@ -589,7 +650,7 @@
       <div class="kit-stage" id="kitStage">
         <img class="kit-fallback" src="assets/board.png" alt="Utter v1 circuit board">
         <canvas id="kit3d" aria-label="3D model of the Utter v1 kit"></canvas>
-        <div class="kit-hint">Drag to turn · point at a part</div>
+        <div class="kit-hint">Drag to turn · <span class="hv">point at</span><span class="tc">tap</span> a part</div>
         <div class="kit-ctl"><button data-x="0" class="on">Assembled</button><button data-x="1">Exploded</button></div>
       </div>
       <ol class="kit-list" id="kitList">
@@ -1058,9 +1119,100 @@ requestAnimationFrame(frame);
   showStats();
 
   // Keep the whole phone inside the viewport, below the sticky nav.
-  const fit = () => { play.style.zoom = Math.min(.8, (innerHeight - document.querySelector("nav").offsetHeight - 140) / 844); };
+  const fit = () => { play.style.zoom = matchMedia("(max-width: 900px)").matches ? "" : Math.min(.8, (innerHeight - document.querySelector("nav").offsetHeight - 140) / 844); };
   fit(); addEventListener("resize", fit);
-  document.querySelectorAll('a[href="#try"]').forEach(l => l.addEventListener("click", e => { e.preventDefault(); play.style.scrollMarginBottom = "70px"; play.scrollIntoView({behavior: "smooth", block: "end"}); }));
+  document.querySelectorAll('a[href="#try"]').forEach(l => l.addEventListener("click", e => { e.preventDefault(); play.style.scrollMarginBottom = "70px"; play.scrollIntoView({behavior: "smooth", block: matchMedia("(max-width: 900px)").matches ? "start" : "end"}); }));
+
+  // Phones: the full-screen demo is a one-way detent. Scrolling down stops on it like a sticky element (no snap);
+  // from there, pushing on down stretches with rubber-band resistance and either springs back or, past the break
+  // point, unplugs and springs on to the next section. Every other direction is a plain scroll.
+  const phone = () => matchMedia("(max-width: 900px)").matches, html = document.documentElement;
+  const go = y => scrollTo({top: y, behavior: "instant"});
+  const playTop = () => play.getBoundingClientRect().top + scrollY;
+  const rubber = x => (1 - 1 / (x * .55 / innerHeight + 1)) * innerHeight;   // iOS overscroll curve
+  const BREAK = () => innerHeight * .28;   // finger travel that unplugs it
+  let busy = false, raf, seen = scrollY, hold = false, jump = 0;   // hold: the gesture that stopped on the demo is used up
+  document.addEventListener("click", e => { if (e.target.closest('a[href^="#"]')) jump = performance.now(); });   // menu jumps pass through
+  function spring(to, v = 0) {   // slightly underdamped, so it settles with a small bounce
+    cancelAnimationFrame(raf); busy = true;
+    let x = scrollY, t0 = performance.now();
+    const step = now => {
+      const dt = Math.min(.032, (now - t0) / 1000); t0 = now;
+      v += (-210 * (x - to) - 22 * v) * dt; x += v * dt; go(x);
+      if (Math.abs(x - to) < .5 && Math.abs(v) < 8) { go(to); busy = false; } else raf = requestAnimationFrame(step);
+    };
+    raf = requestAnimationFrame(step);
+  }
+  const locked = () => phone() && !busy && Math.abs(play.getBoundingClientRect().top) < 2;
+  const unplug = v => { navigator.vibrate?.(8); spring(playTop() + play.offsetHeight, v); };
+  // Stop exactly on the demo. Hiding overflow for a frame also kills any fling still carrying the page.
+  const stop = () => { html.style.overflow = "hidden"; go(playTop()); requestAnimationFrame(() => requestAnimationFrame(() => html.style.overflow = "")); };
+
+  // a fling (no finger or wheel to intercept) that runs down past the demo stops on it
+  addEventListener("scroll", () => {
+    if (phone() && !busy && performance.now() - jump > 1500 && seen < playTop() - 1 && scrollY > playTop() && scrollY - seen < innerHeight * .75) stop();
+    seen = scrollY;
+  }, {passive: true});
+
+  // Touch can't interrupt a native scroll once it's moving, so a swipe that starts within two screens above the demo
+  // is scrolled here instead, coast included, and stops exactly on it.
+  let coastRaf;
+  function coast(v) {   // px/s, down is positive; same deceleration as iOS
+    let t0 = performance.now();
+    const step = now => {
+      const dt = now - t0; t0 = now; v *= Math.pow(.998, dt);
+      const top = playTop(), y = scrollY + v * dt / 1000;
+      if (v > 0 && y >= top) return go(top);
+      go(y); if (Math.abs(v) > 20 && y > 0) coastRaf = requestAnimationFrame(step);
+    };
+    coastRaf = requestAnimationFrame(step);
+  }
+  let pull = null;   // {y, prev, top, at, manual, dy, v, t, on, broke}
+  addEventListener("touchstart", e => {
+    cancelAnimationFrame(coastRaf); hold = false;
+    const y = e.touches[0].clientY, d = play.getBoundingClientRect().top;
+    pull = phone() && !busy && e.touches.length === 1 ? {y, prev: y, top: scrollY, at: locked(), manual: !locked() && d > 1 && d < innerHeight * 2, dy: 0, v: 0, t: e.timeStamp} : null;
+  }, {passive: true});
+  addEventListener("touchmove", e => {
+    if (!pull) return;
+    const y = e.touches[0].clientY, step = pull.prev - y; pull.prev = y;
+    if (pull.manual) {
+      e.preventDefault();
+      const dt = Math.max(1, e.timeStamp - pull.t); pull.t = e.timeStamp; pull.v = .8 * step / dt * 1000 + .2 * pull.v;
+      go(step > 0 ? Math.min(scrollY + step, Math.max(scrollY, playTop())) : scrollY + step);
+      return;
+    }
+    if (!pull.at) return;
+    const dy = pull.y - y;
+    if (!pull.on) { if (Math.abs(dy) < 8) return; if (dy < 0) return void (pull = null); pull.on = true; busy = true; }   // upward: native scroll
+    e.preventDefault();
+    if (pull.broke) return;
+    const dt = Math.max(1, e.timeStamp - pull.t); pull.v = (dy - pull.dy) / dt * 1000; pull.dy = dy; pull.t = e.timeStamp;
+    if (dy > BREAK()) { pull.broke = true; unplug(pull.v); } else go(pull.top + rubber(Math.max(0, dy)));
+  }, {passive: false});
+  const end = () => { if (pull?.manual && Math.abs(pull.v) > 60) coast(pull.v); else if (pull?.on && !pull.broke) spring(pull.top); pull = null; };
+  addEventListener("touchend", end); addEventListener("touchcancel", end);
+
+  // the same for a wheel or trackpad on a narrow window; a gap in the wheel stream ends a gesture
+  let wheel = null, wIdle;
+  addEventListener("wheel", e => {
+    if (!phone()) return;
+    const gap = () => { clearTimeout(wIdle); wIdle = setTimeout(() => { if (wheel?.on && !wheel.broke) spring(wheel.top); wheel = null; hold = false; }, 160); };
+    if (hold || wheel?.broke) { e.preventDefault(); return gap(); }   // swallow the rest of a stopping or unplugging swipe
+    if (busy && !wheel) { e.preventDefault(); return; }               // no wheel scrolling under a spring
+    if (!wheel) {
+      const top = playTop();
+      if (!locked()) {   // toward the demo from above: stop on it
+        if (e.deltaY > 0 && scrollY < top && scrollY + e.deltaY >= top) { e.preventDefault(); go(top); hold = true; gap(); }
+        return;
+      }
+      if (e.deltaY <= 0) return;   // upward: native scroll
+      wheel = {top: scrollY, dy: 0, on: true}; busy = true;
+    }
+    e.preventDefault(); gap();
+    wheel.dy = Math.max(0, wheel.dy + e.deltaY);
+    if (wheel.dy > BREAK()) { wheel.broke = true; unplug(0); } else go(wheel.top + rubber(wheel.dy));
+  }, {passive: false});
 
   play.addEventListener("click", e => { const k = e.target.closest(".pk"); if (k) act(k.dataset.s); });
   let inView = false;
@@ -1108,7 +1260,7 @@ const V3 = THREE.Vector3;
 const stage = document.getElementById("stage"), cv = document.getElementById("band3d");
 const still = matchMedia("(prefers-reduced-motion: reduce)").matches;
 const R = new THREE.WebGLRenderer({canvas: cv, antialias: true, alpha: true});   // throws without WebGL: the SVG stays
-R.setPixelRatio(Math.min(devicePixelRatio || 1, 2));
+R.setPixelRatio(Math.min(devicePixelRatio || 1, matchMedia("(pointer: coarse)").matches ? 1.5 : 2));
 R.toneMapping = THREE.ACESFilmicToneMapping; R.toneMappingExposure = 1;
 R.shadowMap.enabled = true; R.shadowMap.type = THREE.PCFSoftShadowMap;
 
@@ -1375,7 +1527,7 @@ function hover(e) {
 const modeBtns = [...stage.querySelectorAll(".hero-ctl button")];
 modeBtns.forEach(b => b.addEventListener("click", () => { modeBtns.forEach(x => x.classList.toggle("on", x === b)); mode(b.dataset.m); }));
 cv.addEventListener("pointermove", hover); cv.addEventListener("pointerleave", () => { tip.style.opacity = 0; light(null); });
-cv.addEventListener("pointercancel", release); cv.addEventListener("pointercancel", release);
+cv.addEventListener("pointercancel", release);
 new IntersectionObserver(([e]) => { visible = e.isIntersecting; go(); }).observe(stage);
 function frame(now) {
   queued = false;
@@ -1403,7 +1555,7 @@ const K = window.KIT, stage = document.getElementById("kitStage"), cv = document
 const {BW, BH, BT, LID, FLOOR, ZB, ZT, TOP} = K.dims;
 const still = matchMedia("(prefers-reduced-motion: reduce)").matches;
 const R = new THREE.WebGLRenderer({canvas: cv, antialias: true, alpha: true});   // throws without WebGL: the board photo stays
-R.setPixelRatio(Math.min(devicePixelRatio || 1, 2));
+R.setPixelRatio(Math.min(devicePixelRatio || 1, matchMedia("(pointer: coarse)").matches ? 1.5 : 2));
 R.toneMapping = THREE.ACESFilmicToneMapping;
 R.shadowMap.enabled = true; R.shadowMap.type = THREE.PCFSoftShadowMap;
 stage.classList.add("live");
