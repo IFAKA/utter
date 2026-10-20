@@ -1,6 +1,6 @@
 """Emulates an Utter board over UDP (same protocol as firmware) for hardware-free testing.
 
-Extra emulator-only control command: {"cmd":"sim_cue","label":"ka"} injects that token
+Extra emulator-only control command: {"cmd":"sim_cue","label":"tongue_up"} injects that token
 ~0.35 s later, so the recording game, training and live engine can be tested end to end.
 """
 from __future__ import annotations

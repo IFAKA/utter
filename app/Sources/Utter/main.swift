@@ -136,8 +136,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     func refreshUI() {
         guard let d = decoder else { return }
         let codeStr = d.code.map { String($0 + 1) }.joined()
-        status.button?.title = permission != nil ? "◉ allow? ya / sha"
-            : !draft.isEmpty ? "✎ \(draft.joined(separator: " ").suffix(30)) · ya / sha"
+        status.button?.title = permission != nil ? "◉ allow? accept / back"
+            : !draft.isEmpty ? "✎ \(draft.joined(separator: " ").suffix(30)) · accept / back"
             : d.armed ? "◉ \(codeStr.isEmpty ? "" : codeStr + " ")\(d.current ?? "")" : "○"
         let menu = NSMenu()
         menu.addItem(withTitle: d.armed ? "Armed: say WAKE to pause" : "Paused: say WAKE to start", action: nil, keyEquivalent: "")
@@ -245,7 +245,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     func permissionAsked(_ text: String, id: String? = nil, port: UInt16? = nil) {
         permission = (text, id, port)
         lastStatus = "permission: \(text.prefix(60))"
-        say("\(text). Ya to allow, sha to deny.")
+        say("\(text). Accept to allow, back to deny.")
         refreshUI()
     }
 
@@ -309,7 +309,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                 guard sure(conf, "allow?") else { break }
                 permission = nil; answer(p, allow: true); say("allowed")
             case .back: permission = nil; voice.earcon(a); answer(p, allow: false); say("denied")
-            default: say("\(p.text). Ya to allow, sha to deny.")
+            default: say("\(p.text). Accept to allow, back to deny.")
             }
             refreshUI()
             return

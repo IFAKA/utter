@@ -53,8 +53,8 @@ def run(board: Board, minutes: float = 12.0, labels: list[str] | None = None, fa
     board.start(fs=fs, gain=gain)
     board.wait_samples(2 * fs)
     con.print(f"[bold]Recording[/] {len(order)} prompts, ~{minutes:.0f} min, rounds of {round_len}. "
-              "Lips closed; say each word [bold]silently[/] once after the tick.")
-    say("Recording starts. Lips closed. Say each word silently after the tick.")
+              "Lips closed; after the tick do each one once: a tongue or jaw move, or a syllable shaped [bold]silently[/].")
+    say("Recording starts. Keep your lips closed. After the tick, do each one once, silently.")
     events = []
     with Progress(TextColumn("{task.description}"), BarColumn(), TextColumn("{task.completed}/{task.total}"),
                   console=con) as prog:
@@ -65,7 +65,7 @@ def run(board: Board, minutes: float = 12.0, labels: list[str] | None = None, fa
                 say(f"Nice. Round {i // round_len} of {len(order) // round_len} done. Short break.")
                 time.sleep(12)
                 say("Next round.")
-            prompt = REST_PROMPTS.get(lab, lab)
+            prompt = REST_PROMPTS.get(lab) or P.load_tokens().get("prompts", {}).get(lab, lab)
             prog.update(task, description=f"[bold cyan]{prompt:^16}")
             say(prompt)
             time.sleep(0.25)

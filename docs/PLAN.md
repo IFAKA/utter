@@ -9,7 +9,7 @@ Key facts (sources in docs/SOURCES.md):
 0. Software only, EUR 0: Mac input-method app, LLM suggestions, earbud voice, keyboard-as-fake-sensor with injected errors; train on Gaddy dataset (Zenodo 4064409). Gate: type a sentence at 80% simulated accuracy; model near published results.
 0.5. Signal check before buying the board (research pass 2026-10-19, see below). Gate: user decides between (a) order Utter, (b) EUR ~130 Cyton clone pilot first, using the lips-closed vs mouthed comparison.
 1. Hardware (~EUR 225-255): own Utter board, 2x ADS1298 = 16 ch + ESP32-S3, battery only, JLC-assembled (docs/HARDWARE.md, order card docs/ORDER.md). Gate: shorted-input noise ~<1 uV; clear jaw-clench signal.
-2. Record ~16 candidate tokens + rest class, ~100 reps each; keep 8 least confusable. Gate: >80% with lips closed. Fail -> more articulation, then wristband fallback (Meta, Nature 2025).
+2. Record the 16 lips-closed candidates (tongue/jaw gestures + silent syllables, see "Command set for lips closed") + rest class, ~100 reps each; keep 8 least confusable. Gate: >80% with lips closed. Fail -> more articulation, then wristband fallback (Meta, Nature 2025).
 3. Connect neckband to app: type in any app by mouthing words.
 4. Hide: same layout on a velcro textile band with dry snap electrodes (SilentWear), 3-minute calibration. Gate: still >80%, within ~5 points of gel.
 5. Improve: more tokens, speed, Android.
@@ -259,6 +259,17 @@ Same LSTM (1.44 MB int8), retrained on 463k plain-English sentences from coding 
 
 - In simple words: when the agent asks the same thing in other words, your old reply now usually shows up anyway, which halves the work. Caveats: the 0.45 threshold was picked on these same 25 rewordings, so the real gain will be somewhat lower; and with hundreds of remembered replies, wrong offers will be more common than here. Embeddings need Ollama (they are off with the offline model and in the demo). How often a real user repeats replies decides how much any of this is worth: only daily use can tell.
 - The demo site (`docs/demo.html`) now runs the same offline model in the browser (`assets/lm.js`, identical predictions to the Swift one) without the 137 MB download, and the same reply memory in `localStorage`, with a "Forget" link.
+
+## Command set for lips closed (2026-10-21)
+The first candidates (ka ta la ga na ya sha ree too kee tik dog lulu chee ung eek) had no written basis, and several need visible lips (sha, too, dog, lulu, chee, eek). Silent speech has no voicing, so ka/ga were one movement. Evidence found:
+- Tongue gestures inside a closed mouth are the best-proven discrete input: 6 motions (up, down, left, right, forward, swallow) at 95.1% from suprahyoid sEMG under the jaw, 5 adults (Sasaki et al., ROBOMECH J. 2016, doi:10.1186/s40648-016-0048-0); TongueSee 6 gestures 94.2% with a preamble for low false positives (CHI 2014, doi:10.1145/2556288.2556981); tongue left/right/up + jaw opening + clenching 92.0%, 72.8% after an electrode shift, 90.4% when trained over several positions and days (Mech. Eng. J. 2019, doaj c0dce470acf14d06917fb1d539f06331).
+- Silent words on a neckband: SilentWear 77.5% within a day, 59.3% across days, 8 words, short commands worst; mouthing protocol not stated (arXiv 2603.02847). Internal articulation without visible movement: AlterEgo 92% median on digits, with face/jaw electrodes (IUI 2018).
+- Decision: 16 candidates = 7 lips-closed tongue/jaw gestures (tongue up/down/left/right/push, jaw drop, clench) + 9 silent syllables with no lip action (ka ta la na sa ya ree ung tha). Recording keeps the 8 the band separates best (`train.pick_tokens`) and maps the costly actions to the least-confused ones (`train.assign_actions`). Swallow and chew stay in the rest class: people swallow often, so they must never trigger.
+- Defaults until a user's first recording: G1-G4 tongue up/down/left/right, NEXT tongue push, ACCEPT ka, BACK jaw drop, WAKE clench.
+- Gap: the proven tongue results read the suprahyoid muscles under the jaw; our band reads the infrahyoid muscles and SCM (after SilentWear). Whether the neckband sees tongue gestures as well is unproven. Test at the gel signal-ceiling session: record the 16 candidates with the standard layout and with one row moved under the chin, compare `pick_tokens` accuracy.
+
+### Letter groups: alphabetical split kept (2026-10-21)
+Gong & Tarasewich (CHI 2005, doi:10.1145/1054972.1055002) found optimized alphabetical groupings close to unconstrained ones and easier to learn, so only split points were searched. All 2,300 alphabetical 4-way splits scored on the 20k word list without context: the best (abcde/fghijkl/mnopqr/stuvwxyz) saves 0.03 NEXT per word (0.445 -> 0.417). With the word model (`st-gate`, fresh and chat corpora) the top three splits are within 1% of the current one at 100% token accuracy and equal or worse at 80% (fresh 9.63 gestures/word now vs 10.31-12.53). The language model already resolves the ambiguity; abcdef/ghijklm/nopqrs/tuvwxyz stays.
 
 ## What we took from pulp-bio (2026-10-20)
 Reviewed: SilentWear (dataset + code), BioGAP-Ultra hardware (the SilentWear system diagram), TinyProbe, BioFoundation.
