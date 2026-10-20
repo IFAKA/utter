@@ -48,6 +48,7 @@ def test_offline_and_live_agree(sessions):
         elif ev["label"] in dataset.REST_LABELS:
             false += bool(got)
     assert hits / n > 0.75
+    assert rec.notices.count("too_fast") <= n // 10  # one gesture must not read as two
     assert false <= 2
 
 

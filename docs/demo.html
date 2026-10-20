@@ -373,6 +373,8 @@
   .play:not(.on) .caret { display:none; }
   .pfield .miss { color:#ff3b30; letter-spacing:.1em; }
   .pear { padding:4px 20px 12px; font-size:12px; font-weight:600; letter-spacing:.04em; text-transform:uppercase; color:var(--mute); }
+  .pear { position:relative; }
+  .pear .beat { position:absolute; left:20px; right:20px; bottom:6px; height:2px; border-radius:1px; background:var(--sig); transform:scaleX(0); transform-origin:left; opacity:.8; }
   .pear i { font:500 15px var(--sans); text-transform:none; letter-spacing:0; font-style:normal; color:#0f8f7e; margin-left:8px; }
   .play .pad { padding:8px 6px 22px; gap:6px; }
   .play .pk { position:relative; padding:11px 0 9px; cursor:pointer; user-select:none; -webkit-user-select:none; }
@@ -563,7 +565,7 @@
     <div>
       <div class="eyebrow">Try it</div>
       <h2>Your keyboard<br>is the band.</h2>
-      <p class="lede" style="margin-top:20px">Each key stands in for one silent syllable. It's the product's real decoder and word list, running in your browser. A key never misses, so the speed below counts each syllable at the band's pace instead of your typing pace.</p>
+      <p class="lede" style="margin-top:20px">Each key stands in for one silent syllable. It's the product's real decoder and word list, running in your browser. Keys run at the band's pace: it reads each syllable for 0.9 s, answers in your ear, then rests 0.5 s. Go when the voice stops. Too early and it says “too fast”; a key during the rest waits its turn.</p>
       <ol class="howto">
         <li><kbd>Space</kbd> <b>ree</b> starts listening.</li>
         <li><kbd>A</kbd> <kbd>S</kbd> <kbd>D</kbd> <kbd>F</kbd> pick the group of each letter: <b>ka</b> abcdef, <b>ta</b> ghijklm, <b>la</b> nopqrs, <b>ga</b> tuvwxyz.</li>
@@ -572,7 +574,7 @@
       <div class="aibox">
         <small>Word guesses come from Utter's own 1.4 MB word model, the same one the app runs offline. It loads with this page and runs on your device.</small>
         <small id="memTxt"></small>
-        <label class="pacc"><input type="checkbox" id="pAcc"> Mishear 1 syllable in 4, like the band does today</label>
+        <label class="pacc"><input type="checkbox" id="pAcc"> Mishear 1 syllable in 4, like the band does today. Unsure ones come back as “again?”, and an unsure Send asks “send?” first.</label>
         <div class="pstats" id="pStats"></div>
       </div>
     </div>
@@ -581,7 +583,7 @@
       <div class="pmsgs" id="pMsgs"></div>
       <div class="cands" id="pC"></div>
       <div class="pfield" id="pF"></div>
-      <div class="pear"><span>In your ear</span><i id="pEar">–</i></div>
+      <div class="pear"><span>In your ear</span><i id="pEar">–</i><b class="beat" id="pBeat"></b></div>
       <div id="pPad"></div>
     </div>
   </div>
@@ -742,7 +744,8 @@ class Clock {
 const lerp = (a, b, p) => a + (b - a) * p;
 
 /* ---------------- moments ---------------- */
-const STEP = 1700;
+// Paced like the band: a syllable is said at +300 ms, read for 900 ms, answered in the ear, then a 500 ms pause.
+const STEP = 1700, HEARD = 1200;
 const SCRIPTS = [
   { kind: "phone", who: "Marta", incoming: "still coming tonight?", reply: "no worries, see you 🙂",
     steps: [
@@ -750,6 +753,7 @@ const SCRIPTS = [
       {you: "ya", type: "yes ", ear: "I'm?", c: ["i'm", "see", "will"]},
       {you: "ta", miss: "la", code: "g–m", ear: "good?", c: ["good", "got", "home"]},
       {you: "sha", ear: "I'm?", c: ["i'm", "see", "will"]},
+      {you: "la", unsure: true, ear: "again?"},
       {you: "la", code: "n–s", ear: "really?", c: ["really", "running", "right"]},
       {you: "ga", code: "n–s t–z", ear: "running?", c: ["running", "run", "rush"]},
       {you: "ya", type: "running ", ear: "late?", c: ["late", "behind", "now"]},
@@ -778,7 +782,7 @@ const SCRIPTS = [
 ];
 const plain = s => s.replace(/[^\w\s?'!.,]/g, "").trim();
 // What each silent syllable did, shown under it in the "You, silently" caption.
-const act = st => st.you === "ree" ? "start listening" : st.send ? "send" : st.type ? `accept “${st.type.trim()}”`
+const act = st => st.unsure ? "the band wasn't sure, so it asks again" : st.you === "ree" ? "start listening" : st.send ? "send" : st.type ? `accept “${st.type.trim()}”`
   : st.miss ? `meant ${st.miss}, the band heard ${st.you}` : st.you === "sha" ? "undo" : st.you === "na" ? `next guess “${st.c[st.sel]}”`
   : st.code ? `one of ${LET[st.you]} → best guess “${st.c[0].slice(0, st.code.split(" ").length)}”` : "";
 const LET = {ka: "abcdef", ta: "ghijklm", la: "nopqrs", ga: "tuvwxyz"};
@@ -842,15 +846,18 @@ function makeMoment(el, S) {
     for (const st of S.steps) {
       swap(you, `${st.you}<small>${act(st)}</small>`, t);
       press(st.you, t + 300);
-      if (st.you === "ree") C.at(t + 820, () => arm(true));
-      if (st.send) {
-        C.at(t + 650, () => { const m = typed; typed = ""; code = ""; comp = ""; render();
+      if (st.you === "ree") C.at(t + HEARD, () => arm(true));
+      if (st.unsure) {
+        swap(ear, `“${st.ear}”`, t + HEARD);
+        t += STEP;
+      } else if (st.send) {
+        C.at(t + HEARD, () => { const m = typed; typed = ""; code = ""; comp = ""; render();
           S.kind === "phone" ? bubble("out", m, C.t) : line("u", m, C.t); });
-        swap(ear, `“${st.ear}”`, t + 650);
-        t += 1200;
+        swap(ear, `“${st.ear}”`, t + HEARD);
+        t += STEP;
       } else {
-        C.at(t + 650, () => { code = st.code || ""; if (st.type) typed += st.type; comp = code ? `<u class="comp">${st.c[st.sel || 0].slice(0, code.split(" ").length)}</u>` : ""; render(st.c, st.sel); });
-        swap(ear, `“${st.ear}”`, t + 650);
+        C.at(t + HEARD, () => { code = st.code || ""; if (st.type) typed += st.type; comp = code ? `<u class="comp">${st.c[st.sel || 0].slice(0, code.split(" ").length)}</u>` : ""; render(st.c, st.sel); });
+        swap(ear, `“${st.ear}”`, t + HEARD);
         t += STEP;
       }
     }
@@ -872,17 +879,17 @@ function makeMoment(el, S) {
       swap(ear, "“Run pytest? Say ya to allow.”", t + 200);
       swap(you, "ya<small>allow</small>", t + 1900);
       press("ya", t + 2200);
-      C.at(t + 2550, () => { q(".perm").remove(); line("tool", "Bash(pytest -q)", C.t); });
-      swap(ear, "“allowed”", t + 2550);
-      C.at(t + 3300, () => line("sub2", "24 passed in 1.84s", C.t));
-      C.at(t + 3900, () => line("ok", "Fixed: the expiry check compared a naive time with a UTC time.", C.t));
-      swap(you, "–", t + 3300);
-      swap(ear, "“Fixed. 24 tests pass.”", t + 4000);
+      C.at(t + 1900 + HEARD, () => { q(".perm").remove(); line("tool", "Bash(pytest -q)", C.t); });
+      swap(ear, "“allowed”", t + 1900 + HEARD);
+      C.at(t + 3700, () => line("sub2", "24 passed in 1.84s", C.t));
+      C.at(t + 4300, () => line("ok", "Fixed: the expiry check compared a naive time with a UTC time.", C.t));
+      swap(you, "–", t + 3700);
+      swap(ear, "“Fixed. 24 tests pass.”", t + 4400);
       t += 7500;
     }
     swap(you, "ree<small>pause listening</small>", t);
-    press("ree", t + 300); C.at(t + 820, () => arm(false));
-    swap(ear, "“paused”", t + 650);
+    press("ree", t + 300); C.at(t + HEARD, () => arm(false));
+    swap(ear, "“paused”", t + HEARD);
     t += 2200;
     C.at(t, build);  // loop
   }
@@ -1110,11 +1117,33 @@ requestAnimationFrame(frame);
     if (attach) st.text = st.text.slice(0, -1);
     st.text += s; st.typed.push({s, attach}); st.code = []; refresh(); say(current());
   }
+  // The band's pace (ml/utter/engine.py): a syllable is read for 0.9 s, then a 0.5 s rest. A key while it
+  // is still reading would blur that syllable, so it is refused with "too fast"; a key during the rest waits its turn.
+  const READ = 900, REST = 500, beat = $("pBeat");
+  let readEnd = 0, restEnd = 0, queued = null, confirming = false;
   function act(s) {
-    if (s !== "ree" && st.armed && $("pAcc").checked && Math.random() < .25) {   // the band mishears: another of the 7 syllables
-      const o = PAD.map(p => p[0]).filter(x => x !== s && x !== "ree"); s = o[Math.random() * o.length | 0];
-    }
+    const now = performance.now();
     const k = play.querySelector(`.pk[data-s="${s}"]`); k.classList.add("hit"); setTimeout(() => k.classList.remove("hit"), 180);
+    if (!st.armed && s !== "ree") return;   // paused: the band ignores everything but ree
+    if (now < readEnd) { tally(0); say("too fast"); return; }
+    if (now < restEnd) { if (queued === null) { queued = s; setTimeout(() => { const q = queued; queued = null; hear(q); }, restEnd - now); } return; }
+    hear(s);
+  }
+  function hear(s) {
+    readEnd = performance.now() + READ; restEnd = readEnd + REST;
+    beat.style.transition = "none"; beat.style.transform = "scaleX(0)"; beat.offsetWidth;
+    beat.style.transition = `transform ${READ}ms linear`; beat.style.transform = "scaleX(1)";
+    setTimeout(() => { beat.style.transition = `transform ${REST}ms linear`; beat.style.transform = "scaleX(0)"; heard(s); }, READ);
+  }
+  function heard(s) {
+    let unsure = false;
+    if (s !== "ree" && st.armed && $("pAcc").checked && Math.random() < .25) {   // the band mishears
+      if (Math.random() < .5) { tally(0); say("again?"); return; }   // unsure: below the confidence gate, so it asks
+      const o = PAD.map(p => p[0]).filter(x => x !== s && x !== "ree"); s = o[Math.random() * o.length | 0]; unsure = true;
+    }
+    if (s !== "ya") confirming = false;
+    else if (st.armed && current() === "⏎" && unsure && !confirming) { tally(0); confirming = true; say("send?"); return; }   // can't unsend: ask once
+    else confirming = false;
     if (s === "ree") { st.armed = !st.armed; if (st.armed) refresh(); else render(); say(st.armed ? "ready" : "paused"); return; }
     if (!st.armed) return;
     const cw = current(); tally(s === "ya" && cw && cw !== "." && cw !== "⏎" ? cw.split(" ").length : 0);

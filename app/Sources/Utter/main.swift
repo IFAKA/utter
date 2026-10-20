@@ -7,6 +7,9 @@
 //       (PermissionRequest hook) ACCEPT/BACK send {"id","decision":"allow"|"deny"} back to the hook;
 //       without it (Notification fallback) ACCEPT presses Return and BACK Escape.
 //   {"type":"permission_expired","id":...}  the hook gave up waiting; drop that prompt.
+// The engine also sends {"type":"notice","what":"unsure"|"too_fast"} for a command it couldn't use,
+// voiced as "again?" / "too fast" so nothing fails silently. An ACCEPT that can't be undone (send,
+// allow, a typed newline) needs p >= pAccept (default 0.85), else Utter asks "send?" and waits for a second ACCEPT.
 // `utter voice` (speak mode) sends {"type":"text","text":...}: a draft that ACCEPT sends (types it
 // + Return) and BACK undoes piece by piece. While the earbud speaks, the app tells the voice engine
 // ({"type":"tts","on":bool} to udp/47802) so it doesn't hear itself.
@@ -94,6 +97,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     var agentMessage = ""  // what the user is replying to, for the reply memory
     var permission: (text: String, id: String?, port: UInt16?)?  // pending agent permission prompt
     var draft: [String] = []  // dictated pieces (utter voice --mode speak), sent on ACCEPT
+    var confirming = false  // asked "send?"/"allow?" after an unsure irreversible ACCEPT
+    let pAccept = UserDefaults.standard.object(forKey: "pAccept") as? Double ?? 0.85
     var voice: Voice!
     var listener: NWListener?
     var lastStatus = "waiting for tokens (utter keysim / utter engine)"
@@ -102,6 +107,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     let work = DispatchQueue(label: "decoder")
 
     func applicationDidFinishLaunching(_ n: Notification) {
+        if dryRun { setvbuf(stdout, nil, _IOLBF, 0) }  // the printed actions show up live, even when piped
         status = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
         if !dryRun && !Typer.trusted(prompt: true) {
             lastStatus = "grant Accessibility: System Settings > Privacy > Accessibility"
@@ -180,7 +186,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         conn.receiveMessage { [weak self] data, _, _, err in
             if let data, let obj = try? JSONSerialization.jsonObject(with: data) as? [String: Any] {
                 if obj["type"] as? String == "token", let a = (obj["action"] as? String).flatMap(Action.init(rawValue:)) {
-                    self?.handle(a)
+                    self?.handle(a, p: obj["p"] as? Double ?? 1)
+                } else if obj["type"] as? String == "notice", let w = obj["what"] as? String {
+                    self?.notice(w)
                 } else if obj["type"] as? String == "agent", let t = obj["text"] as? String {
                     self?.agentSaid(t)
                 } else if obj["type"] as? String == "permission", let t = obj["text"] as? String {
@@ -250,6 +258,20 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         refreshUI()
     }
 
+    /// The engine heard a command it couldn't use: say so, so the user repeats it instead of guessing.
+    func notice(_ what: String) {
+        guard decoder.armed else { return }
+        say(what == "too_fast" ? "too fast" : "again?")
+    }
+
+    /// An ACCEPT that can't be undone goes through if the engine was sure, or on a second ACCEPT after `ask`.
+    func sure(_ p: Double, _ ask: String) -> Bool {
+        if p >= pAccept || confirming { confirming = false; return true }
+        confirming = true
+        say(ask)
+        return false
+    }
+
     func answer(_ p: (text: String, id: String?, port: UInt16?), allow: Bool) {
         if let id = p.id, let port = p.port {
             sendLocal(["id": id, "decision": allow ? "allow" : "deny"], port: port)
@@ -258,10 +280,14 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         }
     }
 
-    func handle(_ a: Action) {
+    func handle(_ a: Action, p conf: Double = 1) {
+        if a != .accept { confirming = false }
         if let p = permission, a != .wake, decoder.armed {
             switch a {
-            case .accept: permission = nil; voice.earcon(a); answer(p, allow: true); say("allowed")
+            case .accept:
+                voice.earcon(a)
+                guard sure(conf, "allow?") else { break }
+                permission = nil; answer(p, allow: true); say("allowed")
             case .back: permission = nil; voice.earcon(a); answer(p, allow: false); say("denied")
             default: say("\(p.text). Ya to allow, sha to deny.")
             }
@@ -271,6 +297,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         if !draft.isEmpty, a == .accept || a == .back, decoder.armed {
             voice.earcon(a)
             if a == .accept {
+                guard sure(conf, "send?") else { refreshUI(); return }
                 let text = draft.joined(separator: " ")
                 draft = []
                 work.async { [self] in remember(text) }
@@ -282,6 +309,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             }
             lastStatus = draft.isEmpty ? "draft empty" : "draft: \(draft.joined(separator: " ").prefix(60))"
             refreshUI()
+            return
+        }
+        if a == .accept, decoder.armed, decoder.current == Decoder.newline, !sure(conf, "send?") {
+            voice.earcon(a)
             return
         }
         work.async { [self] in

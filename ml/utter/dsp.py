@@ -64,12 +64,16 @@ def rest_baseline(x: np.ndarray, fs: float) -> np.ndarray:
 
 class OnsetDetector:
     """Activity score = mean of the top-3 per-channel power ratios vs rest; onset when the
-    score stays above thr for min_s. Used identically for training segmentation and live."""
+    score stays above thr for min_s. Used identically for training segmentation and live.
+    gap_s: an onset only counts after at least that much quiet, so dips inside one gesture
+    don't read as a new one (live only; 0 keeps training segmentation unchanged)."""
 
     def __init__(self, fs: float, base_ms: np.ndarray, thr: float = 4.0, min_s: float = 0.05,
-                 tau_s: float = 0.03, top: int = 3):
+                 tau_s: float = 0.03, top: int = 3, gap_s: float = 0.0):
         self.fs, self.base, self.thr, self.run = fs, np.asarray(base_ms), thr, max(1, int(min_s * fs))
         self.tau, self.top, self.state, self.count = tau_s, top, np.asarray(base_ms).copy(), 0
+        self.gap = int(gap_s * fs)
+        self.quiet = self.before = self.gap  # samples since confirmed activity / at the start of this run
 
     def score(self, x: np.ndarray) -> np.ndarray:
         ms, self.state = channel_ms(x, self.fs, self.tau, self.state)
@@ -81,7 +85,10 @@ class OnsetDetector:
         found = None
         for i, v in enumerate(self.score(x) > self.thr):
             self.count = self.count + 1 if v else 0
-            if self.count == self.run and found is None:
+            if self.count == 1:
+                self.before = self.quiet
+            self.quiet = 0 if self.count >= self.run else self.quiet + 1  # blips shorter than min_s stay "quiet"
+            if self.count == self.run and found is None and self.before >= self.gap:
                 found = i - self.run + 1
         return found
 

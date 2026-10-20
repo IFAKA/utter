@@ -24,7 +24,9 @@ class Recognizer:
         self.det: dsp.OnsetDetector | None = None
         self.warm: list[np.ndarray] = []
         self.pending = None  # onset index into self.buf
+        self.queued = None  # onset that came during the pause: read once the pause ends, not dropped
         self.hold = 0
+        self.notices: list[str] = []  # "unsure" / "too_fast" for the app to voice, drained by the caller
 
     def push(self, chunk_uv: np.ndarray) -> list[tuple[str, str, float]]:
         """Feed raw microvolt samples; returns [(label, action, p)] for completed detections."""
@@ -35,25 +37,38 @@ class Recognizer:
             self.buf = self.buf[over:]
             if self.pending is not None:
                 self.pending -= over
+            if self.queued is not None:
+                self.queued -= over
         if self.det is None:  # 2 s warm-up: filter settles, then per-channel rest baseline
             self.warm.append(y)
             if sum(len(w) for w in self.warm) >= 2 * self.fs:
                 w = np.vstack(self.warm)[int(self.fs):]
-                self.det = dsp.OnsetDetector(self.fs, dsp.rest_baseline(w, self.fs))
+                self.det = dsp.OnsetDetector(self.fs, dsp.rest_baseline(w, self.fs), gap_s=0.15)
             return []
         out = []
         on = self.det(y)
+        if on is not None:
+            at = len(self.buf) - len(y) + on
+            if self.pending is not None:
+                self.notices.append("too_fast")  # started inside the previous command's window: it blurs that one
+            elif self.hold > 0:
+                self.queued = at if self.queued is None else self.queued
+            else:
+                self.pending = at
         if self.hold > 0:
             self.hold -= len(y)
-        elif self.pending is None and on is not None:
-            self.pending = len(self.buf) - len(y) + on
+            if self.hold <= 0 and self.queued is not None:
+                self.pending, self.queued = self.queued, None
         if self.pending is not None and len(self.buf) - self.pending >= int((dsp.SEG_S - dsp.PRE_S) * self.fs):
             seg = dsp.segment(self.buf, self.fs, self.pending)
             proba = self.model.predict_proba(dsp.features(seg, self.fs, self.pairs)[None])[0]
             k = int(np.argmax(proba))
             label, p = str(self.model.classes_[k]), float(proba[k])
-            if label != "rest" and p >= self.p_min and label in self.mapping:
-                out.append((label, self.mapping[label], p))
+            if label != "rest" and label in self.mapping:
+                if p >= self.p_min:
+                    out.append((label, self.mapping[label], p))
+                else:
+                    self.notices.append("unsure")  # say "again?" rather than drop it silently
             self.pending = None
             self.hold = self.refr
         return out
@@ -66,6 +81,10 @@ def run(board: Board, model_path: Path, fs: int = 2000, gain: int = 12, fake: bo
         for label, action, p in rec.push(uv):
             print(f"{time.strftime('%H:%M:%S')} {label:>6} -> {action:<6} p={p:.2f}", flush=True)
             appbus.token(action, p, "engine")
+        for n in rec.notices:
+            print(f"{time.strftime('%H:%M:%S')} {n}", flush=True)
+            appbus.notice(n)
+        rec.notices.clear()
 
     board.listeners.append(on_chunk)
     board.start(fs=fs, gain=gain)

@@ -39,4 +39,5 @@ Safety: `start` is refused with `{"ok":false,"err":"vbus"}` while USB VBUS is pr
 
 ## Token events (to app, JSON over UDP 127.0.0.1:47800)
 `{"type":"token","action":"G1".."G4"|"NEXT"|"ACCEPT"|"BACK"|"WAKE","p":0.93,"src":"engine"|"keysim"}`
+`{"type":"notice","what":"unsure"|"too_fast"}`: a command the engine heard but couldn't use (below p_min, or started while the previous one was still being read). The app says "again?" / "too fast". An irreversible ACCEPT (send, allow, newline) with p below 0.85 asks "send?" / "allow?" and needs a second ACCEPT.
 `{"type":"status","text":"..."}`
