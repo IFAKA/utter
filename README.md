@@ -21,3 +21,11 @@ Early research. The board is designed (DRC/ERC clean) but not built or ordered. 
 
 ## License
 No license chosen yet. Word lists keep CC-BY-SA 4.0 (see above).
+
+---
+
+## Support
+
+If this project is useful to you, you can support my work:
+
+[![Support me on Ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/zfaka)
